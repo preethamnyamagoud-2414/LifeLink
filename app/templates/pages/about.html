@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% set active_page = "about" %}
+
+{% block title %}About LifeLink & Donor Eligibility Guide{% endblock %}
+
+{% block content %}
+<section class="section" style="padding: 3rem 0 5rem 0;">
+    <div class="container" style="max-width: 980px;">
+        <!-- Header -->
+        <div class="section-header" style="text-align: left; margin-bottom: 3rem;">
+            <span class="section-eyebrow">
+                <i data-lucide="info"></i> Medical Standards & Mission
+            </span>
+            <h1 class="section-title">About LifeLink & Donor Eligibility</h1>
+            <p class="section-subtitle">
+                LifeLink is dedicated to reducing preventable mortality by providing instant, 
+                transparent, and secure matching between emergency patients and voluntary blood donors.
+            </p>
+        </div>
+
+        <!-- 1. The LifeLink Mission -->
+        <div class="card" style="padding: 2.25rem; margin-bottom: 2.5rem;">
+            <h2 style="font-size: 1.35rem; color: var(--color-secondary); margin-bottom: 1rem;">
+                Our Core Healthcare Philosophy
+            </h2>
+            <p style="font-size: 0.9375rem; color: var(--color-text-muted); margin-bottom: 1rem; line-height: 1.65;">
+                Every two seconds, someone in the healthcare system requires blood. During sudden trauma, major surgery, 
+                acute anemia, or pediatric chemotherapy, the difference between life and death is measured in minutes. 
+                Traditional blood banks often face localized inventory imbalances, and family members are left making 
+                desperate calls.
+            </p>
+            <p style="font-size: 0.9375rem; color: var(--color-text-muted); line-height: 1.65;">
+                LifeLink transforms emergency blood logistics by utilizing a decentralized, real-time registry of voluntary 
+                donors who keep their availability updated. Through automated ABO/Rh compatibility triage, 
+                we ensure the right donor is notified for the right patient without delay.
+            </p>
+        </div>
+
+        <!-- 2. Interactive Eligibility Checklist -->
+        <div class="card" style="padding: 2.25rem; margin-bottom: 2.5rem; border-left: 6px solid var(--color-primary);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+                <div>
+                    <h2 style="font-size: 1.35rem; color: var(--color-secondary); margin-bottom: 0.25rem;">
+                        Can You Donate Blood Today?
+                    </h2>
+                    <p style="font-size: 0.875rem; color: var(--color-text-subtle);">
+                        Interactive 4-point medical pre-screening checklist.
+                    </p>
+                </div>
+                <span class="badge badge-success"><i data-lucide="shield-check"></i> Standard Clinical Protocol</span>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem;">
+                <label style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer;">
+                    <input type="checkbox" id="checkAge" checked style="margin-top: 0.3rem; accent-color: var(--color-primary);">
+                    <div>
+                        <strong style="color: var(--color-secondary); font-size: 0.9375rem;">Age Criterion:</strong>
+                        <div style="font-size: 0.8125rem; color: var(--color-text-muted);">You are between 18 and 65 years of age.</div>
+                    </div>
+                </label>
+
+                <label style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer;">
+                    <input type="checkbox" id="checkWeight" checked style="margin-top: 0.3rem; accent-color: var(--color-primary);">
+                    <div>
+                        <strong style="color: var(--color-secondary); font-size: 0.9375rem;">Weight Criterion:</strong>
+                        <div style="font-size: 0.8125rem; color: var(--color-text-muted);">Your body weight is at least 45 kg (or 50 kg for high-volume units).</div>
+                    </div>
+                </label>
+
+                <label style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer;">
+                    <input type="checkbox" id="checkInterval" checked style="margin-top: 0.3rem; accent-color: var(--color-primary);">
+                    <div>
+                        <strong style="color: var(--color-secondary); font-size: 0.9375rem;">Cooldown Period (90 Days):</strong>
+                        <div style="font-size: 0.8125rem; color: var(--color-text-muted);">At least 90 days have elapsed since your last whole blood donation (sufficient iron recovery).</div>
+                    </div>
+                </label>
+
+                <label style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer;">
+                    <input type="checkbox" id="checkHealth" checked style="margin-top: 0.3rem; accent-color: var(--color-primary);">
+                    <div>
+                        <strong style="color: var(--color-secondary); font-size: 0.9375rem;">General Well-being:</strong>
+                        <div style="font-size: 0.8125rem; color: var(--color-text-muted);">You have no active fever, acute infection, or major recent surgery, and feel healthy today.</div>
+                    </div>
+                </label>
+            </div>
+
+            <div style="background-color: var(--color-bg-subtle); padding: 1rem 1.25rem; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                <div style="font-size: 0.875rem; color: var(--color-text-muted);">
+                    Passed all 4 criteria? You are clinically prepared to register as an active lifesaver!
+                </div>
+                <a href="/dashboard" class="btn btn-primary btn-sm">
+                    <i data-lucide="check"></i> Register as Donor
+                </a>
+            </div>
+        </div>
+
+        <!-- 3. Blood Compatibility Matrix Table -->
+        <div class="card" style="padding: 2.25rem;">
+            <h2 style="font-size: 1.35rem; color: var(--color-secondary); margin-bottom: 0.5rem;">
+                ABO & Rh Transfusion Compatibility Chart
+            </h2>
+            <p style="font-size: 0.875rem; color: var(--color-text-subtle); margin-bottom: 1.5rem;">
+                Red cell compatibility guidelines implemented in LifeLink's matching engine.
+            </p>
+
+            <div class="table-wrapper" style="border: 1px solid var(--color-border);">
+                <table class="table" style="text-align: center;">
+                    <thead>
+                        <tr>
+                            <th style="text-align: left;">Recipient Blood Group</th>
+                            <th>Can Receive Red Cells From:</th>
+                            <th>Universal Biological Category</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="text-align: left;"><strong>O- Negative</strong></td>
+                            <td><span class="badge badge-critical">O-</span></td>
+                            <td><span class="badge badge-critical">Universal Donor Type</span></td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;"><strong>O+ Positive</strong></td>
+                            <td><span class="badge badge-neutral">O+, O-</span></td>
+                            <td>Highest Transfusion Frequency</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;"><strong>A- Negative</strong></td>
+                            <td><span class="badge badge-neutral">A-, O-</span></td>
+                            <td>Rare Rh Negative</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;"><strong>A+ Positive</strong></td>
+                            <td><span class="badge badge-neutral">A+, A-, O+, O-</span></td>
+                            <td>Standard Group</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;"><strong>B- Negative</strong></td>
+                            <td><span class="badge badge-neutral">B-, O-</span></td>
+                            <td>Rare Rh Negative</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;"><strong>B+ Positive</strong></td>
+                            <td><span class="badge badge-neutral">B+, B-, O+, O-</span></td>
+                            <td>Standard Group</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;"><strong>AB- Negative</strong></td>
+                            <td><span class="badge badge-neutral">AB-, A-, B-, O-</span></td>
+                            <td>Universal Plasma Donor</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;"><strong>AB+ Positive</strong></td>
+                            <td><span class="badge badge-success">All 8 Blood Groups</span></td>
+                            <td><span class="badge badge-success">Universal Recipient</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

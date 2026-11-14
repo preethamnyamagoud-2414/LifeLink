@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import urllib.parse
 import traceback
 
 # Ensure repository root is on sys.path
@@ -28,26 +29,23 @@ class VercelWSGIHandler:
             start_response("500 Internal Server Error", [("Content-Type", "text/plain; charset=utf-8")])
             return [f"=== LIFELINK APPLICATION INITIALIZATION ERROR ===\n\n{import_error}".encode("utf-8")]
 
-        # Diagnostic file & environment inspection endpoint
-        if "list_files=1" in environ.get("QUERY_STRING", ""):
-            tree = []
-            for r, dirs, files in os.walk("/var/task"):
-                for f in files:
-                    # skip .git or large wheels
-                    if not any(ign in r for ign in [".git", "__pycache__"]):
-                        tree.append(os.path.join(r, f))
-            resp_obj = {
-                "raw_path_info": environ.get("PATH_INFO"),
-                "raw_query_string": environ.get("QUERY_STRING"),
-                "all_headers": {k: str(v) for k, v in environ.items() if not any(s in k.upper() for s in ["KEY", "PASS", "SECRET", "TOKEN", "AUTH"])},
-                "task_files": tree
-            }
-            start_response("200 OK", [("Content-Type", "application/json; charset=utf-8")])
-            return [json.dumps(resp_obj, indent=2).encode("utf-8")]
-
-        try:
-            # Handle Vercel internal rewrites:
-            # Vercel passes the original requested path in HTTP headers
+        # Handle Vercel internal rewrites:
+        # 1. Check for path captured via vercel.json rewrite query parameter: ?__path__=...
+        query_string = environ.get("QUERY_STRING", "")
+        if "__path__=" in query_string:
+            qs_dict = urllib.parse.parse_qs(query_string, keep_blank_values=True)
+            custom_path = qs_dict.pop("__path__", [None])[0]
+            if custom_path:
+                if not custom_path.startswith("/"):
+                    custom_path = "/" + custom_path
+                environ["PATH_INFO"] = custom_path
+                # Reconstruct query string without internal routing parameter
+                clean_query = urllib.parse.urlencode([
+                    (k, v) for k, vals in qs_dict.items() for v in vals
+                ])
+                environ["QUERY_STRING"] = clean_query
+        else:
+            # Fallback to standard Vercel headers if present
             matched_path = (
                 environ.get("HTTP_X_MATCHED_PATH")
                 or environ.get("HTTP_X_VERCEL_MATCHED_PATH")
@@ -61,6 +59,7 @@ class VercelWSGIHandler:
             elif path_info in ("/api/index", "/api/index.py", "/api", "/api/"):
                 environ["PATH_INFO"] = "/"
 
+        try:
             return self.wsgi_app(environ, start_response)
         except Exception as exc:
             err_tb = traceback.format_exc()

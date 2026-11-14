@@ -116,7 +116,7 @@ def index():
         stats = Donor.get_aggregate_stats()
 
     return render_template(
-        "public/index.html",
+        ["pages/index.html", "public/index.html"],
         active_requests=active_requests,
         stats=stats
     )
@@ -175,7 +175,7 @@ def find_donors():
         })
 
     return render_template(
-        "public/search.html",
+        ["pages/search.html", "public/search.html"],
         donors=donors,
         selected_blood_group=blood_group or "ALL",
         selected_location=location,
@@ -222,7 +222,7 @@ def contact_donor_request():
 @public_bp.route("/about")
 def about():
     """Renders about page, interactive eligibility guide, and compatibility matrix."""
-    return render_template("public/about.html")
+    return render_template(["pages/about.html", "public/about.html"])
 
 
 @public_bp.route("/dashboard")
@@ -295,4 +295,4 @@ def contact():
 
         return redirect(url_for("public.contact"))
 
-    return render_template("public/about.html")
+    return render_template(["pages/about.html", "public/about.html"])
