@@ -165,13 +165,7 @@ def create_app(config_name: str = None) -> Flask:
 
     @app.errorhandler(500)
     def handle_server_error(error):
-        import traceback
-        from flask import request
-        tb = traceback.format_exc()
-        logger.error(f"Internal Server Error: {error}\n{tb}", exc_info=True)
-        if request.args.get("debug") == "1" or os.getenv("SHOW_ERRORS") == "1":
-            env_debug = "\n".join(f"{k}: {v}" for k, v in sorted(request.environ.items()) if not any(s in k.upper() for s in ["KEY", "PASS", "SECRET", "TOKEN", "AUTH"]))
-            return f"<pre>=== 500 INTERNAL SERVER ERROR ===\n\n{tb}\n\nError: {error}\n\n=== WSGI ENVIRON ===\n\n{env_debug}</pre>", 500
+        logger.error(f"Internal Server Error: {error}", exc_info=True)
         return render_template("errors/500.html"), 500
 
     logger.info(f"LifeLink Flask Application initialized [Config: {config_name}] with Blueprints: {list(app.blueprints.keys())}")
