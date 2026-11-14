@@ -6,7 +6,7 @@ attaches CSRF protection middleware, registers context processors, and mounts bl
 
 import os
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from flask import Flask, jsonify, render_template
 
 from app.config import config_by_name
@@ -33,10 +33,11 @@ def create_app(config_name: str = None) -> Flask:
     if config_name is None:
         config_name = os.getenv("FLASK_ENV", "development").lower()
 
+    base_dir = os.path.dirname(os.path.abspath(__file__))
     app = Flask(
         __name__,
-        template_folder="templates",
-        static_folder="static"
+        template_folder=os.path.join(base_dir, "templates"),
+        static_folder=os.path.join(base_dir, "static")
     )
 
     # 1. Load configuration
@@ -59,7 +60,7 @@ def create_app(config_name: str = None) -> Flask:
         return {
             "app_name": app.config.get("APP_NAME", "LifeLink"),
             "app_tagline": app.config.get("APP_TAGLINE", "Smart Blood Donor Portal"),
-            "current_year": datetime.utcnow().year,
+            "current_year": datetime.now(timezone.utc).year,
             "csrf_token": generate_csrf_token,
         }
 
@@ -81,7 +82,7 @@ def create_app(config_name: str = None) -> Flask:
                 "version": db_details.get("mysql_version"),
                 "table_count": db_details.get("table_count", 0),
             },
-            "timestamp": datetime.utcnow().isoformat() + "Z"
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }), (200 if db_ok else 503)
 
     # Asset Route Compatibility for /app/static/
