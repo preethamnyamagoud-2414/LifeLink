@@ -1,0 +1,126 @@
+<!-- Modern Healthcare Navigation Bar -->
+<header class="navbar" role="banner">
+    <div class="container">
+        <!-- Brand Identity -->
+        <a href="/" class="nav-brand" aria-label="LifeLink Home">
+            <span class="nav-brand-icon">
+                <i data-lucide="droplet"></i>
+            </span>
+            <span>LifeLink</span>
+        </a>
+
+        <!-- Desktop Navigation Links -->
+        <nav aria-label="Primary Navigation">
+            <ul class="nav-links">
+                <li><a href="/" class="nav-link {% if active_page == 'home' %}active{% endif %}">Home</a></li>
+                <li><a href="/find-donors" class="nav-link {% if active_page == 'find_donors' %}active{% endif %}">Find Donors</a></li>
+                <li><a href="/track-request" class="nav-link {% if active_page == 'track_request' %}active{% endif %}">Track Request</a></li>
+                {% if session.get('user_id') %}
+                <li><a href="{{ url_for('public.general_dashboard') }}" class="nav-link {% if active_page in ['dashboard', 'donor_dashboard', 'patient_dashboard'] %}active{% endif %}">Dashboard</a></li>
+                {% endif %}
+                <li><a href="/about" class="nav-link {% if active_page == 'about' %}active{% endif %}">About Us</a></li>
+            </ul>
+        </nav>
+
+        <!-- Right Action CTAs -->
+        <div class="nav-actions">
+            <a href="/emergency-request" class="btn btn-emergency btn-sm">
+                <i data-lucide="alert-circle"></i>
+                <span>Emergency Request</span>
+            </a>
+
+            {% if session.get('user_id') %}
+                <!-- Authenticated Member State -->
+                <a href="{{ url_for('public.general_dashboard') }}" class="btn btn-outline btn-sm" title="My Dashboard">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>{{ session.get('user_name', 'Account').split(' ')[0] }}</span>
+                </a>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-outline btn-sm" title="Sign Out of LifeLink" style="border-color: rgba(220, 38, 38, 0.3); color: var(--color-critical);">
+                    <i data-lucide="log-out"></i>
+                    <span>Sign Out</span>
+                </a>
+            {% else %}
+                <!-- Anonymous Visitor State -->
+                <a href="{{ url_for('auth.login') }}" class="btn btn-outline btn-sm">
+                    <i data-lucide="log-in"></i>
+                    <span>Sign In</span>
+                </a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-sm">
+                    <i data-lucide="user-plus"></i>
+                    <span>Register</span>
+                </a>
+            {% endif %}
+        </div>
+
+        <!-- Mobile Menu Trigger -->
+        <button id="mobileMenuToggle" class="mobile-menu-toggle" type="button" aria-label="Open mobile menu" aria-expanded="false" aria-controls="mobileDrawer">
+            <i data-lucide="menu"></i>
+        </button>
+    </div>
+</header>
+
+<!-- Mobile Navigation Overlay & Sliding Drawer -->
+<div id="mobileNavOverlay" class="mobile-nav-overlay" aria-hidden="true"></div>
+<aside id="mobileDrawer" class="mobile-drawer" aria-label="Mobile Navigation" role="dialog" aria-modal="true">
+    <div class="mobile-drawer-header">
+        <a href="/" class="nav-brand">
+            <span class="nav-brand-icon"><i data-lucide="droplet"></i></span>
+            <span>LifeLink</span>
+        </a>
+        <button id="mobileDrawerClose" class="mobile-menu-toggle" type="button" aria-label="Close mobile menu">
+            <i data-lucide="x"></i>
+        </button>
+    </div>
+
+    <ul class="mobile-drawer-links">
+        <li>
+            <a href="/" class="mobile-drawer-link {% if active_page == 'home' %}active{% endif %}">
+                <i data-lucide="home"></i> Home
+            </a>
+        </li>
+        <li>
+            <a href="/find-donors" class="mobile-drawer-link {% if active_page == 'find_donors' %}active{% endif %}">
+                <i data-lucide="search"></i> Find Blood Donors
+            </a>
+        </li>
+        <li>
+            <a href="/track-request" class="mobile-drawer-link {% if active_page == 'track_request' %}active{% endif %}">
+                <i data-lucide="activity"></i> Track Blood Request
+            </a>
+        </li>
+        {% if session.get('user_id') %}
+        <li>
+            <a href="{{ url_for('public.general_dashboard') }}" class="mobile-drawer-link {% if active_page in ['dashboard', 'donor_dashboard', 'patient_dashboard'] %}active{% endif %}">
+                <i data-lucide="layout-dashboard"></i> My Dashboard
+            </a>
+        </li>
+        {% endif %}
+        <li>
+            <a href="/about" class="mobile-drawer-link {% if active_page == 'about' %}active{% endif %}">
+                <i data-lucide="info"></i> About LifeLink
+            </a>
+        </li>
+    </ul>
+
+    <div class="mobile-drawer-actions">
+        <a href="/emergency-request" class="btn btn-emergency btn-block">
+            <i data-lucide="alert-circle"></i> Emergency Request
+        </a>
+
+        {% if session.get('user_id') %}
+            <a href="{{ url_for('public.general_dashboard') }}" class="btn btn-outline btn-block">
+                <i data-lucide="user"></i> Logged in as {{ session.get('user_name') }}
+            </a>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline btn-block" style="border-color: rgba(220, 38, 38, 0.4); color: var(--color-critical);">
+                <i data-lucide="log-out"></i> Sign Out
+            </a>
+        {% else %}
+            <a href="{{ url_for('auth.login') }}" class="btn btn-outline btn-block">
+                <i data-lucide="log-in"></i> Sign In
+            </a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-block">
+                <i data-lucide="user-plus"></i> Create Account (Register)
+            </a>
+        {% endif %}
+    </div>
+</aside>

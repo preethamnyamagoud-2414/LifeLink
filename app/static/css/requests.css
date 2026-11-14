@@ -1,0 +1,429 @@
+/* ==============================================================================
+   LifeLink — Emergency Request & Tracking Page Styles
+   Styles for request submission, confirmation dialog, tracking timeline,
+   donor responses, and medical disclaimers.
+   ============================================================================== */
+
+/* ------------------------------------------------------------------------------
+   1. URGENCY SELECTION TILES
+   ------------------------------------------------------------------------------ */
+.urgency-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+@media (max-width: 640px) {
+    .urgency-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.urgency-card-option {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    display: block;
+}
+
+.urgency-card-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.urgency-tile {
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 1.15rem 1rem;
+    text-align: center;
+    background-color: var(--color-white);
+    transition: all var(--transition-fast);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+}
+
+.urgency-tile:hover {
+    border-color: var(--color-primary-200);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+.urgency-card-option input[type="radio"]:checked + .urgency-tile.critical {
+    border-color: var(--color-critical);
+    background-color: #FEF2F2;
+    box-shadow: 0 4px 14px rgba(198, 40, 40, 0.15);
+}
+
+.urgency-card-option input[type="radio"]:checked + .urgency-tile.urgent {
+    border-color: #F59E0B;
+    background-color: #FFFBEB;
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.15);
+}
+
+.urgency-card-option input[type="radio"]:checked + .urgency-tile.standard {
+    border-color: var(--color-secondary);
+    background-color: #F8FAFC;
+    box-shadow: 0 4px 14px rgba(23, 43, 77, 0.12);
+}
+
+.urgency-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--color-secondary);
+}
+
+.urgency-sub {
+    font-size: 0.75rem;
+    color: var(--color-text-subtle);
+    line-height: 1.3;
+}
+
+/* ------------------------------------------------------------------------------
+   2. CONFIRMATION REVIEW MODAL
+   ------------------------------------------------------------------------------ */
+.confirm-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+
+.confirm-modal-overlay.active {
+    display: flex;
+}
+
+.confirm-modal-card {
+    background: var(--color-white);
+    border-radius: var(--radius-xl);
+    width: 100%;
+    max-width: 620px;
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--color-border);
+    animation: modalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.confirm-modal-header {
+    padding: 1.25rem 1.75rem;
+    background: #FFF1F2;
+    border-bottom: 1px solid #FFE4E6;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.confirm-modal-header h3 {
+    margin: 0;
+    font-size: 1.15rem;
+    color: var(--color-primary-dark);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.confirm-modal-body {
+    padding: 1.75rem;
+    overflow-y: auto;
+}
+
+.confirm-summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    background-color: var(--color-bg-subtle);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+@media (max-width: 480px) {
+    .confirm-summary-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.confirm-item-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    color: var(--color-text-subtle);
+    margin-bottom: 0.2rem;
+}
+
+.confirm-item-val {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-secondary);
+}
+
+.confirm-modal-footer {
+    padding: 1.25rem 1.75rem;
+    background-color: var(--color-bg-subtle);
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+/* ------------------------------------------------------------------------------
+   3. TRACKING PAGE & TIMELINE
+   ------------------------------------------------------------------------------ */
+.track-header-card {
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 2rem;
+}
+
+.track-id-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.85rem;
+    background: var(--color-secondary);
+    color: var(--color-white);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+}
+
+/* Status Progress Stepper */
+.tracking-stepper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    margin: 2.5rem 0 1.5rem 0;
+}
+
+.tracking-stepper::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 40px;
+    right: 40px;
+    height: 3px;
+    background: var(--color-border);
+    z-index: 1;
+}
+
+.step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    flex: 1;
+}
+
+.step-bubble {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--color-white);
+    border: 3px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: var(--color-text-subtle);
+    transition: all var(--transition-normal);
+}
+
+.step-item.completed .step-bubble {
+    background: var(--color-success);
+    border-color: var(--color-success);
+    color: var(--color-white);
+}
+
+.step-item.active .step-bubble {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-white);
+    box-shadow: 0 0 0 5px rgba(198, 40, 40, 0.2);
+    animation: pulseRing 2s infinite;
+}
+
+.step-title {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-secondary);
+    margin-top: 0.65rem;
+}
+
+.step-desc {
+    font-size: 0.725rem;
+    color: var(--color-text-subtle);
+    margin-top: 0.15rem;
+}
+
+/* ------------------------------------------------------------------------------
+   4. MEDICAL ADVISORY CARD (CRITICAL SAFETY)
+   ------------------------------------------------------------------------------ */
+.medical-advisory-banner {
+    background: linear-gradient(135deg, #FEF2F2 0%, #FFF1F2 100%);
+    border: 2px solid #FCA5A5;
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+}
+
+.medical-advisory-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: #EF4444;
+    color: var(--color-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.medical-advisory-body h4 {
+    margin: 0 0 0.4rem 0;
+    color: #991B1B;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.medical-advisory-body p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: #7F1D1D;
+    line-height: 1.5;
+}
+
+.emergency-phone-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.65rem;
+    padding: 0.35rem 0.75rem;
+    background: #991B1B;
+    color: var(--color-white);
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: 0.8125rem;
+}
+
+/* ------------------------------------------------------------------------------
+   5. DONOR RESPONSES LIST
+   ------------------------------------------------------------------------------ */
+.responses-card {
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.responses-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.volunteer-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.volunteer-card {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    background-color: var(--color-white);
+    transition: all var(--transition-fast);
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 1.25rem;
+    align-items: center;
+}
+
+@media (max-width: 600px) {
+    .volunteer-card {
+        grid-template-columns: 1fr;
+    }
+}
+
+.volunteer-card:hover {
+    border-color: var(--color-primary-200);
+    box-shadow: var(--shadow-sm);
+}
+
+.volunteer-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--color-primary-50);
+    color: var(--color-primary);
+    font-weight: 700;
+    font-size: 1.15rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--color-primary-200);
+}
+
+.volunteer-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.volunteer-meta {
+    font-size: 0.8125rem;
+    color: var(--color-text-subtle);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.safeguard-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: var(--radius-pill);
+    font-size: 0.7rem;
+    font-weight: 600;
+    background-color: #FEF3C7;
+    color: #92400E;
+    border: 1px solid #FCD34D;
+}

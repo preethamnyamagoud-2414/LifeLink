@@ -1,0 +1,485 @@
+{% extends "base.html" %}
+
+{% set active_page = "donor_dashboard" %}
+
+{% block title %}Donor Portal Dashboard — LifeLink{% endblock %}
+
+{% block header %}
+    <!-- Dedicated dashboard layout suppresses default public navbar -->
+{% endblock %}
+
+{% block footer %}
+    <!-- Suppress public footer in dashboard view -->
+{% endblock %}
+
+{% block content %}
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+<div class="dashboard-container">
+    <!-- ==========================================================================
+         1. DONOR SIDEBAR NAVIGATION
+         ========================================================================== -->
+    <aside class="dashboard-sidebar" aria-label="Donor Navigation">
+        <!-- Sidebar Brand -->
+        <div class="sidebar-header">
+            <a href="/" class="sidebar-brand">
+                <span class="sidebar-brand-icon">
+                    <i data-lucide="droplet"></i>
+                </span>
+                <span>LifeLink</span>
+            </a>
+        </div>
+
+        <!-- Donor Mini Profile Card -->
+        <div class="sidebar-user-card">
+            <div class="sidebar-avatar">
+                {{ donor.full_name[:2].upper() if donor and donor.full_name else 'DO' }}
+            </div>
+            <div class="sidebar-user-details">
+                <h4>{{ donor.full_name if donor else 'Voluntary Donor' }}</h4>
+                <p>
+                    <span class="badge badge-critical" style="padding: 0.1rem 0.4rem; font-size: 0.65rem;">
+                        {{ donor.blood_group if donor else 'O-' }}
+                    </span>
+                    <span>{{ 'Verified Donor' if donor and donor.is_verified else 'Active Donor' }}</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="sidebar-nav">
+            <span class="sidebar-nav-heading">Main Navigation</span>
+            
+            <a href="{{ url_for('donor.dashboard') }}" class="sidebar-link active">
+                <div class="sidebar-link-content">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Overview</span>
+                </div>
+            </a>
+
+            <a href="/find-donors" class="sidebar-link">
+                <div class="sidebar-link-content">
+                    <i data-lucide="search"></i>
+                    <span>Find Donors</span>
+                </div>
+            </a>
+
+            <a href="#recent-requests" class="sidebar-link">
+                <div class="sidebar-link-content">
+                    <i data-lucide="alert-circle"></i>
+                    <span>Local Requests</span>
+                </div>
+                {% if requests %}
+                <span class="sidebar-badge">{{ requests|length }}</span>
+                {% endif %}
+            </a>
+
+            <a href="#responded-requests" class="sidebar-link">
+                <div class="sidebar-link-content">
+                    <i data-lucide="heart-handshake"></i>
+                    <span>My Responses</span>
+                </div>
+                {% if responded_requests %}
+                <span class="badge badge-neutral" style="font-size: 0.7rem;">{{ responded_requests|length }}</span>
+                {% endif %}
+            </a>
+
+            <a href="#notifications-section" class="sidebar-link">
+                <div class="sidebar-link-content">
+                    <i data-lucide="bell"></i>
+                    <span>Notifications</span>
+                </div>
+                {% if notifications %}
+                <span class="sidebar-badge" style="background-color: var(--color-primary);">{{ notifications|length }}</span>
+                {% endif %}
+            </a>
+
+            <span class="sidebar-nav-heading">Dual Role Switcher</span>
+            <a href="{{ url_for('patient.dashboard') }}" class="sidebar-link" style="background: rgba(37, 99, 235, 0.12); color: #93C5FD; border: 1px solid rgba(59, 130, 246, 0.25);">
+                <div class="sidebar-link-content">
+                    <i data-lucide="hospital" style="color: #60A5FA;"></i>
+                    <span>Requester Portal</span>
+                </div>
+                <span class="badge badge-standard" style="font-size: 0.625rem; padding: 0.15rem 0.4rem;">Switch</span>
+            </a>
+
+            <span class="sidebar-nav-heading">Health & Profile</span>
+
+            <a href="{{ url_for('donor.profile') }}" class="sidebar-link">
+                <div class="sidebar-link-content">
+                    <i data-lucide="user-check"></i>
+                    <span>Profile & Privacy</span>
+                </div>
+                <span style="font-size: 0.75rem; color: #10B981; font-weight: 700;">{{ profile_completion }}%</span>
+            </a>
+
+            <a href="/about" class="sidebar-link">
+                <div class="sidebar-link-content">
+                    <i data-lucide="clipboard-check"></i>
+                    <span>Eligibility Guide</span>
+                </div>
+            </a>
+        </nav>
+
+        <!-- Sidebar Footer Action -->
+        <div class="sidebar-footer">
+            <a href="{{ url_for('auth.logout') }}" class="sidebar-link" style="color: #94A3B8;">
+                <div class="sidebar-link-content">
+                    <i data-lucide="log-out"></i>
+                    <span>Sign Out</span>
+                </div>
+            </a>
+        </div>
+    </aside>
+
+    <!-- ==========================================================================
+         2. DASHBOARD MAIN CONTENT
+         ========================================================================== -->
+    <div class="dashboard-main">
+        <!-- Topbar -->
+        <header class="dashboard-topbar">
+            <div class="topbar-left">
+                <button id="sidebarToggleBtn" class="mobile-menu-toggle" type="button" aria-label="Toggle navigation menu" style="display: none;">
+                    <i data-lucide="menu"></i>
+                </button>
+                <div>
+                    <h1 class="topbar-title">Donor Control Center</h1>
+                    <span style="font-size: 0.78125rem; color: var(--color-text-subtle);">
+                        {{ donor.city if donor else 'Regional Hub' }} • {{ 'Available for Emergency Dispatch' if donor and donor.is_available else 'Resting / Cooldown' }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                <a href="/emergency-request" class="btn btn-emergency btn-sm">
+                    <i data-lucide="plus"></i> New Request
+                </a>
+
+                <a href="#notifications-section" class="topbar-btn-icon" aria-label="View notifications">
+                    <i data-lucide="bell"></i>
+                    {% if notifications %}
+                    <span class="topbar-indicator-badge"></span>
+                    {% endif %}
+                </a>
+
+                <div class="sidebar-avatar" style="width: 38px; height: 38px; font-size: 0.9rem;">
+                    {{ donor.full_name[:2].upper() if donor and donor.full_name else 'DO' }}
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Body Content -->
+        <div class="dashboard-body">
+            
+            <!-- A. DONOR HERO STATUS & AVAILABILITY CARD -->
+            <div class="donor-status-hero">
+                <div class="donor-status-left">
+                    <div class="donor-blood-symbol">
+                        {{ donor.blood_group if donor else 'O-' }}
+                    </div>
+                    <div class="donor-status-info">
+                        <h2>{{ donor.full_name if donor else 'Voluntary Donor' }}</h2>
+                        <div class="donor-status-tags">
+                            <span class="badge badge-neutral"><i data-lucide="map-pin"></i> {{ donor.city if donor else 'Central Metro' }}, {{ donor.district if donor else 'District 1' }}</span>
+                            <span class="badge badge-success"><i data-lucide="shield-check"></i> Clinically Verified</span>
+                            <span class="badge badge-neutral">Blood Type: <strong>{{ donor.blood_group if donor else 'O-' }}</strong> (Universal Red Cell Donor)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="donor-status-right">
+                    <div style="font-size: 0.8125rem; font-weight: 600; color: var(--color-text-subtle);">
+                        Emergency Availability Setting
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <span id="availabilityLabel" style="font-weight: 700; font-size: 0.95rem; color: {{ 'var(--color-success-dark)' if donor and donor.is_available else 'var(--color-text-subtle)' }};">
+                            {{ 'Available Now' if donor and donor.is_available else 'Paused / Resting' }}
+                        </span>
+                        
+                        <!-- Toggle Switch -->
+                        <label class="toggle-switch" aria-label="Toggle emergency donor availability">
+                            <input 
+                                type="checkbox" 
+                                id="donorAvailabilityToggle" 
+                                {% if donor and donor.is_available %}checked{% endif %}
+                            >
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <span style="font-size: 0.7rem; color: var(--color-text-subtle);">
+                        Toggling off temporarily pauses dispatch alerts
+                    </span>
+                </div>
+            </div>
+
+            <!-- B. METRICS & PROFILE COMPLETION ROW -->
+            <div class="dash-metrics-grid">
+                <!-- 1. Profile Completion Card -->
+                <div class="dash-metric-card" style="border-left: 4px solid var(--color-success);">
+                    <div>
+                        <div class="dash-metric-title">Profile Completion</div>
+                        <div class="dash-metric-value" style="color: var(--color-success-dark);">
+                            {{ profile_completion }}%
+                        </div>
+                        <div class="dash-metric-trend">
+                            <i data-lucide="check-circle-2"></i>
+                            <span>{{ 'Profile 100% Complete' if profile_completion == 100 else 'Complete address & preferences' }}</span>
+                        </div>
+                    </div>
+                    <div class="dash-metric-icon" style="background-color: #ECFDF5; color: #10B981;">
+                        <i data-lucide="user-check"></i>
+                    </div>
+                </div>
+
+                <!-- 2. Facilitated Donations -->
+                <div class="dash-metric-card">
+                    <div>
+                        <div class="dash-metric-title">Transfusions Facilitated</div>
+                        <div class="dash-metric-value">
+                            {{ donor.total_donations if donor else 6 }}
+                        </div>
+                        <div class="dash-metric-trend">
+                            <i data-lucide="trending-up"></i>
+                            <span>Lifesaving Track Record</span>
+                        </div>
+                    </div>
+                    <div class="dash-metric-icon">
+                        <i data-lucide="droplet"></i>
+                    </div>
+                </div>
+
+                <!-- 3. Estimated Lives Saved -->
+                <div class="dash-metric-card">
+                    <div>
+                        <div class="dash-metric-title">Lives Impacted</div>
+                        <div class="dash-metric-value" style="color: var(--color-primary);">
+                            {{ (donor.total_donations if donor else 6) * 3 }}
+                        </div>
+                        <div class="dash-metric-trend">
+                            <i data-lucide="heart"></i>
+                            <span>~3 Patients per Whole Unit</span>
+                        </div>
+                    </div>
+                    <div class="dash-metric-icon">
+                        <i data-lucide="award"></i>
+                    </div>
+                </div>
+
+                <!-- 4. Next Eligible Donation -->
+                <div class="dash-metric-card">
+                    <div>
+                        <div class="dash-metric-title">Eligibility Status</div>
+                        <div class="dash-metric-value" style="font-size: 1.35rem; color: var(--color-secondary);">
+                            {{ eligibility.get('status', 'Eligible') }}
+                        </div>
+                        <div class="dash-metric-trend" style="color: var(--color-text-subtle);">
+                            <i data-lucide="calendar"></i>
+                            <span>{{ eligibility.get('message', 'Ready to donate now') }}</span>
+                        </div>
+                    </div>
+                    <div class="dash-metric-icon">
+                        <i data-lucide="clock"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- C. RECENT BLOOD REQUESTS SECTION -->
+            <div id="recent-requests" class="card" style="box-shadow: var(--shadow-sm);">
+                <div class="card-header">
+                    <div>
+                        <h2 style="font-size: 1.25rem; color: var(--color-secondary);">Recent Blood Requests Near You</h2>
+                        <p style="font-size: 0.8125rem; color: var(--color-text-subtle);">
+                            Open requisitions matching your blood compatibility in {{ donor.city if donor else 'Central Metro' }}.
+                        </p>
+                    </div>
+                    <a href="/find-donors" class="btn btn-outline btn-sm">
+                        <i data-lucide="search"></i> Search All Requests
+                    </a>
+                </div>
+
+                {% if requests %}
+                <div class="table-wrapper" style="border: none;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Urgency</th>
+                                <th>Patient / Case</th>
+                                <th>Blood Group</th>
+                                <th>Units</th>
+                                <th>Hospital & Location</th>
+                                <th>Required By</th>
+                                <th style="text-align: right;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in requests %}
+                            <tr>
+                                <td>
+                                    {% if req.urgency_level == 'CRITICAL' %}
+                                        <span class="badge badge-critical"><span class="pulse-dot"></span> CRITICAL</span>
+                                    {% elif req.urgency_level == 'URGENT' %}
+                                        <span class="badge badge-urgent">URGENT</span>
+                                    {% else %}
+                                        <span class="badge badge-neutral">STANDARD</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div style="font-weight: 700; color: var(--color-secondary);">
+                                        {{ req.patient_name }}
+                                    </div>
+                                    <span style="font-size: 0.75rem; color: var(--color-text-subtle);">
+                                        Req #REQ-{{ "%04d" % req.id if req.id is number else req.id }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="blood-symbol-pill" style="width: 34px; height: 34px; font-size: 0.95rem; margin-bottom: 0;">
+                                        {{ req.blood_group }}
+                                    </span>
+                                </td>
+                                <td><strong>{{ req.units_needed }}</strong> Unit{{ 's' if req.units_needed > 1 else '' }}</td>
+                                <td>
+                                    <div style="font-weight: 600; color: var(--color-secondary);">
+                                        {{ req.hospital_name }}
+                                    </div>
+                                    <div style="font-size: 0.75rem; color: var(--color-text-subtle);">
+                                        <i data-lucide="map-pin" style="width: 12px; height: 12px; vertical-align: -1px;"></i>
+                                        {{ req.hospital_area ~ ', ' if req.hospital_area else '' }}{{ req.city }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <span style="font-size: 0.8125rem; font-weight: 600; color: var(--color-secondary);">
+                                        {{ req.required_date or 'Immediate' }}
+                                    </span>
+                                </td>
+                                <td style="text-align: right;">
+                                    <a href="{{ url_for('requests.track_request', request_id=req.id) }}" class="btn btn-primary btn-sm">
+                                        <i data-lucide="heart-handshake"></i> Offer Donation
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div style="text-align: center; padding: 2.5rem; background-color: var(--color-bg-subtle);">
+                    <i data-lucide="check-circle-2" style="width: 36px; height: 36px; color: var(--color-success); margin-bottom: 0.5rem;"></i>
+                    <p style="font-weight: 600; color: var(--color-secondary); margin: 0;">No active emergency blood requests in your immediate vicinity right now.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- D. REQUESTS RESPONDED TO SECTION -->
+            <div id="responded-requests" class="card" style="box-shadow: var(--shadow-sm);">
+                <div class="card-header">
+                    <div>
+                        <h2 style="font-size: 1.25rem; color: var(--color-secondary);">Requests You Have Responded To</h2>
+                        <p style="font-size: 0.8125rem; color: var(--color-text-subtle);">
+                            Transfusion cases where you have volunteered your willingness to donate.
+                        </p>
+                    </div>
+                    <span class="badge badge-neutral">{{ responded_requests|length }} Responses</span>
+                </div>
+
+                {% if responded_requests %}
+                <div class="table-wrapper" style="border: none;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Case ID</th>
+                                <th>Patient Name</th>
+                                <th>Required Group</th>
+                                <th>Hospital</th>
+                                <th>Your Volunteer Status</th>
+                                <th>Response Message</th>
+                                <th>Date</th>
+                                <th style="text-align: right;">Track Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for resp in responded_requests %}
+                            <tr>
+                                <td><strong>#REQ-{{ "%04d" % resp.request_id }}</strong></td>
+                                <td><span style="font-weight: 600; color: var(--color-secondary);">{{ resp.patient_name }}</span></td>
+                                <td><span class="badge badge-critical" style="font-size: 0.75rem;">{{ resp.request_blood_group }}</span></td>
+                                <td>{{ resp.hospital_name }} ({{ resp.hospital_city }})</td>
+                                <td>
+                                    {% if resp.status == 'ACCEPTED' %}
+                                        <span class="badge badge-success"><span class="pulse-dot"></span> Accepted & En Route</span>
+                                    {% elif resp.status == 'DONATED' %}
+                                        <span class="badge badge-success"><i data-lucide="check"></i> Donated</span>
+                                    {% else %}
+                                        <span class="badge badge-urgent"><i data-lucide="clock"></i> Interested</span>
+                                    {% endif %}
+                                </td>
+                                <td><span style="font-style: italic; font-size: 0.8125rem;">"{{ resp.message }}"</span></td>
+                                <td><span style="font-size: 0.75rem; color: var(--color-text-subtle);">{{ resp.responded_at }}</span></td>
+                                <td style="text-align: right;">
+                                    <a href="{{ url_for('requests.track_request', request_id=resp.request_id) }}" class="btn btn-outline btn-sm">
+                                        <i data-lucide="external-link"></i> Live Tracker
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div style="text-align: center; padding: 2.5rem; background-color: var(--color-bg-subtle);">
+                    <p style="color: var(--color-text-subtle); margin: 0;">You have not responded to any active requests yet. Browse the requests above to lend a helping hand.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- E. NOTIFICATIONS SECTION -->
+            <div id="notifications-section" class="card" style="box-shadow: var(--shadow-sm);">
+                <div class="card-header">
+                    <div>
+                        <h2 style="font-size: 1.25rem; color: var(--color-secondary);">Recent Alerts & Notifications</h2>
+                        <p style="font-size: 0.8125rem; color: var(--color-text-subtle);">
+                            High-priority regional broadcasts and transfusion status updates.
+                        </p>
+                    </div>
+                    <span class="badge badge-neutral"><i data-lucide="bell"></i> Alert Feed</span>
+                </div>
+
+                {% if notifications %}
+                <div style="display: flex; flex-direction: column; gap: 0.75rem; padding: 1.5rem;">
+                    {% for notif in notifications %}
+                    <div style="display: flex; align-items: flex-start; gap: 1rem; padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border); background-color: {{ '#FEF2F2' if notif.notification_type == 'EMERGENCY_ALERT' else 'var(--color-white)' }};">
+                        <div style="width: 36px; height: 36px; border-radius: 50%; background-color: {{ '#EF4444' if notif.notification_type == 'EMERGENCY_ALERT' else 'var(--color-primary-50)' }}; color: {{ '#FFFFFF' if notif.notification_type == 'EMERGENCY_ALERT' else 'var(--color-primary)' }}; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i data-lucide="{{ 'alert-octagon' if notif.notification_type == 'EMERGENCY_ALERT' else 'info' }}" style="width: 18px; height: 18px;"></i>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
+                                <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--color-secondary); margin: 0;">
+                                    {{ notif.title }}
+                                </h4>
+                                <span style="font-size: 0.725rem; color: var(--color-text-subtle);">
+                                    {{ notif.created_at }}
+                                </span>
+                            </div>
+                            <p style="font-size: 0.8125rem; color: var(--color-text-muted); margin: 0.25rem 0 0 0;">
+                                {{ notif.message }}
+                            </p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div style="text-align: center; padding: 2.5rem; background-color: var(--color-bg-subtle);">
+                    <p style="color: var(--color-text-subtle); margin: 0;">No new notifications in your inbox.</p>
+                </div>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

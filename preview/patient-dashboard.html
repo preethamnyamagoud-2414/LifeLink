@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Requester Portal — LifeLink</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/app/static/css/main.css">
+    <link rel="stylesheet" href="/app/static/css/components.css">
+    <link rel="stylesheet" href="/app/static/css/dashboard.css">
+    <link rel="stylesheet" href="/app/static/css/responsive.css">
+    <link rel="stylesheet" href="/app/static/css/app.css">
+
+    <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+    <div class="demo-disclaimer-bar" role="alert" style="background-color: #1E293B; color: #F1F5F9; font-size: 0.78125rem;">
+        <span class="demo-tag" style="background-color: var(--color-primary); color: #fff;">CRITICAL NOTICE</span>
+        <span>LifeLink facilitates voluntary blood donor coordination. For acute medical emergencies, contact hospital emergency rooms directly.</span>
+    </div>
+
+    <div class="dashboard-container">
+        <!-- SIDEBAR -->
+        <aside class="dashboard-sidebar" aria-label="Requester Navigation">
+            <div class="sidebar-header">
+                <a href="/" class="sidebar-brand">
+                    <span class="sidebar-brand-icon"><i data-lucide="droplet"></i></span>
+                    <span>LifeLink</span>
+                </a>
+            </div>
+
+            <div class="sidebar-user-card">
+                <div class="sidebar-avatar" data-user-initials style="background-color: #EFF6FF; color: #2563EB;">--</div>
+                <div class="sidebar-user-details">
+                    <h4 data-user-name>Loading...</h4>
+                    <p><span class="badge badge-neutral" style="padding: 0.1rem 0.4rem; font-size: 0.65rem;">Patient / Attendant</span></p>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <span class="sidebar-nav-heading">Main Navigation</span>
+                <a href="#top" class="sidebar-link active">
+                    <div class="sidebar-link-content"><i data-lucide="layout-dashboard"></i> <span>Dashboard</span></div>
+                </a>
+                <a href="/emergency-request" class="sidebar-link" style="color: var(--color-critical); font-weight: 600;">
+                    <div class="sidebar-link-content"><i data-lucide="plus-circle" style="color: var(--color-critical);"></i> <span>New Blood Request</span></div>
+                </a>
+                <a href="#active-requests-section" class="sidebar-link">
+                    <div class="sidebar-link-content"><i data-lucide="activity"></i> <span>Active Requests</span></div>
+                    <span class="sidebar-badge" id="navActiveCount" style="display:none;">0</span>
+                </a>
+                <a href="#donor-responses-section" class="sidebar-link">
+                    <div class="sidebar-link-content"><i data-lucide="users"></i> <span>Donor Volunteers</span></div>
+                    <span class="badge badge-neutral" id="navVolunteerCount" style="font-size: 0.7rem; display:none;">0</span>
+                </a>
+                <a href="#past-requests-section" class="sidebar-link">
+                    <div class="sidebar-link-content"><i data-lucide="archive"></i> <span>History</span></div>
+                    <span class="badge badge-neutral" id="navHistoryCount" style="font-size: 0.7rem; display:none;">0</span>
+                </a>
+
+                <span class="sidebar-nav-heading">Dual Role Switcher</span>
+                <a href="/donor/dashboard" class="sidebar-link" style="background: rgba(220, 38, 38, 0.12); color: #FCA5A5; border: 1px solid rgba(239, 68, 68, 0.25);">
+                    <div class="sidebar-link-content"><i data-lucide="droplet" style="color: var(--color-primary);"></i> <span id="donorSwitchText">Donor Portal</span></div>
+                    <span class="badge badge-critical" style="font-size: 0.625rem; padding: 0.15rem 0.4rem;">Switch</span>
+                </a>
+
+                <span class="sidebar-nav-heading">Preferences</span>
+                <a href="#profile-section" class="sidebar-link">
+                    <div class="sidebar-link-content"><i data-lucide="user-cog"></i> <span>My Profile</span></div>
+                </a>
+
+                <span class="sidebar-nav-heading">Directory &amp; Tools</span>
+                <a href="/find-donors" class="sidebar-link">
+                    <div class="sidebar-link-content"><i data-lucide="search"></i> <span>Find Donors Nearby</span></div>
+                </a>
+                <a href="/track-request" class="sidebar-link">
+                    <div class="sidebar-link-content"><i data-lucide="radio"></i> <span>Track a Request</span></div>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button type="button" data-logout class="sidebar-link" style="background: none; border: none; width: 100%; text-align: left; cursor: pointer; color: #F87171;">
+                    <div class="sidebar-link-content"><i data-lucide="log-out"></i> <span>Sign Out</span></div>
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN -->
+        <div class="dashboard-main" id="top">
+            <header class="dashboard-topbar">
+                <div class="topbar-left">
+                    <button id="sidebarToggleBtn" class="mobile-menu-toggle" type="button" aria-label="Toggle navigation menu" style="display: none;">
+                        <i data-lucide="menu"></i>
+                    </button>
+                    <div>
+                        <h1 class="topbar-title">Patient &amp; Requisition Hub</h1>
+                        <span id="topbarGreeting" style="font-size: 0.78125rem; color: var(--color-text-subtle);">Manage your blood requests and the donors who respond.</span>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <a href="/emergency-request" class="btn btn-emergency btn-sm"><i data-lucide="plus-circle"></i> Submit New Request</a>
+                    <button type="button" class="topbar-btn-icon" id="topbarBellBtn" aria-label="View notifications">
+                        <i data-lucide="bell"></i>
+                        <span class="ll-badge-dot" id="bellCount" style="display:none;">0</span>
+                    </button>
+                    <div class="sidebar-avatar" data-user-initials style="width: 38px; height: 38px; font-size: 0.9rem; background-color: #EFF6FF; color: #2563EB;">--</div>
+                </div>
+            </header>
+
+            <div class="dashboard-body">
+                <!-- HERO CALLOUT -->
+                <div style="background: linear-gradient(135deg, #FFF1F2 0%, #FFFFFF 100%); border: 2px solid #FECDD3; border-radius: var(--radius-xl); padding: 2rem 2.25rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem; box-shadow: var(--shadow-sm);">
+                    <div>
+                        <span class="badge badge-critical" style="margin-bottom: 0.5rem;"><span class="pulse-dot"></span> Emergency Requisition Portal</span>
+                        <h2 style="font-size: 1.4rem; color: var(--color-primary-dark); margin: 0 0 0.35rem 0;">Need blood urgently?</h2>
+                        <p style="font-size: 0.875rem; color: var(--color-text-muted); margin: 0; max-width: 600px;">
+                            Post a request and compatible, eligible donors near the hospital get an alert straight away. You can also search donors near you directly.
+                        </p>
+                    </div>
+                    <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+                        <a href="/find-donors" class="btn btn-outline btn-lg"><i data-lucide="map-pin"></i> Find donors near me</a>
+                        <a href="/emergency-request" class="btn btn-emergency btn-lg"><i data-lucide="alert-octagon"></i> Submit Blood Request</a>
+                    </div>
+                </div>
+
+                <!-- METRICS -->
+                <div class="dash-metrics-grid">
+                    <div class="dash-metric-card" style="border-left: 4px solid var(--color-critical);">
+                        <div>
+                            <div class="dash-metric-title">Active Requests</div>
+                            <div class="dash-metric-value" id="mActive" style="color: var(--color-critical);">0</div>
+                            <div class="dash-metric-trend"><i data-lucide="activity"></i> <span>Currently broadcast</span></div>
+                        </div>
+                        <div class="dash-metric-icon"><i data-lucide="alert-circle"></i></div>
+                    </div>
+                    <div class="dash-metric-card" style="border-left: 4px solid var(--color-success);">
+                        <div>
+                            <div class="dash-metric-title">Donor Volunteers</div>
+                            <div class="dash-metric-value" id="mVolunteers" style="color: var(--color-success-dark);">0</div>
+                            <div class="dash-metric-trend"><i data-lucide="heart-handshake"></i> <span>On active requests</span></div>
+                        </div>
+                        <div class="dash-metric-icon" style="background-color: #ECFDF5; color: #10B981;"><i data-lucide="users"></i></div>
+                    </div>
+                    <div class="dash-metric-card">
+                        <div>
+                            <div class="dash-metric-title">Fulfilled</div>
+                            <div class="dash-metric-value" id="mFulfilled">0</div>
+                            <div class="dash-metric-trend"><i data-lucide="check-circle-2"></i> <span>Moved to history</span></div>
+                        </div>
+                        <div class="dash-metric-icon"><i data-lucide="check"></i></div>
+                    </div>
+                    <div class="dash-metric-card">
+                        <div>
+                            <div class="dash-metric-title">Total Requests</div>
+                            <div class="dash-metric-value" id="mTotal">0</div>
+                            <div class="dash-metric-trend"><i data-lucide="folder"></i> <span>All time</span></div>
+                        </div>
+                        <div class="dash-metric-icon"><i data-lucide="clipboard-list"></i></div>
+                    </div>
+                </div>
+
+                <!-- ACTIVE REQUESTS -->
+                <div id="active-requests-section" class="card" style="box-shadow: var(--shadow-sm);">
+                    <div class="card-header">
+                        <div>
+                            <h2 style="font-size: 1.25rem; color: var(--color-secondary);">Your Active Blood Requests</h2>
+                            <p style="font-size: 0.8125rem; color: var(--color-text-subtle);">When the patient has received blood, click "Mark fulfilled" and the request moves to History.</p>
+                        </div>
+                        <span class="badge badge-success" id="activeBadge"><span class="pulse-dot"></span> 0 Active</span>
+                    </div>
+                    <div class="table-wrapper" style="border: none;">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Request ID</th>
+                                    <th>Patient</th>
+                                    <th>Blood</th>
+                                    <th>Units</th>
+                                    <th>Urgency</th>
+                                    <th>Hospital</th>
+                                    <th>Volunteers</th>
+                                    <th style="text-align: right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activeTbody"><tr><td colspan="8"><div class="ll-empty">Loading...</div></td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- DONOR RESPONSES -->
+                <div id="donor-responses-section" class="card" style="box-shadow: var(--shadow-sm);">
+                    <div class="card-header">
+                        <div>
+                            <h2 style="font-size: 1.25rem; color: var(--color-secondary);">Donors Who Volunteered</h2>
+                            <p style="font-size: 0.8125rem; color: var(--color-text-subtle);">Call the donor to arrange the donation. After they donate, click "Confirm donated".</p>
+                        </div>
+                        <span class="badge badge-neutral" id="volunteerBadge">0 Volunteers</span>
+                    </div>
+                    <div class="table-wrapper" style="border: none;">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Case</th>
+                                    <th>Donor</th>
+                                    <th>Blood</th>
+                                    <th>Location</th>
+                                    <th>Status</th>
+                                    <th>Message</th>
+                                    <th style="text-align: right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="responsesTbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- HISTORY -->
+                <div id="past-requests-section" class="card" style="box-shadow: var(--shadow-sm);">
+                    <div class="card-header">
+                        <div>
+                            <h2 style="font-size: 1.25rem; color: var(--color-secondary);">Request History</h2>
+                            <p style="font-size: 0.8125rem; color: var(--color-text-subtle);">Fulfilled and cancelled requests.</p>
+                        </div>
+                        <span class="badge badge-neutral" id="historyBadge">0 Archived</span>
+                    </div>
+                    <div class="table-wrapper" style="border: none;">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Case ID</th>
+                                    <th>Patient</th>
+                                    <th>Blood</th>
+                                    <th>Units</th>
+                                    <th>Hospital</th>
+                                    <th>Final Status</th>
+                                    <th>Closed On</th>
+                                    <th style="text-align: right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- PROFILE -->
+                <section id="profile-section" class="card">
+                    <div class="card-header">
+                        <div>
+                            <h2 style="font-size: 1.15rem; color: var(--color-secondary);">My Profile</h2>
+                            <p style="font-size: 0.8125rem; color: var(--color-text-subtle);">Your details used on blood requests you post.</p>
+                        </div>
+                    </div>
+                    <div id="profileCard" style="padding: 1.25rem;"></div>
+                </section>
+
+                <!-- NOTIFICATIONS -->
+                <section id="notifications-section" class="card">
+                    <div class="card-header">
+                        <div>
+                            <h2 style="font-size: 1.15rem; color: var(--color-secondary);">Notifications</h2>
+                            <p style="font-size: 0.8125rem; color: var(--color-text-subtle);">Donor responses and updates on your requests.</p>
+                        </div>
+                        <button type="button" class="btn btn-outline btn-sm" id="markAllReadBtn"><i data-lucide="check-check"></i> Mark all as read</button>
+                    </div>
+                    <div id="notificationsList" style="display: flex; flex-direction: column; gap: 0.75rem; padding: 1.25rem;"></div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <script src="/app/static/js/main.js"></script>
+    <script src="/app/static/js/api.js"></script>
+    <script src="/app/static/js/profile.js"></script>
+    <script>
+    (function () {
+        const $ = id => document.getElementById(id);
+        const state = { me: null, requests: [], responses: [] };
+
+        function badgeCount(id, n) { const el = $(id); el.textContent = n; el.style.display = n ? '' : 'none'; }
+
+        async function loadAll() {
+            const [reqs, resps] = await Promise.all([
+                LL.api('/api/requests?scope=mine'),
+                LL.api('/api/my/request-responses')
+            ]);
+            state.requests = reqs.requests;
+            state.responses = resps.responses;
+            render();
+        }
+        async function loadNotifications() {
+            const d = await LL.api('/api/notifications');
+            badgeCount('bellCount', d.unread);
+            const box = $('notificationsList');
+            if (!d.notifications.length) {
+                box.innerHTML = '<div class="ll-empty"><i data-lucide="bell-off"></i><div>No notifications yet.</div></div>';
+            } else {
+                box.innerHTML = d.notifications.map(n => `
+                    <div class="ll-notification ${n.is_read ? '' : 'unread'}">
+                        <div class="ll-notification-icon"><i data-lucide="${n.type === 'response' ? 'heart-handshake' : 'bell'}"></i></div>
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="display: flex; justify-content: space-between; gap: 0.5rem;">
+                                <h4>${LL.esc(n.title)}</h4><time>${LL.esc(LL.timeAgo(n.created_at))}</time>
+                            </div>
+                            <p>${LL.esc(n.body)}</p>
+                        </div>
+                    </div>`).join('');
+            }
+            LL.icons();
+        }
+
+        function render() {
+            const active = state.requests.filter(r => r.status === 'ACTIVE');
+            const history = state.requests.filter(r => r.status !== 'ACTIVE');
+            const activeIds = new Set(active.map(r => r.id));
+            const liveResponses = state.responses.filter(r => activeIds.has(r.request_id) && r.status !== 'WITHDRAWN');
+
+            $('mActive').textContent = active.length;
+            $('mVolunteers').textContent = liveResponses.length;
+            $('mFulfilled').textContent = history.filter(r => r.status === 'FULFILLED').length;
+            $('mTotal').textContent = state.requests.length;
+            $('activeBadge').innerHTML = `<span class="pulse-dot"></span> ${active.length} Active`;
+            $('volunteerBadge').textContent = `${liveResponses.length} Volunteer${liveResponses.length === 1 ? '' : 's'}`;
+            $('historyBadge').textContent = `${history.length} Archived`;
+            badgeCount('navActiveCount', active.length);
+            badgeCount('navVolunteerCount', liveResponses.length);
+            badgeCount('navHistoryCount', history.length);
+
+            // Active
+            $('activeTbody').innerHTML = active.length ? active.map(r => `
+                <tr>
+                    <td><span class="track-id-badge" style="font-size: 0.75rem; padding: 0.2rem 0.5rem;">#${LL.esc(r.code)}</span><div class="ll-muted">${LL.esc(LL.timeAgo(r.created_at))}</div></td>
+                    <td><span style="font-weight: 700; color: var(--color-secondary);">${LL.esc(r.patient_name)}</span></td>
+                    <td><span class="blood-symbol-pill" style="width: 34px; height: 34px; font-size: 0.95rem; margin: 0;">${LL.esc(r.blood_group)}</span></td>
+                    <td><strong>${r.units_needed}</strong> unit${r.units_needed > 1 ? 's' : ''}</td>
+                    <td>${LL.urgencyBadge(r.urgency_level)}</td>
+                    <td><div style="font-weight: 600; color: var(--color-secondary);">${LL.esc(r.hospital_name)}</div>
+                        <div style="font-size: 0.75rem; color: var(--color-text-subtle);">${LL.esc([r.hospital_area, r.city].filter(Boolean).join(', '))}</div></td>
+                    <td>${r.responses_count ? `<a href="#donor-responses-section" class="badge badge-success" style="text-decoration:none;">${r.responses_count} volunteer${r.responses_count > 1 ? 's' : ''}</a>` : '<span class="ll-muted">Waiting...</span>'}</td>
+                    <td style="text-align: right;"><div class="ll-actions">
+                        <a href="/track-request?id=${r.id}" class="btn btn-outline btn-sm"><i data-lucide="radio"></i> Track</a>
+                        <button type="button" class="btn btn-primary btn-sm" data-fulfill="${r.id}"><i data-lucide="check-circle-2"></i> Mark fulfilled</button>
+                        <button type="button" class="btn btn-outline btn-sm" data-cancel="${r.id}" style="color: var(--color-critical);"><i data-lucide="x"></i> Cancel</button>
+                    </div></td>
+                </tr>`).join('')
+                : `<tr><td colspan="8"><div class="ll-empty"><i data-lucide="inbox"></i><div>You have no active requests.</div>
+                    <a href="/emergency-request" class="btn btn-emergency btn-sm" style="margin-top:0.75rem;"><i data-lucide="plus"></i> Submit a blood request</a></div></td></tr>`;
+
+            // Responses
+            $('responsesTbody').innerHTML = liveResponses.length ? liveResponses.map(v => `
+                <tr>
+                    <td><strong>#${LL.esc(v.request_code)}</strong><div class="ll-muted">${LL.esc(v.patient_name)}</div></td>
+                    <td><div style="font-weight: 700; color: var(--color-secondary);">${LL.esc(v.donor_name)}
+                        <i data-lucide="shield-check" style="width: 14px; height: 14px; color: var(--color-success-dark); vertical-align: -1px;"></i></div>
+                        <div class="ll-muted">${LL.esc(LL.timeAgo(v.created_at))}</div></td>
+                    <td><span class="badge badge-critical">${LL.esc(v.blood_group)}</span></td>
+                    <td>${LL.esc([v.district, v.city].filter(Boolean).join(', '))}${v.distance_km != null ? `<div class="ll-distance">${LL.fmtKm(v.distance_km)} from hospital</div>` : ''}</td>
+                    <td>${LL.responseBadge(v.status)}</td>
+                    <td><span style="font-style: italic; font-size: 0.8125rem;">"${LL.esc(v.message)}"</span></td>
+                    <td style="text-align: right;"><div class="ll-actions">
+                        ${v.donor_phone ? `<a href="tel:${LL.esc(v.donor_phone)}" class="btn btn-outline btn-sm"><i data-lucide="phone"></i> ${LL.esc(v.donor_phone)}</a>` : ''}
+                        ${v.status === 'OFFERED' ? `<button type="button" class="btn btn-primary btn-sm" data-donated="${v.id}" data-donor="${LL.esc(v.donor_name)}"><i data-lucide="heart"></i> Confirm donated</button>` : ''}
+                    </div></td>
+                </tr>`).join('')
+                : '<tr><td colspan="7"><div class="ll-empty"><i data-lucide="users"></i><div>No donors have volunteered on your active requests yet. Compatible donors nearby were alerted when you posted.</div></div></td></tr>';
+
+            // History
+            $('historyTbody').innerHTML = history.length ? history.map(r => `
+                <tr>
+                    <td><strong>#${LL.esc(r.code)}</strong></td>
+                    <td><span style="font-weight: 600; color: var(--color-secondary);">${LL.esc(r.patient_name)}</span></td>
+                    <td><span class="badge badge-neutral">${LL.esc(r.blood_group)}</span></td>
+                    <td>${r.units_needed} unit${r.units_needed > 1 ? 's' : ''}</td>
+                    <td>${LL.esc(r.hospital_name)}</td>
+                    <td>${LL.statusBadge(r.status)}${r.donated_count ? `<div class="ll-muted">${r.donated_count} donor${r.donated_count > 1 ? 's' : ''} donated</div>` : ''}</td>
+                    <td>${LL.esc(LL.fmtDateTime(r.closed_at))}</td>
+                    <td style="text-align: right;"><div class="ll-actions">
+                        <a href="/track-request?id=${r.id}" class="btn btn-outline btn-sm"><i data-lucide="file-text"></i> View record</a>
+                        <button type="button" class="btn btn-outline btn-sm" data-reopen="${r.id}"><i data-lucide="rotate-ccw"></i> Re-open</button>
+                    </div></td>
+                </tr>`).join('')
+                : '<tr><td colspan="8"><div class="ll-empty"><i data-lucide="archive"></i><div>Fulfilled and cancelled requests will appear here.</div></div></td></tr>';
+
+            LL.icons();
+        }
+
+        function setStatus(id, status) {
+            const r = state.requests.find(x => x.id === id);
+            const text = {
+                FULFILLED: ['Mark as fulfilled?', `Confirm that ${LL.esc(r.patient_name)} has received the blood they needed. ${LL.esc(r.code)} will move to History and volunteers will be told.`, 'Yes, mark fulfilled', false],
+                CANCELLED: ['Cancel this request?', `${LL.esc(r.code)} will stop showing to donors and move to History. Volunteers will be told.`, 'Cancel request', true],
+                ACTIVE: ['Re-open this request?', `${LL.esc(r.code)} will be shown to donors again.`, 'Re-open', false]
+            }[status];
+            LL.confirmAction(text[0], text[1], text[2], async () => {
+                const d = await LL.api(`/api/requests/${id}/status`, { body: { status } });
+                LL.toast(d.message);
+                await loadAll();
+            }, text[3]);
+        }
+
+        function confirmDonated(respId, donorName) {
+            LL.confirmAction('Confirm donation?', `Confirm that <strong>${LL.esc(donorName)}</strong> has donated. It will be added to their donation record.`, 'Confirm donated', async () => {
+                const d = await LL.api(`/api/responses/${respId}/donated`, { method: 'POST' });
+                LL.toast(d.message);
+                await loadAll();
+            });
+        }
+
+        document.addEventListener('click', e => {
+            const t = e.target.closest('button');
+            if (!t) return;
+            if (t.dataset.fulfill) setStatus(Number(t.dataset.fulfill), 'FULFILLED');
+            else if (t.dataset.cancel) setStatus(Number(t.dataset.cancel), 'CANCELLED');
+            else if (t.dataset.reopen) setStatus(Number(t.dataset.reopen), 'ACTIVE');
+            else if (t.dataset.donated) confirmDonated(Number(t.dataset.donated), t.dataset.donor);
+        });
+        $('topbarBellBtn').addEventListener('click', () => $('notifications-section').scrollIntoView({ behavior: 'smooth' }));
+        $('markAllReadBtn').addEventListener('click', async () => {
+            try { const d = await LL.api('/api/notifications/read-all', { method: 'POST' }); LL.toast(d.message); await loadNotifications(); }
+            catch (err) { LL.toast(err.message, 'error'); }
+        });
+        document.querySelectorAll('.sidebar-nav a[href^="#"]').forEach(a => a.addEventListener('click', () => {
+            document.querySelectorAll('.sidebar-nav .sidebar-link').forEach(l => l.classList.remove('active'));
+            a.classList.add('active');
+        }));
+
+        (async () => {
+            state.me = await LL.requireAuth();
+            const u = state.me.user;
+            const paintName = () => {
+                document.querySelectorAll('[data-user-name]').forEach(el => el.textContent = state.me.user.full_name);
+                document.querySelectorAll('[data-user-initials]').forEach(el => el.textContent = LL.initials(state.me.user.full_name));
+            };
+            paintName();
+            LLProfile.mount($('profileCard'), {
+                getMe: () => state.me,
+                onSaved: async () => { state.me = await LL.me(); paintName(); },
+                onEditHealth: () => { location.href = '/donor/dashboard#eligibility-section'; }
+            });
+            $('topbarGreeting').textContent = `Welcome, ${u.full_name.split(' ')[0]} • manage your blood requests and volunteers`;
+            $('donorSwitchText').textContent = state.me.donor ? 'Donor Portal' : 'Become a Donor';
+            try { await loadAll(); } catch (e) { LL.toast(e.message, 'error'); }
+            loadNotifications().catch(() => {});
+            if (location.hash) { const t = document.querySelector(location.hash); if (t) t.scrollIntoView({ behavior: 'smooth' }); }
+            setInterval(() => { if (!document.hidden) { loadAll().catch(() => {}); loadNotifications().catch(() => {}); } }, 30000);
+        })();
+    })();
+    </script>
+</body>
+</html>

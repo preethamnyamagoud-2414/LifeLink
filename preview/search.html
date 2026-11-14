@@ -1,0 +1,332 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Blood Donors Near You — LifeLink</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/app/static/css/main.css">
+    <link rel="stylesheet" href="/app/static/css/components.css">
+    <link rel="stylesheet" href="/app/static/css/dashboard.css">
+    <link rel="stylesheet" href="/app/static/css/responsive.css">
+    <link rel="stylesheet" href="/app/static/css/app.css">
+    <link rel="stylesheet" href="/app/static/css/search.css">
+
+    <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+    <!-- Clinical Emergency Notice Bar -->
+    <div class="demo-disclaimer-bar" role="alert" style="background-color: #1E293B; color: #F1F5F9; font-size: 0.78125rem;">
+        <span class="demo-tag" style="background-color: var(--color-primary); color: #fff;">CRITICAL NOTICE</span>
+        <span>LifeLink facilitates voluntary blood donor coordination. For acute medical emergencies, contact hospital emergency rooms directly.</span>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="navbar" role="banner">
+        <div class="container">
+            <a href="/" class="nav-brand">
+                <span class="nav-brand-icon"><i data-lucide="droplet"></i></span>
+                <span>LifeLink</span>
+            </a>
+            <nav aria-label="Primary Navigation">
+                <ul class="nav-links">
+                    <li><a href="/" class="nav-link">Home</a></li>
+                    <li><a href="/find-donors" class="nav-link active">Find Donors</a></li>
+                    <li><a href="/track-request" class="nav-link">Track Request</a></li>
+                    <li><a href="/#about" class="nav-link">About Us</a></li>
+                </ul>
+            </nav>
+            <div id="navAuthActions" class="nav-actions">
+                <a href="/emergency-request" class="btn btn-emergency btn-sm"><i data-lucide="alert-circle"></i> Emergency Request</a>
+                <a href="/auth/login" class="btn btn-outline btn-sm"><i data-lucide="log-in"></i> Sign In</a>
+                <a href="/auth/register" class="btn btn-primary btn-sm"><i data-lucide="user-plus"></i> Register</a>
+            </div>
+
+            <button id="mobileMenuToggle" class="mobile-menu-toggle" type="button" aria-label="Open mobile menu" aria-expanded="false" aria-controls="mobileDrawer">
+                <i data-lucide="menu"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Drawer -->
+    <div id="mobileNavOverlay" class="mobile-nav-overlay" aria-hidden="true"></div>
+    <aside id="mobileDrawer" class="mobile-drawer" aria-label="Mobile Navigation" role="dialog" aria-modal="true">
+        <div class="mobile-drawer-header">
+            <a href="/" class="nav-brand">
+                <span class="nav-brand-icon"><i data-lucide="droplet"></i></span>
+                <span>LifeLink</span>
+            </a>
+            <button id="mobileDrawerClose" class="mobile-menu-toggle" type="button" aria-label="Close mobile menu">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <ul class="mobile-drawer-links">
+            <li><a href="/" class="mobile-drawer-link"><i data-lucide="home"></i> Home</a></li>
+            <li><a href="/find-donors" class="mobile-drawer-link active"><i data-lucide="search"></i> Find Blood Donors</a></li>
+            <li><a href="/track-request" class="mobile-drawer-link"><i data-lucide="radio"></i> Track Request</a></li>
+            <li data-nav-dashboard style="display:none;"><a href="/donor/dashboard" class="mobile-drawer-link"><i data-lucide="layout-dashboard"></i> My Dashboard</a></li>
+            <li><a href="/#about" class="mobile-drawer-link"><i data-lucide="info"></i> About LifeLink</a></li>
+        </ul>
+        <div id="mobileDrawerActions" class="mobile-drawer-actions">
+            <a href="/emergency-request" class="btn btn-emergency btn-block">
+                <i data-lucide="alert-circle"></i> Emergency Request
+            </a>
+            <a href="/auth/login" class="btn btn-outline btn-block">
+                <i data-lucide="log-in"></i> Sign In
+            </a>
+            <a href="/auth/register" class="btn btn-primary btn-block">
+                <i data-lucide="user-plus"></i> Create Account (Register)
+            </a>
+        </div>
+    </aside>
+
+    <main id="main-content" role="main">
+        <section class="section" style="padding: 3rem 0 5rem 0;">
+            <div class="container">
+                
+                <!-- Page Header -->
+                <div class="section-header" style="text-align: left; margin-bottom: 2.25rem; max-width: 100%;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <span class="section-eyebrow"><i data-lucide="search"></i> Verified Community Registry</span>
+                            <h1 class="section-title" style="margin-bottom: 0.35rem;">Find Blood Donors Near You</h1>
+                            <p class="section-subtitle">Discover voluntary lifesavers by blood group and location. Contact is coordinated securely respecting donor privacy.</p>
+                        </div>
+                        <div>
+                            <a href="/emergency-request" class="btn btn-emergency">
+                                <i data-lucide="alert-octagon"></i> Post Emergency Request
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SEARCH TOOLBAR CARD -->
+                <div class="search-toolbar-card">
+                    <form id="donorSearchForm">
+                        
+                        <!-- Blood Group Visual Selector -->
+                        <div class="blood-selector-container">
+                            <div class="blood-selector-label">
+                                <span>Select Required Blood Group</span>
+                                <span style="font-size: 0.75rem; font-weight: normal; color: var(--color-text-subtle);">Click a blood group to filter instantly</span>
+                            </div>
+
+                            <div class="blood-pills-grid" role="radiogroup">
+                                <label class="blood-pill-option">
+                                    <input type="radio" name="blood_group" value="ALL" checked>
+                                    <div class="blood-pill-box">
+                                        <span>ALL</span>
+                                        <span class="blood-pill-sub">Any Type</span>
+                                    </div>
+                                </label>
+                                <label class="blood-pill-option">
+                                    <input type="radio" name="blood_group" value="O-">
+                                    <div class="blood-pill-box">
+                                        <span>O-</span>
+                                        <span class="blood-pill-sub">Universal</span>
+                                    </div>
+                                </label>
+                                <label class="blood-pill-option">
+                                    <input type="radio" name="blood_group" value="O+">
+                                    <div class="blood-pill-box">
+                                        <span>O+</span>
+                                        <span class="blood-pill-sub">High Need</span>
+                                    </div>
+                                </label>
+                                <label class="blood-pill-option">
+                                    <input type="radio" name="blood_group" value="A-">
+                                    <div class="blood-pill-box">
+                                        <span>A-</span>
+                                        <span class="blood-pill-sub">Rare Rh-</span>
+                                    </div>
+                                </label>
+                                <label class="blood-pill-option">
+                                    <input type="radio" name="blood_group" value="A+">
+                                    <div class="blood-pill-box">
+                                        <span>A+</span>
+                                        <span class="blood-pill-sub">Standard</span>
+                                    </div>
+                                </label>
+                                <label class="blood-pill-option">
+                                    <input type="radio" name="blood_group" value="B-">
+                                    <div class="blood-pill-box">
+                                        <span>B-</span>
+                                        <span class="blood-pill-sub">Rare Rh-</span>
+                                    </div>
+                                </label>
+                                <label class="blood-pill-option">
+                                    <input type="radio" name="blood_group" value="B+">
+                                    <div class="blood-pill-box">
+                                        <span>B+</span>
+                                        <span class="blood-pill-sub">Standard</span>
+                                    </div>
+                                </label>
+                                <label class="blood-pill-option">
+                                    <input type="radio" name="blood_group" value="AB-">
+                                    <div class="blood-pill-box">
+                                        <span>AB-</span>
+                                        <span class="blood-pill-sub">Rare Type</span>
+                                    </div>
+                                </label>
+                                <label class="blood-pill-option">
+                                    <input type="radio" name="blood_group" value="AB+">
+                                    <div class="blood-pill-box">
+                                        <span>AB+</span>
+                                        <span class="blood-pill-sub">Recipient</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Location + radius -->
+                        <div id="locationBanner" class="ll-location-banner">
+                            <i data-lucide="map-pin"></i>
+                            <span id="locationBannerText">Allow location access to see donors nearest to you, with distance.</span>
+                            <button type="button" id="useLocationBtn" class="btn btn-primary btn-sm"><i data-lucide="crosshair"></i> Use my location</button>
+                        </div>
+
+                        <div class="search-input-row">
+                            <div class="search-input-wrapper" style="flex: 0 0 200px;">
+                                <span class="search-input-icon"><i data-lucide="radar"></i></span>
+                                <select name="radius_km" id="radiusSelect" class="search-input-field" style="cursor:pointer;">
+                                    <option value="5">Within 5 km</option>
+                                    <option value="10">Within 10 km</option>
+                                    <option value="25" selected>Within 25 km</option>
+                                    <option value="50">Within 50 km</option>
+                                    <option value="100">Within 100 km</option>
+                                    <option value="0">Any distance</option>
+                                </select>
+                            </div>
+                            <div class="search-input-wrapper">
+                                <span class="search-input-icon"><i data-lucide="building-2"></i></span>
+                                <input type="text" name="location" id="searchLocationInput" class="search-input-field" placeholder="Or type a city / area (used when location is off)">
+                            </div>
+                            <button type="submit" id="searchSubmitBtn" class="btn btn-primary btn-lg" style="height: 100%;">
+                                <i data-lucide="search"></i>
+                                <span>Search Donors</span>
+                            </button>
+                        </div>
+
+                        <div class="search-options-row">
+                            <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+                                <label class="filter-checkbox-label">
+                                    <input type="checkbox" name="available_only" value="1" checked>
+                                    <span>Available right now only</span>
+                                </label>
+                                <label class="filter-checkbox-label">
+                                    <input type="checkbox" name="compatible" value="1" checked>
+                                    <span>Include compatible blood groups (recommended)</span>
+                                </label>
+                            </div>
+                            <span style="font-size: 0.78125rem; color: var(--color-text-subtle); display: inline-flex; align-items: center; gap: 4px;">
+                                <i data-lucide="shield-check" style="width: 14px; height: 14px; color: var(--color-success-dark);"></i>
+                                Only eligible donors are shown. Exact locations are never shared.
+                            </span>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- LOADING STATE -->
+                <div id="searchLoadingState" class="search-loading-state">
+                    <div class="heart-spinner"><i data-lucide="heart-pulse"></i></div>
+                    <div class="loading-text">Searching Regional Donor Registry...</div>
+                    <div class="loading-subtext">Evaluating ABO/Rh biological compatibility and donor availability status.</div>
+                </div>
+
+                <!-- RESULTS SECTION -->
+                <div id="searchResultsSection">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
+                        <div>
+                            <span id="resultsCountText" style="font-weight: 700; color: var(--color-secondary); font-size: 1.15rem;">Searching...</span>
+                            <span class="badge badge-neutral" id="resultsNearBadge" style="margin-left: 0.5rem; display:none;"></span>
+                        </div>
+                        <span class="badge badge-neutral" style="font-size: 0.75rem;">Sorted by distance</span>
+                    </div>
+
+                    <div id="donorResultsContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;"></div>
+
+                    <!-- EMPTY STATE COMPONENT -->
+                    <div id="searchEmptyState" class="empty-search-container" style="display: none;">
+                        <div class="empty-search-icon"><i data-lucide="search-x"></i></div>
+                        <h3 class="empty-search-title">No Matching Donors Found in this Area</h3>
+                        <p class="empty-search-desc">We could not find active donors matching your current filter criteria in this district.</p>
+                        <div class="empty-search-tips">
+                            <strong>Recommended Next Steps:</strong>
+                            <ul>
+                                <li>Enable <strong>"Include Compatible Blood Types"</strong> to find biological alternatives (e.g. O- universal donors).</li>
+                                <li>Broaden your location search to surrounding districts or leave the city field blank.</li>
+                                <li>Submit an official <strong>Emergency Blood Request</strong> to dispatch high-priority notifications to nearby hospitals.</li>
+                            </ul>
+                        </div>
+                        <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+                            <button type="button" id="resetFiltersBtn" class="btn btn-outline"><i data-lucide="rotate-ccw"></i> Widen search</button>
+                            <a href="/emergency-request" class="btn btn-emergency"><i data-lucide="alert-octagon"></i> Submit Emergency Request</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- CONTACT MODAL -->
+    <div id="contactModalOverlay" class="contact-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="contact-modal-card">
+            <div class="contact-modal-header">
+                <div>
+                    <h3 id="modalTitle">Request Transfusion Contact</h3>
+                    <span style="font-size: 0.78125rem; color: var(--color-text-subtle);">
+                        For donor <strong id="modalDonorDisplayName">Donor</strong> (<span id="modalDonorBloodGroup" class="badge badge-critical" style="padding: 0.1rem 0.4rem; font-size: 0.7rem;">O-</span>)
+                    </span>
+                </div>
+                <button id="contactModalClose" class="topbar-btn-icon" type="button" aria-label="Close modal" style="width: 32px; height: 32px;"><i data-lucide="x"></i></button>
+            </div>
+            <div class="contact-modal-body">
+                <div class="privacy-notice-box">
+                    <i data-lucide="shield-alert"></i>
+                    <div>
+                        <strong>Privacy & Consent Notice:</strong>
+                        To safeguard voluntary lifesavers from spam, donor phone numbers are kept confidential. 
+                        Submitting this form notifies the donor with your patient details so they can contact you directly.
+                    </div>
+                </div>
+                <form id="secureContactForm">
+                    <input type="hidden" id="modalTargetDonorId" name="donor_user_id" value="">
+                    <div class="form-group">
+                        <label for="modalReqName" class="form-label">Your Name (Attendant / Doctor / Relative) <span style="color: var(--color-critical);">*</span></label>
+                        <input type="text" id="modalReqName" name="requester_name" class="form-control" placeholder="Your name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="modalReqPhone" class="form-label">Your Callback Phone Number <span style="color: var(--color-critical);">*</span></label>
+                        <input type="tel" id="modalReqPhone" name="requester_phone" class="form-control" placeholder="Your mobile number" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="modalReqNotes" class="form-label">Hospital Name & Emergency Transfusion Notes</label>
+                        <textarea id="modalReqNotes" name="case_notes" rows="2" class="form-control" placeholder="Hospital name, ward, patient condition, units required..."></textarea>
+                    </div>
+                    <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+                        <button type="button" id="contactModalCancel" class="btn btn-outline">Cancel</button>
+                        <button type="submit" class="btn btn-primary"><i data-lucide="send"></i> Send Secure Contact Alert</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer class="site-footer" role="contentinfo">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 LifeLink Portal. All rights reserved.</p>
+                <p>Medical Notice: LifeLink is a volunteer coordination directory.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/app/static/js/main.js"></script>
+    <script src="/app/static/js/api.js"></script>
+    <script src="/app/static/js/search.js"></script>
+</body>
+</html>

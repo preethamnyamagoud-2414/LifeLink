@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="LifeLink — Smart Blood Donor and Emergency Blood Availability Portal. Connect with nearby blood donors instantly.">
+    <title>{% block title %}{{ app_name }} — Smart Blood Donor & Emergency Portal{% endblock %}</title>
+
+    <!-- Google Fonts: Inter (UI/Body) & Poppins (Headings) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Modular CSS Design System -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+
+    <!-- Lucide Icons (CDN) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+    <!-- Clinical Emergency Notice Bar -->
+    <div class="demo-disclaimer-bar" role="alert" style="background-color: #1E293B; color: #F1F5F9; font-size: 0.78125rem;">
+        <span class="demo-tag" style="background-color: var(--color-primary); color: #fff;">CRITICAL NOTICE</span>
+        <span>LifeLink facilitates voluntary blood donor coordination. For acute medical emergencies, contact hospital emergency rooms directly.</span>
+    </div>
+
+    {% block header %}
+        {% include "components/navbar.html" %}
+    {% endblock %}
+
+    <main id="main-content" role="main">
+        {% include "partials/alerts.html" %}
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block footer %}
+        {% include "components/footer.html" %}
+    {% endblock %}
+
+    <!-- Custom Frontend JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

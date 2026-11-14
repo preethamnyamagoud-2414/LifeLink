@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account — LifeLink Healthcare Portal{% endblock %}
+
+{% block content %}
+<section class="section" style="padding: 3.5rem 0 5rem 0;">
+    <div class="container" style="max-width: 680px;">
+        <div class="card" style="padding: 2.75rem 2.25rem; box-shadow: var(--shadow-md); border-radius: var(--radius-lg);">
+            <!-- Card Brand Header -->
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <span class="section-eyebrow" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.85rem; background-color: var(--color-primary-50); color: var(--color-primary); border-radius: 999px; font-size: 0.8125rem; font-weight: 600; margin-bottom: 0.75rem;">
+                    <i data-lucide="shield-check" style="width: 15px; height: 15px;"></i> LifeLink Member Registration
+                </span>
+                <h1 style="font-size: 1.85rem; color: var(--color-secondary); margin-bottom: 0.4rem; font-weight: 700;">
+                    Create Your Account
+                </h1>
+                <p style="font-size: 0.875rem; color: var(--color-text-subtle); max-width: 520px; margin: 0 auto; line-height: 1.5;">
+                    One unified account allows you to volunteer as a verified blood donor <strong>and</strong> submit emergency blood requests for yourself, family, or patients.
+                </p>
+            </div>
+
+            <!-- Unified Registration Form -->
+            <form action="{{ url_for('auth.register') }}" method="POST" id="unifiedRegisterForm" novalidate>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <!-- Section 1: Core Credentials -->
+                <div style="margin-bottom: 1.75rem;">
+                    <h3 style="font-size: 1.05rem; color: var(--color-secondary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; font-weight: 600;">
+                        <i data-lucide="user" style="width: 18px; height: 18px; color: var(--color-primary);"></i>
+                        1. Account Information
+                    </h3>
+
+                    <!-- Full Name -->
+                    <div class="form-group">
+                        <label for="regFullName" class="form-label">
+                            Full Name <span class="required-mark">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="regFullName" 
+                            name="full_name" 
+                            class="form-control" 
+                            placeholder="Enter your full name" 
+                            value="{{ full_name or '' }}" 
+                            required 
+                            autocomplete="name"
+                            autofocus
+                        >
+                    </div>
+
+                    <!-- Email & Phone Grid -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+                        <div class="form-group">
+                            <label for="regEmail" class="form-label">
+                                Email Address <span class="required-mark">*</span>
+                            </label>
+                            <input 
+                                type="email" 
+                                id="regEmail" 
+                                name="email" 
+                                class="form-control" 
+                                placeholder="name@example.com" 
+                                value="{{ email or '' }}" 
+                                required 
+                                autocomplete="email"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="regPhone" class="form-label">
+                                Mobile Number <span class="required-mark">*</span>
+                            </label>
+                            <input 
+                                type="tel" 
+                                id="regPhone" 
+                                name="phone" 
+                                class="form-control" 
+                                placeholder="e.g. +1 555-010-2345" 
+                                value="{{ phone or '' }}" 
+                                required 
+                                autocomplete="tel"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Password with Show/Hide Toggle -->
+                    <div class="form-group">
+                        <label for="regPassword" class="form-label">
+                            Password <span class="required-mark">*</span>
+                        </label>
+                        <div class="password-input-group">
+                            <input 
+                                type="password" 
+                                id="regPassword" 
+                                name="password" 
+                                class="form-control" 
+                                placeholder="Minimum 8 characters with letters & numbers" 
+                                required 
+                                minlength="8" 
+                                autocomplete="new-password"
+                            >
+                            <button 
+                                type="button" 
+                                class="password-toggle-btn" 
+                                onclick="togglePasswordVisibility('regPassword', this)" 
+                                aria-label="Show or hide password"
+                                tabindex="-1"
+                            >
+                                <i data-lucide="eye"></i>
+                            </button>
+                        </div>
+                        <span class="form-hint">At least 8 characters, including letters and numbers.</span>
+                    </div>
+
+                    <!-- Confirm Password with Show/Hide Toggle -->
+                    <div class="form-group">
+                        <label for="regConfirmPassword" class="form-label">
+                            Confirm Password <span class="required-mark">*</span>
+                        </label>
+                        <div class="password-input-group">
+                            <input 
+                                type="password" 
+                                id="regConfirmPassword" 
+                                name="confirm_password" 
+                                class="form-control" 
+                                placeholder="Re-enter your password to confirm" 
+                                required 
+                                minlength="8" 
+                                autocomplete="new-password"
+                            >
+                            <button 
+                                type="button" 
+                                class="password-toggle-btn" 
+                                onclick="togglePasswordVisibility('regConfirmPassword', this)" 
+                                aria-label="Show or hide password"
+                                tabindex="-1"
+                            >
+                                <i data-lucide="eye"></i>
+                            </button>
+                        </div>
+                        <div id="passwordMatchMessage" style="font-size: 0.8125rem; margin-top: 0.35rem; display: none;"></div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Dual Role Toggle (Optional Donor Profile Enrollment) -->
+                <div style="background-color: var(--color-bg-subtle); border: 1.5px solid var(--color-border); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.75rem;">
+                    <div style="display: flex; align-items: flex-start; gap: 0.85rem;">
+                        <input 
+                            type="checkbox" 
+                            id="enableDonorProfile" 
+                            name="enable_donor_profile" 
+                            value="1" 
+                            style="margin-top: 0.25rem; width: 18px; height: 18px; accent-color: var(--color-primary); cursor: pointer;"
+                            onchange="document.getElementById('donorFieldsContainer').style.display = this.checked ? 'block' : 'none';"
+                        >
+                        <div>
+                            <label for="enableDonorProfile" style="font-weight: 700; color: var(--color-secondary); font-size: 0.95rem; cursor: pointer;">
+                                Volunteer as an Active Blood Donor (Optional)
+                            </label>
+                            <p style="font-size: 0.8125rem; color: var(--color-text-subtle); margin: 0.25rem 0 0 0; line-height: 1.4;">
+                                Check this to set up your blood group and location now. You can also activate or edit your donor status later from your dashboard.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Expandable Donor Clinical Profile Fields (hidden by default) -->
+                    <div id="donorFieldsContainer" style="display: none; margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px dashed var(--color-border);">
+                        <h4 style="font-size: 0.95rem; color: var(--color-secondary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.4rem;">
+                            <i data-lucide="droplet" style="width: 16px; height: 16px; color: var(--color-primary);"></i>
+                            Donor Clinical & Regional Details
+                        </h4>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label for="regBloodGroup" class="form-label">Blood Group</label>
+                                <select id="regBloodGroup" name="blood_group" class="form-select">
+                                    <option value="O+">O+ Positive</option>
+                                    <option value="O-">O- Negative (Universal Red Cell Donor)</option>
+                                    <option value="A+">A+ Positive</option>
+                                    <option value="A-">A- Negative</option>
+                                    <option value="B+">B+ Positive</option>
+                                    <option value="B-">B- Negative</option>
+                                    <option value="AB+">AB+ Positive (Universal Plasma)</option>
+                                    <option value="AB-">AB- Negative</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="regWeight" class="form-label">Body Weight (kg)</label>
+                                <input type="number" id="regWeight" name="weight_kg" class="form-control" placeholder="e.g. 65" min="40" max="250" step="0.5">
+                                <span class="form-hint">Mandatory clinical minimum: 40 kg</span>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label for="regCity" class="form-label">City / Town</label>
+                                <input type="text" id="regCity" name="city" class="form-control" placeholder="e.g. Central Metro">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="regDistrict" class="form-label">District / Area</label>
+                                <input type="text" id="regDistrict" name="district" class="form-control" placeholder="e.g. Downtown">
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label for="regDOB" class="form-label">Date of Birth</label>
+                                <input type="date" id="regDOB" name="date_of_birth" class="form-control">
+                                <span class="form-hint">Age must be between 18 and 65.</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="regGender" class="form-label">Gender</label>
+                                <select id="regGender" name="gender" class="form-select">
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other / Prefer not to say</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Administrative Policy Notice -->
+                <div style="font-size: 0.78125rem; color: var(--color-text-subtle); background-color: var(--color-bg-muted); padding: 0.75rem 1rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i data-lucide="shield" style="width: 16px; height: 16px; color: var(--color-secondary); flex-shrink: 0;"></i>
+                    <span>Notice: Administrator accounts cannot be created via public registration. Privileged credentials are provisioned strictly through secure administrative utilities.</span>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="createAccountBtn" class="btn btn-primary btn-block btn-lg" style="margin-bottom: 1.5rem; font-size: 1rem; font-weight: 600;">
+                    <i data-lucide="user-plus"></i> Create Account
+                </button>
+
+                <!-- Footer Navigation -->
+                <div style="text-align: center; font-size: 0.875rem; color: var(--color-text-subtle); padding-top: 1.25rem; border-top: 1px solid var(--color-border);">
+                    Already have an account? <a href="{{ url_for('auth.login') }}" style="font-weight: 600; color: var(--color-primary); text-decoration: none;">Sign In</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordInput = document.getElementById('regPassword');
+    const confirmInput = document.getElementById('regConfirmPassword');
+    const matchMsg = document.getElementById('passwordMatchMessage');
+    const form = document.getElementById('unifiedRegisterForm');
+
+    function checkPasswordsMatch() {
+        if (!confirmInput.value) {
+            matchMsg.style.display = 'none';
+            return true;
+        }
+        matchMsg.style.display = 'block';
+        if (passwordInput.value === confirmInput.value) {
+            matchMsg.style.color = '#10B981';
+            matchMsg.innerHTML = '<span style="display: inline-flex; align-items: center; gap: 4px;">✓ Passwords match</span>';
+            return true;
+        } else {
+            matchMsg.style.color = '#DC2626';
+            matchMsg.innerHTML = '<span style="display: inline-flex; align-items: center; gap: 4px;">✗ Passwords do not match</span>';
+            return false;
+        }
+    }
+
+    passwordInput.addEventListener('input', checkPasswordsMatch);
+    confirmInput.addEventListener('input', checkPasswordsMatch);
+
+    form.addEventListener('submit', function(e) {
+        if (passwordInput.value !== confirmInput.value) {
+            e.preventDefault();
+            matchMsg.style.display = 'block';
+            matchMsg.style.color = '#DC2626';
+            matchMsg.innerHTML = '<span style="display: inline-flex; align-items: center; gap: 4px;">✗ Passwords do not match. Please verify.</span>';
+            confirmInput.focus();
+        }
+    });
+});
+</script>
+{% endblock %}

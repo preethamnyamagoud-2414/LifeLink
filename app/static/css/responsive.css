@@ -1,0 +1,517 @@
+/* ==============================================================================
+   LifeLink — Responsive Breakpoints & Mobile Navigation Drawer
+   Handles Desktop, Tablet (1024px & 768px), and Mobile (480px)
+   ============================================================================== */
+
+/* ------------------------------------------------------------------------------
+   1. NAVIGATION BAR DESKTOP STYLES
+   ------------------------------------------------------------------------------ */
+.navbar {
+    height: var(--header-height);
+    background-color: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    transition: all var(--transition-fast);
+}
+
+.navbar .container {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    text-decoration: none;
+    color: var(--color-secondary);
+    font-family: var(--font-heading);
+    font-size: 1.35rem;
+    font-weight: 700;
+}
+
+.nav-brand-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1.75rem;
+    list-style: none;
+}
+
+.nav-link {
+    color: var(--color-text-muted);
+    font-weight: 500;
+    font-size: 0.9375rem;
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+.nav-link:hover, .nav-link.active {
+    color: var(--color-primary);
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+}
+
+.mobile-menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--color-secondary);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: var(--radius-sm);
+}
+
+.mobile-menu-toggle svg {
+    width: 26px;
+    height: 26px;
+}
+
+/* Mobile Drawer Overlay */
+.mobile-nav-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(2px);
+    z-index: 998;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-normal);
+}
+
+.mobile-nav-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Mobile Navigation Drawer */
+.mobile-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 82%;
+    max-width: 360px;
+    height: 100vh;
+    background-color: var(--color-white);
+    z-index: 999;
+    box-shadow: var(--shadow-xl);
+    transform: translateX(100%);
+    transition: transform var(--transition-normal);
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    overflow-y: auto;
+}
+
+.mobile-drawer.active {
+    transform: translateX(0);
+}
+
+.mobile-drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: 1.5rem;
+}
+
+.mobile-drawer-links {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+}
+
+.mobile-drawer-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-secondary);
+    text-decoration: none;
+    padding: 0.75rem 0.5rem;
+    border-radius: var(--radius-md);
+    transition: background-color var(--transition-fast);
+}
+
+.mobile-drawer-link:hover, .mobile-drawer-link.active {
+    background-color: var(--color-primary-50);
+    color: var(--color-primary);
+}
+
+.mobile-drawer-actions {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* ------------------------------------------------------------------------------
+   2. HERO SECTION COMPONENT STYLES
+   ------------------------------------------------------------------------------ */
+.hero-section {
+    padding: 4.5rem 0 3.5rem 0;
+    background: radial-gradient(100% 100% at 50% 0%, #FFFFFF 0%, #F8FAFC 100%);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.hero-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 3.5rem;
+    align-items: center;
+}
+
+.hero-badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--color-primary-50);
+    color: var(--color-primary);
+    padding: 0.35rem 0.85rem;
+    border-radius: var(--radius-full);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+    border: 1px solid var(--color-primary-100);
+}
+
+.hero-headline {
+    font-size: 3.25rem;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.25rem;
+    color: var(--color-secondary);
+}
+
+.hero-headline span.highlight {
+    color: var(--color-primary);
+}
+
+.hero-description {
+    font-size: 1.125rem;
+    line-height: 1.65;
+    color: var(--color-text-muted);
+    margin-bottom: 2rem;
+    max-width: 580px;
+}
+
+.hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+    flex-wrap: wrap;
+}
+
+.hero-trust-row {
+    display: flex;
+    align-items: center;
+    gap: 1.75rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-border);
+    font-size: 0.8125rem;
+    color: var(--color-text-subtle);
+    flex-wrap: wrap;
+}
+
+.hero-trust-item {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.hero-trust-item svg {
+    color: var(--color-success-dark);
+    width: 16px;
+    height: 16px;
+}
+
+/* Quick Search Card inside Hero */
+.hero-search-card {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: 2.25rem;
+    box-shadow: var(--shadow-lg);
+}
+
+.hero-search-card h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.hero-search-card p {
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+}
+
+/* ------------------------------------------------------------------------------
+   3. FOOTER STYLING
+   ------------------------------------------------------------------------------ */
+.site-footer {
+    background-color: var(--color-secondary);
+    color: #CBD5E1;
+    padding: 4.5rem 0 2rem 0;
+    margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1.5fr;
+    gap: 3rem;
+    margin-bottom: 3.5rem;
+}
+
+.footer-brand h3 {
+    color: #FFFFFF;
+    font-size: 1.35rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.footer-brand p {
+    color: #94A3B8;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    max-width: 320px;
+    margin-bottom: 1.25rem;
+}
+
+.footer-column h4 {
+    color: #FFFFFF;
+    font-size: 0.9375rem;
+    margin-bottom: 1.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.footer-links {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+
+.footer-links a {
+    color: #94A3B8;
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: color var(--transition-fast);
+}
+
+.footer-links a:hover {
+    color: #FFFFFF;
+}
+
+.footer-bottom {
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.8125rem;
+    color: #64748B;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+/* ------------------------------------------------------------------------------
+   4. MEDIA QUERIES (BREAKPOINTS)
+   ------------------------------------------------------------------------------ */
+
+/* Tablet & Smaller Desktops (Max 1024px) */
+@media (max-width: 1024px) {
+    .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+    }
+
+    .hero-headline {
+        font-size: 2.65rem;
+    }
+
+    .blood-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .dash-metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .footer-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2.5rem;
+    }
+
+    .emergency-callout {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 2.5rem;
+    }
+
+    .emergency-actions {
+        align-items: flex-start;
+        width: 100%;
+    }
+}
+
+/* Tablets (Max 768px) */
+@media (max-width: 768px) {
+    .nav-links, .nav-actions {
+        display: none;
+    }
+
+    .mobile-menu-toggle {
+        display: block;
+    }
+
+    .section {
+        padding: 3.5rem 0;
+    }
+
+    .section-title {
+        font-size: 1.85rem;
+    }
+
+    .blood-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .process-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .testimonials-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Dashboard Layout on Tablet */
+    .dashboard-container {
+        flex-direction: column;
+    }
+
+    .dashboard-sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+
+    .sidebar-nav {
+        display: flex;
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 0.5rem;
+    }
+
+    .sidebar-nav-heading {
+        display: none;
+    }
+
+    .donor-status-hero {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1.75rem;
+    }
+
+    .donor-status-right {
+        width: 100%;
+        align-items: flex-start;
+    }
+    /* Search & Selector Refinements on Tablet */
+    .blood-pills-grid {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 0.45rem;
+    }
+}
+
+/* Mobile Handhelds (Max 480px) */
+@media (max-width: 480px) {
+    .hero-headline {
+        font-size: 2.15rem;
+    }
+
+    .blood-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .blood-pills-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.45rem;
+    }
+
+    .search-input-row {
+        grid-template-columns: 1fr;
+    }
+
+    .search-toolbar-card {
+        padding: 1.25rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dash-metrics-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .hero-actions .btn {
+        width: 100%;
+    }
+
+    .hero-search-card {
+        padding: 1.5rem;
+    }
+
+    .card-body {
+        padding: 1.25rem;
+    }
+
+    .card-header, .card-footer {
+        padding: 1rem 1.25rem;
+    }
+}

@@ -1,0 +1,214 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrator Sign In — LifeLink Healthcare Portal</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/app/static/css/main.css">
+    <link rel="stylesheet" href="/app/static/css/components.css">
+    <link rel="stylesheet" href="/app/static/css/responsive.css">
+    <link rel="stylesheet" href="/app/static/css/app.css">
+
+    <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+    <!-- Top Clinical Ticker -->
+    <div class="demo-disclaimer-bar" role="alert" style="background-color: #1E293B; color: #F1F5F9; font-size: 0.78125rem;">
+        <span class="demo-tag" style="background-color: var(--color-critical); color: #fff;">SECURITY AUDIT</span>
+        <span>Administrative Console: All access events and telemetry are recorded for healthcare compliance.</span>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="header">
+        <div class="container header-container">
+            <a href="/" class="nav-brand">
+                <span class="nav-brand-icon" style="background-color: var(--color-critical);"><i data-lucide="shield"></i></span>
+                <span class="nav-brand-text">Life<span>Link</span> <span style="font-size: 0.8rem; font-weight: 500; color: var(--color-text-subtle); margin-left: 0.25rem;">Admin</span></span>
+            </a>
+
+            <nav class="nav-links">
+                <a href="/" class="nav-link"><i data-lucide="home"></i> Home</a>
+                <a href="/find-donors" class="nav-link"><i data-lucide="search"></i> Find Donors</a>
+                <a href="/emergency-request" class="nav-link"><i data-lucide="alert-triangle"></i> Emergency Request</a>
+            </nav>
+
+            <div class="nav-actions">
+                <a href="/auth/login" class="btn btn-outline"><i data-lucide="user"></i> Member Sign In</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <section class="section" style="padding: 4rem 0 5rem 0;">
+            <div class="container" style="max-width: 480px;">
+                <div class="card" style="padding: 2.75rem 2.25rem; box-shadow: var(--shadow-lg); border-radius: var(--radius-lg); border-top: 4px solid var(--color-secondary);">
+                    
+                    <!-- Admin Brand & Security Badge -->
+                    <div style="text-align: center; margin-bottom: 2rem;">
+                        <span style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.85rem; background-color: var(--color-secondary-50); color: var(--color-secondary); border-radius: 999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.85rem; border: 1px solid var(--color-border);">
+                            <i data-lucide="shield-alert" style="width: 14px; height: 14px; color: var(--color-critical);"></i> Restricted Access
+                        </span>
+                        <h1 style="font-size: 1.75rem; color: var(--color-secondary); margin-bottom: 0.35rem; font-weight: 700;">
+                            Administrative Portal
+                        </h1>
+                        <p style="font-size: 0.875rem; color: var(--color-text-subtle);">
+                            LifeLink System Management & Clinical Verification Console
+                        </p>
+                    </div>
+
+                    <!-- Security Notice -->
+                    <div style="background-color: var(--color-bg-subtle); border-left: 3px solid var(--color-secondary); padding: 0.75rem 1rem; border-radius: var(--radius-sm); margin-bottom: 1.75rem; font-size: 0.8125rem; color: var(--color-text-muted); line-height: 1.45;">
+                        <strong>Security Notice:</strong> Administrative access is strictly limited to authorized personnel. All sign-in attempts and IP addresses are cryptographically logged for auditing.
+                    </div>
+
+                    <!-- Alert message box -->
+                    <div id="loginAlertBox" style="display: none; margin-bottom: 1.5rem;" role="alert"></div>
+
+                    <!-- Admin Login Form -->
+                    <form id="adminLoginForm" novalidate>
+                        <!-- Email Address -->
+                        <div class="form-group">
+                            <label for="adminLoginEmail" class="form-label">
+                                Administrator Email <span class="required-mark">*</span>
+                            </label>
+                            <input 
+                                type="email" 
+                                id="adminLoginEmail" 
+                                name="email" 
+                                class="form-control" 
+                                placeholder="preethamnyamagoud@gmail.com" 
+                                value="preethamnyamagoud@gmail.com"
+                                required 
+                                autocomplete="username"
+                                autofocus
+                            >
+                        </div>
+
+                        <!-- Password with Show/Hide Toggle -->
+                        <div class="form-group">
+                            <label for="adminLoginPassword" class="form-label">
+                                Administrative Password <span class="required-mark">*</span>
+                            </label>
+                            <div class="password-input-group">
+                                <input 
+                                    type="password" 
+                                    id="adminLoginPassword" 
+                                    name="password" 
+                                    class="form-control" 
+                                    placeholder="Enter administrative credentials" 
+                                    required 
+                                    autocomplete="current-password"
+                                >
+                                <button 
+                                    type="button" 
+                                    class="password-toggle-btn" 
+                                    id="togglePasswordBtn"
+                                    aria-label="Show or hide password"
+                                    tabindex="-1"
+                                >
+                                    <i data-lucide="eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Remember Me -->
+                        <div style="margin-bottom: 1.75rem; font-size: 0.875rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--color-text-main); user-select: none;">
+                                <input type="checkbox" id="adminRememberMe" value="1" checked style="width: 16px; height: 16px; accent-color: var(--color-secondary); cursor: pointer;">
+                                <span>Keep administrative session active</span>
+                            </label>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" id="adminSubmitBtn" class="btn btn-primary btn-block btn-lg" style="margin-bottom: 1.5rem; font-size: 1rem; font-weight: 600; background-color: var(--color-secondary); border-color: var(--color-secondary);">
+                            <i data-lucide="shield-check"></i> Authenticate & Enter Console
+                        </button>
+
+                        <!-- Member login link -->
+                        <div style="text-align: center; font-size: 0.875rem; color: var(--color-text-subtle); padding-top: 1.25rem; border-top: 1px solid var(--color-border);">
+                            Looking for standard member access? <a href="/auth/login" style="font-weight: 600; color: var(--color-primary); text-decoration: none;">Member Sign In</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Custom Frontend JavaScript -->
+    <script src="/app/static/js/main.js"></script>
+    <script src="/app/static/js/api.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.lucide) lucide.createIcons();
+
+        // Password Show/Hide Toggle
+        const toggleBtn = document.getElementById('togglePasswordBtn');
+        const passInput = document.getElementById('adminLoginPassword');
+        if (toggleBtn && passInput) {
+            toggleBtn.addEventListener('click', function() {
+                const isPassword = passInput.getAttribute('type') === 'password';
+                passInput.setAttribute('type', isPassword ? 'text' : 'password');
+                toggleBtn.innerHTML = isPassword ? '<i data-lucide="eye-off"></i>' : '<i data-lucide="eye"></i>';
+                if (window.lucide) lucide.createIcons();
+            });
+        }
+
+        // Form Submit
+        const form = document.getElementById('adminLoginForm');
+        const alertBox = document.getElementById('loginAlertBox');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('adminLoginEmail').value.trim();
+            const password = document.getElementById('adminLoginPassword').value;
+
+            if (!email || !password) {
+                alertBox.style.display = 'block';
+                alertBox.className = 'alert alert-danger';
+                alertBox.innerHTML = '<i data-lucide="alert-circle"></i> <span>Please enter both administrator email and password.</span>';
+                if (window.lucide) lucide.createIcons();
+                return;
+            }
+
+            fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, password: password })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.user && data.user.role !== 'admin') {
+                        alertBox.style.display = 'block';
+                        alertBox.className = 'alert alert-danger';
+                        alertBox.innerHTML = '<i data-lucide="alert-octagon"></i> <span>Access Denied: This account does not possess administrative privileges.</span>';
+                        if (window.lucide) lucide.createIcons();
+                        return;
+                    }
+                    sessionStorage.setItem('lifelink_user', JSON.stringify(data.user));
+                    localStorage.setItem('lifelink_active_user', JSON.stringify(data.user));
+                    window.location.href = data.redirect || '/admin/dashboard';
+                } else {
+                    alertBox.style.display = 'block';
+                    alertBox.className = 'alert alert-danger';
+                    alertBox.innerHTML = `<i data-lucide="alert-circle"></i> <span>${data.message || 'Invalid administrative credentials. Access denied.'}</span>`;
+                    if (window.lucide) lucide.createIcons();
+                }
+            })
+            .catch(() => {
+                alertBox.style.display = 'block';
+                alertBox.className = 'alert alert-danger';
+                alertBox.innerHTML = '<i data-lucide="alert-circle"></i> <span>Cannot reach the LifeLink server. Make sure run.bat is running.</span>';
+                if (window.lucide) lucide.createIcons();
+            });
+        });
+    });
+    </script>
+</body>
+</html>

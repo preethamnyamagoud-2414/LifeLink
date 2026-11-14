@@ -1,0 +1,403 @@
+{% extends "base.html" %}
+
+{% set active_page = "find_donors" %}
+
+{% block title %}Find Blood Donors Near You — LifeLink Portal{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/search.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="section" style="padding: 3rem 0 5rem 0;">
+    <div class="container">
+
+        <!-- Page Header -->
+        <div class="section-header" style="text-align: left; margin-bottom: 2.25rem; max-width: 100%;">
+            <div
+                style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <span class="section-eyebrow">
+                        <i data-lucide="search"></i> Verified Community Registry
+                    </span>
+                    <h1 class="section-title" style="margin-bottom: 0.35rem;">Find Blood Donors Near You</h1>
+                    <p class="section-subtitle">
+                        Discover voluntary lifesavers by blood group and location. Contact is coordinated securely
+                        respecting donor privacy.
+                    </p>
+                </div>
+                <div>
+                    <a href="/emergency-request" class="btn btn-emergency">
+                        <i data-lucide="alert-octagon"></i> Post Emergency Request
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======================================================================
+             SEARCH TOOLBAR CARD
+             ====================================================================== -->
+        <div class="search-toolbar-card">
+            <form id="donorSearchForm" action="/find-donors" method="GET">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <!-- 1. Blood Group Visual Selector (All 8 Groups + All) -->
+                <div class="blood-selector-container">
+                    <div class="blood-selector-label">
+                        <span>Select Required Blood Group</span>
+                        <span style="font-size: 0.75rem; font-weight: normal; color: var(--color-text-subtle);">
+                            Click a blood group to filter instantly
+                        </span>
+                    </div>
+
+                    <div class="blood-pills-grid" role="radiogroup" aria-label="Select Blood Group">
+                        <!-- All option -->
+                        <label class="blood-pill-option">
+                            <input type="radio" name="blood_group" value="ALL" {% if selected_blood_group=='ALL' or not
+                                selected_blood_group %}checked{% endif %}>
+                            <div class="blood-pill-box">
+                                <span>ALL</span>
+                                <span class="blood-pill-sub">Any Type</span>
+                            </div>
+                        </label>
+
+                        <!-- O- -->
+                        <label class="blood-pill-option">
+                            <input type="radio" name="blood_group" value="O-" {% if selected_blood_group=='O-'
+                                %}checked{% endif %}>
+                            <div class="blood-pill-box">
+                                <span>O-</span>
+                                <span class="blood-pill-sub">Universal</span>
+                            </div>
+                        </label>
+
+                        <!-- O+ -->
+                        <label class="blood-pill-option">
+                            <input type="radio" name="blood_group" value="O+" {% if selected_blood_group=='O+'
+                                %}checked{% endif %}>
+                            <div class="blood-pill-box">
+                                <span>O+</span>
+                                <span class="blood-pill-sub">High Need</span>
+                            </div>
+                        </label>
+
+                        <!-- A- -->
+                        <label class="blood-pill-option">
+                            <input type="radio" name="blood_group" value="A-" {% if selected_blood_group=='A-'
+                                %}checked{% endif %}>
+                            <div class="blood-pill-box">
+                                <span>A-</span>
+                                <span class="blood-pill-sub">Rare Rh-</span>
+                            </div>
+                        </label>
+
+                        <!-- A+ -->
+                        <label class="blood-pill-option">
+                            <input type="radio" name="blood_group" value="A+" {% if selected_blood_group=='A+'
+                                %}checked{% endif %}>
+                            <div class="blood-pill-box">
+                                <span>A+</span>
+                                <span class="blood-pill-sub">Standard</span>
+                            </div>
+                        </label>
+
+                        <!-- B- -->
+                        <label class="blood-pill-option">
+                            <input type="radio" name="blood_group" value="B-" {% if selected_blood_group=='B-'
+                                %}checked{% endif %}>
+                            <div class="blood-pill-box">
+                                <span>B-</span>
+                                <span class="blood-pill-sub">Rare Rh-</span>
+                            </div>
+                        </label>
+
+                        <!-- B+ -->
+                        <label class="blood-pill-option">
+                            <input type="radio" name="blood_group" value="B+" {% if selected_blood_group=='B+'
+                                %}checked{% endif %}>
+                            <div class="blood-pill-box">
+                                <span>B+</span>
+                                <span class="blood-pill-sub">Standard</span>
+                            </div>
+                        </label>
+
+                        <!-- AB- -->
+                        <label class="blood-pill-option">
+                            <input type="radio" name="blood_group" value="AB-" {% if selected_blood_group=='AB-'
+                                %}checked{% endif %}>
+                            <div class="blood-pill-box">
+                                <span>AB-</span>
+                                <span class="blood-pill-sub">Rare Type</span>
+                            </div>
+                        </label>
+
+                        <!-- AB+ -->
+                        <label class="blood-pill-option">
+                            <input type="radio" name="blood_group" value="AB+" {% if selected_blood_group=='AB+'
+                                %}checked{% endif %}>
+                            <div class="blood-pill-box">
+                                <span>AB+</span>
+                                <span class="blood-pill-sub">Recipient</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 2. Search Bar for City, Area or District -->
+                <div class="search-input-row">
+                    <div class="search-input-wrapper">
+                        <span class="search-input-icon">
+                            <i data-lucide="map-pin"></i>
+                        </span>
+                        <input type="text" name="location" id="searchLocationInput" class="search-input-field"
+                            placeholder="Enter city, district, or area (e.g. Central Metro, District 1, North Hub)"
+                            value="{{ selected_location or '' }}" aria-label="City or area location">
+                    </div>
+
+                    <button type="submit" id="searchSubmitBtn" class="btn btn-primary btn-lg" style="height: 100%;">
+                        <i data-lucide="search"></i>
+                        <span>Search Donors</span>
+                    </button>
+                </div>
+
+                <!-- 3. Filter Options for Donor Availability & Compatibility -->
+                <div class="search-options-row">
+                    <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+                        <label class="filter-checkbox-label">
+                            <input type="checkbox" name="available_only" value="1" {% if available_only %}checked{%
+                                endif %}>
+                            <span>Immediately Available Only (Excludes Cooldown)</span>
+                        </label>
+
+                        <label class="filter-checkbox-label">
+                            <input type="checkbox" name="compatible" value="1" {% if include_compatible %}checked{%
+                                endif %}>
+                            <span>Include Compatible Blood Groups (Recommended)</span>
+                        </label>
+                    </div>
+
+                    <span
+                        style="font-size: 0.78125rem; color: var(--color-text-subtle); display: inline-flex; align-items: center; gap: 4px;">
+                        <i data-lucide="shield-check"
+                            style="width: 14px; height: 14px; color: var(--color-success-dark);"></i>
+                        100% Privacy Protected
+                    </span>
+                </div>
+            </form>
+        </div>
+
+        <!-- ======================================================================
+             LOADING ANIMATION STATE
+             ====================================================================== -->
+        <div id="searchLoadingState" class="search-loading-state" aria-live="polite">
+            <div class="heart-spinner">
+                <i data-lucide="heart-pulse"></i>
+            </div>
+            <div class="loading-text">Searching Regional Donor Registry...</div>
+            <div class="loading-subtext">Evaluating ABO/Rh biological compatibility and donor availability status.</div>
+        </div>
+
+        <!-- ======================================================================
+             SEARCH RESULTS SECTION
+             ====================================================================== -->
+        <div id="searchResultsSection">
+            <!-- Results Header -->
+            <div
+                style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
+                <div>
+                    <span id="resultsCountText"
+                        style="font-weight: 700; color: var(--color-secondary); font-size: 1.15rem;">
+                        {{ donors|length }} Verified {{ 'Donor' if donors|length == 1 else 'Donors' }} Found
+                    </span>
+                    {% if selected_blood_group and selected_blood_group != 'ALL' %}
+                    <span class="badge badge-neutral" style="margin-left: 0.5rem;">Group: {{ selected_blood_group
+                        }}</span>
+                    {% endif %}
+                    {% if selected_location %}
+                    <span class="badge badge-neutral">Near: {{ selected_location }}</span>
+                    {% endif %}
+                </div>
+                <span class="badge badge-neutral" style="font-size: 0.75rem;">Showing Publicly Discoverable
+                    Donors</span>
+            </div>
+
+            <!-- Donor Cards Grid -->
+            <div id="donorResultsContainer"
+                style="display: {% if donors %}grid{% else %}none{% endif %}; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem;">
+                {% for donor in donors %}
+                <div class="card card-hover">
+                    <div class="card-body">
+                        <div class="donor-card-header">
+                            <div class="donor-identity-box">
+                                <div class="donor-avatar-circle">
+                                    {{ donor.display_name[:2].upper() }}
+                                </div>
+                                <div class="donor-meta-info">
+                                    <h3>
+                                        {{ donor.display_name }}
+                                        {% if donor.is_verified %}
+                                        <i data-lucide="shield-check"
+                                            style="width: 16px; height: 16px; color: var(--color-success-dark);"
+                                            title="Clinically Verified Donor"></i>
+                                        {% endif %}
+                                    </h3>
+                                    <div class="donor-location-tag">
+                                        <i data-lucide="map-pin" style="width: 14px; height: 14px;"></i>
+                                        <span>{{ donor.city }}{% if donor.district %}, {{ donor.district }}{% endif
+                                            %}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="blood-symbol-pill"
+                                style="width: 48px; height: 48px; font-size: 1.25rem; margin-bottom: 0;">
+                                {{ donor.blood_group }}
+                            </div>
+                        </div>
+
+                        <div class="donor-info-list">
+                            <div class="donor-info-row">
+                                <span class="donor-info-label">Availability:</span>
+                                {% if donor.is_available %}
+                                <span class="badge badge-success"><span class="pulse-dot"></span> Available Now</span>
+                                {% else %}
+                                <span class="badge badge-neutral"><i data-lucide="moon"></i> Resting Cooldown</span>
+                                {% endif %}
+                            </div>
+                            <div class="donor-info-row">
+                                <span class="donor-info-label">Donation Track:</span>
+                                <span class="donor-info-val">{{ donor.total_donations or 0 }} Transfusions
+                                    Facilitated</span>
+                            </div>
+                            <div class="donor-info-row">
+                                <span class="donor-info-label">Contact Route:</span>
+                                <span
+                                    style="font-size: 0.8125rem; color: var(--color-text-muted); display: inline-flex; align-items: center; gap: 4px;">
+                                    <i data-lucide="lock" style="width: 12px; height: 12px;"></i>
+                                    {% if donor.contact_preference == 'phone' %}
+                                    Phone Preferred
+                                    {% elif donor.contact_preference == 'email' %}
+                                    Email Preferred
+                                    {% else %}
+                                    Phone & Email
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary btn-block btn-sm"
+                            onclick="openContactModal({{ donor.user_id }}, '{{ donor.display_name }}', '{{ donor.blood_group }}')"
+                            type="button">
+                            <i data-lucide="send"></i> Request Emergency Contact
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- ==================================================================
+                 EMPTY STATE COMPONENT
+                 ================================================================== -->
+            <div id="searchEmptyState" class="empty-search-container"
+                style="display: {% if not donors %}block{% else %}none{% endif %};">
+                <div class="empty-search-icon">
+                    <i data-lucide="search-x"></i>
+                </div>
+                <h3 class="empty-search-title">No Matching Donors Found in this Area</h3>
+                <p class="empty-search-desc">
+                    We could not find active donors matching your current filter criteria in this district.
+                </p>
+
+                <div class="empty-search-tips">
+                    <strong>Recommended Next Steps:</strong>
+                    <ul>
+                        <li>Enable <strong>"Include Compatible Blood Types"</strong> to find biological alternatives
+                            (e.g. O- universal donors).</li>
+                        <li>Broaden your location search to surrounding districts or leave the city field blank.</li>
+                        <li>Submit an official <strong>Emergency Blood Request</strong> to dispatch high-priority
+                            notifications to nearby hospitals.</li>
+                    </ul>
+                </div>
+
+                <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+                    <a href="/find-donors" class="btn btn-outline">
+                        <i data-lucide="rotate-ccw"></i> Reset Filters
+                    </a>
+                    <a href="/emergency-request" class="btn btn-emergency">
+                        <i data-lucide="alert-octagon"></i> Submit Emergency Request
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==============================================================================
+     PRIVACY-SAFE CONTACT MODAL DIALOG
+     ============================================================================== -->
+<div id="contactModalOverlay" class="contact-modal-overlay" role="dialog" aria-modal="true"
+    aria-labelledby="modalTitle">
+    <div class="contact-modal-card">
+        <div class="contact-modal-header">
+            <div>
+                <h3 id="modalTitle">Request Transfusion Contact</h3>
+                <span style="font-size: 0.78125rem; color: var(--color-text-subtle);">
+                    For donor <strong id="modalDonorDisplayName">Donor</strong>
+                    (<span id="modalDonorBloodGroup" class="badge badge-critical"
+                        style="padding: 0.1rem 0.4rem; font-size: 0.7rem;">O-</span>)
+                </span>
+            </div>
+            <button id="contactModalClose" class="topbar-btn-icon" type="button" aria-label="Close modal"
+                style="width: 32px; height: 32px;">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+
+        <div class="contact-modal-body">
+            <!-- Privacy notice -->
+            <div class="privacy-notice-box">
+                <i data-lucide="shield-alert"></i>
+                <div>
+                    <strong>Privacy & Consent Notice:</strong>
+                    To safeguard voluntary lifesavers from spam, donor phone numbers are kept confidential.
+                    Submitting this form notifies the donor with your patient details so they can contact you directly.
+                </div>
+            </div>
+
+            <form id="secureContactForm">
+                <input type="hidden" id="modalTargetDonorId" name="donor_user_id" value="">
+
+                <div class="form-group">
+                    <label for="modalReqName" class="form-label">Your Name (Attendant / Doctor / Relative) <span
+                            style="color: var(--color-critical);">*</span></label>
+                    <input type="text" id="modalReqName" name="requester_name" class="form-control"
+                        placeholder="e.g. Dr. Michael Sterling" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="modalReqPhone" class="form-label">Your Callback Phone Number <span
+                            style="color: var(--color-critical);">*</span></label>
+                    <input type="tel" id="modalReqPhone" name="requester_phone" class="form-control"
+                        placeholder="+1 (555) 019-0010" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="modalReqNotes" class="form-label">Hospital Name & Emergency Transfusion Notes</label>
+                    <textarea id="modalReqNotes" name="case_notes" rows="2" class="form-control"
+                        placeholder="Hospital name, ward, patient condition, units required..."></textarea>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+                    <button type="button" id="contactModalCancel" class="btn btn-outline">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i data-lucide="send"></i> Send Secure Contact Alert
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/search.js') }}"></script>
+{% endblock %}

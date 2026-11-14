@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Emergency Blood Request — LifeLink</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/app/static/css/main.css">
+    <link rel="stylesheet" href="/app/static/css/components.css">
+    <link rel="stylesheet" href="/app/static/css/dashboard.css">
+    <link rel="stylesheet" href="/app/static/css/responsive.css">
+    <link rel="stylesheet" href="/app/static/css/app.css">
+    <link rel="stylesheet" href="/app/static/css/requests.css">
+
+    <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+    <!-- Clinical Emergency Notice Bar -->
+    <div class="demo-disclaimer-bar" role="alert" style="background-color: #1E293B; color: #F1F5F9; font-size: 0.78125rem;">
+        <span class="demo-tag" style="background-color: var(--color-primary); color: #fff;">CRITICAL NOTICE</span>
+        <span>LifeLink facilitates voluntary blood donor coordination. For acute medical emergencies, contact hospital emergency rooms directly.</span>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="navbar" role="banner">
+        <div class="container">
+            <a href="/" class="nav-brand">
+                <span class="nav-brand-icon"><i data-lucide="droplet"></i></span>
+                <span>LifeLink</span>
+            </a>
+            <nav aria-label="Primary Navigation">
+                <ul class="nav-links">
+                    <li><a href="/" class="nav-link">Home</a></li>
+                    <li><a href="/find-donors" class="nav-link">Find Donors</a></li>
+                    <li><a href="/track-request" class="nav-link">Track Request</a></li>
+                    <li><a href="/#about" class="nav-link">About Us</a></li>
+                </ul>
+            </nav>
+            <div id="navAuthActions" class="nav-actions">
+                <a href="/emergency-request" class="btn btn-emergency btn-sm"><i data-lucide="alert-circle"></i> Emergency Request</a>
+                <a href="/auth/login" class="btn btn-outline btn-sm"><i data-lucide="log-in"></i> Sign In</a>
+                <a href="/auth/register" class="btn btn-primary btn-sm"><i data-lucide="user-plus"></i> Register</a>
+            </div>
+
+            <button id="mobileMenuToggle" class="mobile-menu-toggle" type="button" aria-label="Open mobile menu" aria-expanded="false" aria-controls="mobileDrawer">
+                <i data-lucide="menu"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Drawer -->
+    <div id="mobileNavOverlay" class="mobile-nav-overlay" aria-hidden="true"></div>
+    <aside id="mobileDrawer" class="mobile-drawer" aria-label="Mobile Navigation" role="dialog" aria-modal="true">
+        <div class="mobile-drawer-header">
+            <a href="/" class="nav-brand">
+                <span class="nav-brand-icon"><i data-lucide="droplet"></i></span>
+                <span>LifeLink</span>
+            </a>
+            <button id="mobileDrawerClose" class="mobile-menu-toggle" type="button" aria-label="Close mobile menu">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <ul class="mobile-drawer-links">
+            <li><a href="/" class="mobile-drawer-link"><i data-lucide="home"></i> Home</a></li>
+            <li><a href="/find-donors" class="mobile-drawer-link"><i data-lucide="search"></i> Find Blood Donors</a></li>
+            <li><a href="/track-request" class="mobile-drawer-link"><i data-lucide="radio"></i> Track Request</a></li>
+            <li data-nav-dashboard style="display:none;"><a href="/donor/dashboard" class="mobile-drawer-link"><i data-lucide="layout-dashboard"></i> My Dashboard</a></li>
+            <li><a href="/#about" class="mobile-drawer-link"><i data-lucide="info"></i> About LifeLink</a></li>
+        </ul>
+        <div id="mobileDrawerActions" class="mobile-drawer-actions">
+            <a href="/emergency-request" class="btn btn-emergency btn-block">
+                <i data-lucide="alert-circle"></i> Emergency Request
+            </a>
+            <a href="/auth/login" class="btn btn-outline btn-block">
+                <i data-lucide="log-in"></i> Sign In
+            </a>
+            <a href="/auth/register" class="btn btn-primary btn-block">
+                <i data-lucide="user-plus"></i> Create Account (Register)
+            </a>
+        </div>
+    </aside>
+
+    <main id="main-content" role="main">
+        <section class="section" style="padding: 3rem 0 5rem 0;">
+            <div class="container" style="max-width: 880px;">
+                
+                <!-- Page Header -->
+                <div style="margin-bottom: 2rem;">
+                    <a href="/" style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.875rem; color: var(--color-text-subtle); margin-bottom: 1rem;">
+                        <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i> Return to Home
+                    </a>
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <span class="badge badge-critical" style="margin-bottom: 0.5rem;">
+                                <span class="pulse-dot"></span> Emergency Transfusion Triage
+                            </span>
+                            <h1 class="section-title" style="margin-bottom: 0.35rem;">Post Emergency Blood Request</h1>
+                            <p class="section-subtitle">
+                                Provide patient and hospital details. LifeLink broadcasts urgent alerts to verified voluntary lifesavers nearby.
+                            </p>
+                        </div>
+                        <div>
+                            <a href="/track-request" class="btn btn-outline btn-sm">
+                                <i data-lucide="search"></i> Track Existing Request
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Request Form Card -->
+                <div class="card" style="padding: 2.5rem; box-shadow: var(--shadow-md);">
+                    <form id="emergencyRequestForm" action="/emergency-request" method="POST">
+                        
+                        <!-- 1. Urgency Level Selection -->
+                        <div style="margin-bottom: 2rem;">
+                            <label class="form-label" style="font-size: 0.9375rem; margin-bottom: 0.5rem;">
+                                Urgency Level <span style="color: var(--color-critical);">*</span>
+                            </label>
+                            <div class="urgency-grid">
+                                <label class="urgency-card-option">
+                                    <input type="radio" name="urgency_level" value="CRITICAL" checked>
+                                    <div class="urgency-tile critical">
+                                        <span class="badge badge-critical">CRITICAL</span>
+                                        <div class="urgency-title" style="color: var(--color-critical);">Within 2 Hours</div>
+                                        <div class="urgency-sub">Acute trauma, massive hemorrhage, emergency surgery</div>
+                                    </div>
+                                </label>
+
+                                <label class="urgency-card-option">
+                                    <input type="radio" name="urgency_level" value="URGENT">
+                                    <div class="urgency-tile urgent">
+                                        <span class="badge badge-urgent">URGENT</span>
+                                        <div class="urgency-title">Within 12 Hours</div>
+                                        <div class="urgency-sub">Scheduled surgery, oncology transfusion, pediatric anemia</div>
+                                    </div>
+                                </label>
+
+                                <label class="urgency-card-option">
+                                    <input type="radio" name="urgency_level" value="NORMAL">
+                                    <div class="urgency-tile standard">
+                                        <span class="badge badge-neutral">NORMAL</span>
+                                        <div class="urgency-title">24 - 48 Hours</div>
+                                        <div class="urgency-sub">Elective procedure, reserve replacement, planned therapy</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 2. Patient & Blood Specifications -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="reqPatientName" class="form-label">Patient Name <span style="color: var(--color-critical);">*</span></label>
+                                <input type="text" id="reqPatientName" name="patient_name" class="form-control" placeholder="Patient full name" required>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="reqBloodGroup" class="form-label">Required Blood Group <span style="color: var(--color-critical);">*</span></label>
+                                <select id="reqBloodGroup" name="blood_group" class="form-select" required>
+                                    <option value="">Select Blood Group...</option>
+                                    <option value="O-">O- Negative</option>
+                                    <option value="O+">O+ Positive</option>
+                                    <option value="A+">A+ Positive</option>
+                                    <option value="A-">A- Negative</option>
+                                    <option value="B+">B+ Positive</option>
+                                    <option value="B-">B- Negative</option>
+                                    <option value="AB+">AB+ (Universal Recipient)</option>
+                                    <option value="AB-">AB- Negative</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 3. Units, Date & Contact Preference -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="reqUnits" class="form-label">Required Units of Blood <span style="color: var(--color-critical);">*</span></label>
+                                <select id="reqUnits" name="units_needed" class="form-select" required>
+                                    <option value="1">1 Unit (~450 mL)</option>
+                                    <option value="2" selected>2 Units (~900 mL)</option>
+                                    <option value="3">3 Units</option>
+                                    <option value="4">4 Units</option>
+                                    <option value="5">5+ Units</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="reqDate" class="form-label">Required Date <span style="color: var(--color-critical);">*</span></label>
+                                <input type="date" id="reqDate" name="required_date" class="form-control" required>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="reqPreferredMethod" class="form-label">Preferred Contact Method <span style="color: var(--color-critical);">*</span></label>
+                                <select id="reqPreferredMethod" name="preferred_contact_method" class="form-select" required>
+                                    <option value="phone" selected>Direct Phone Call</option>
+                                    <option value="whatsapp">WhatsApp Message</option>
+                                    <option value="call_or_msg">Call or SMS</option>
+                                    <option value="email">Email</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 4. Contact Details -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="reqContactName" class="form-label">Contact Person / Attendant <span style="color: var(--color-critical);">*</span></label>
+                                <input type="text" id="reqContactName" name="contact_person" class="form-control" placeholder="Your name" required>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="reqContactPhone" class="form-label">Contact Number <span style="color: var(--color-critical);">*</span></label>
+                                <input type="tel" id="reqContactPhone" name="contact_phone" class="form-control" placeholder="Mobile number donors should call" required>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="reqContactEmail" class="form-label">Email Address <span style="color: var(--color-critical);">*</span></label>
+                                <input type="email" id="reqContactEmail" name="contact_email" class="form-control" placeholder="e.g. attendant@example.com" required>
+                            </div>
+                        </div>
+
+                        <!-- 5. Hospital Location Details -->
+                        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="reqHospitalName" class="form-label">Hospital Name <span style="color: var(--color-critical);">*</span></label>
+                                <input type="text" id="reqHospitalName" name="hospital_name" class="form-control" placeholder="Hospital name" required>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="reqCity" class="form-label">City <span style="color: var(--color-critical);">*</span></label>
+                                <input type="text" id="reqCity" name="city" class="form-control" placeholder="e.g. Hyderabad" required>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="reqArea" class="form-label">Hospital Area / District <span style="color: var(--color-critical);">*</span></label>
+                                <input type="text" id="reqArea" name="hospital_area" class="form-control" placeholder="e.g. Banjara Hills" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reqHospitalAddress" class="form-label">Hospital Location & Street Address <span style="color: var(--color-critical);">*</span></label>
+                            <textarea id="reqHospitalAddress" name="hospital_address" rows="2" class="form-control" placeholder="Ward, building, street address" required></textarea>
+                        </div>
+
+                        <div class="ll-location-box" id="hospitalLocationBox">
+                            <div class="ll-location-icon"><i data-lucide="map-pin"></i></div>
+                            <div class="ll-location-text">
+                                <strong>Hospital location (recommended)</strong>
+                                <span id="hospitalLocationText">If you are at the hospital, share your location so nearby donors see how far it is and get alerted first.</span>
+                            </div>
+                            <button type="button" class="btn btn-outline btn-sm" id="hospitalLocationBtn"><i data-lucide="crosshair"></i> Use my current location</button>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="reqDoctorName" class="form-label">Attending Doctor / Surgeon (Optional)</label>
+                                <input type="text" id="reqDoctorName" name="doctor_name" class="form-control" placeholder="Optional">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="reqState" class="form-label">State / Region <span style="color: var(--color-critical);">*</span></label>
+                                <input type="text" id="reqState" name="state" class="form-control" placeholder="e.g. Telangana" required>
+                            </div>
+                        </div>
+
+                        <!-- 6. Additional Information -->
+                        <div class="form-group">
+                            <label for="reqNotes" class="form-label">Additional Information</label>
+                            <textarea id="reqNotes" name="additional_notes" rows="2" class="form-control" placeholder="Patient diagnosis, cross-match status at blood bank, urgent surgical requirements..."></textarea>
+                        </div>
+
+                        <!-- Safety Certification Agreement -->
+                        <div style="background-color: var(--color-bg-subtle); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 1rem 1.25rem; margin-bottom: 2rem; display: flex; gap: 0.75rem; align-items: flex-start;">
+                            <input type="checkbox" id="reqAgree" required style="margin-top: 0.25rem; accent-color: var(--color-primary);">
+                            <label for="reqAgree" style="font-size: 0.8125rem; color: var(--color-text-muted); cursor: pointer;">
+                                I certify that this is a genuine medical emergency authorized by attending clinical staff. 
+                                I understand that LifeLink facilitates voluntary connections, and all donated blood must undergo mandatory laboratory testing and cross-matching before transfusion.
+                            </label>
+                        </div>
+
+                        <!-- Action Button -->
+                        <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+                            <a href="javascript:history.back()" class="btn btn-outline">Cancel</a>
+                            <button type="button" id="btnReviewRequest" class="btn btn-emergency btn-lg">
+                                <i data-lucide="alert-octagon"></i> Submit Emergency Request
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Confirmation Modal Dialog -->
+    <div id="confirmRequestModal" class="confirm-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+        <div class="confirm-modal-card">
+            <div class="confirm-modal-header">
+                <h3 id="confirmTitle">
+                    <i data-lucide="alert-triangle" style="width: 20px; height: 20px;"></i>
+                    Confirm Emergency Blood Broadcast
+                </h3>
+                <button id="btnCloseConfirmModal" class="topbar-btn-icon" type="button" aria-label="Close modal">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+
+            <div class="confirm-modal-body">
+                <p style="font-size: 0.875rem; color: var(--color-text-muted); margin-bottom: 1.25rem;">
+                    Please verify the transfusion details carefully. Once confirmed, high-priority notifications will be dispatched to compatible community donors.
+                </p>
+
+                <div class="confirm-summary-grid">
+                    <div>
+                        <div class="confirm-item-label">Patient Name</div>
+                        <div id="confPatientName" class="confirm-item-val">Robert Sterling</div>
+                    </div>
+                    <div>
+                        <div class="confirm-item-label">Blood Group & Units</div>
+                        <div id="confBloodGroup" class="confirm-item-val" style="color: var(--color-primary); font-weight: 700;">O- (2 Units)</div>
+                    </div>
+                    <div>
+                        <div class="confirm-item-label">Urgency Level</div>
+                        <div id="confUrgency" class="confirm-item-val">CRITICAL</div>
+                    </div>
+                    <div>
+                        <div class="confirm-item-label">Required Date</div>
+                        <div id="confDate" class="confirm-item-val">2026-11-14</div>
+                    </div>
+                    <div>
+                        <div class="confirm-item-label">Hospital & Location</div>
+                        <div id="confHospital" class="confirm-item-val">City General Trauma Center, District 1, Central Metro</div>
+                    </div>
+                    <div>
+                        <div class="confirm-item-label">Coordinator & Method</div>
+                        <div id="confContactPerson" class="confirm-item-val">Dr. Michael Sterling (+1 (555) 019-0010)</div>
+                        <div id="confPreferredMethod" style="font-size: 0.75rem; color: var(--color-text-subtle); margin-top: 0.2rem;">Direct Phone Call</div>
+                    </div>
+                </div>
+
+                <div class="medical-advisory-banner" style="padding: 1rem; margin-bottom: 0;">
+                    <div class="medical-advisory-icon" style="width: 32px; height: 32px; font-size: 0.9rem;">
+                        <i data-lucide="shield-alert" style="width: 18px; height: 18px;"></i>
+                    </div>
+                    <div class="medical-advisory-body">
+                        <h4 style="font-size: 0.9rem; margin-bottom: 0.2rem;">Clinical Authorization Notice</h4>
+                        <p style="font-size: 0.78125rem;">
+                            LifeLink is a volunteer coordination directory. In cases of immediate life endangerment, 
+                            always contact an authorized blood bank or hospital emergency transfusion room directly.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="confirm-modal-footer">
+                <button type="button" id="btnCancelConfirmModal" class="btn btn-outline">Back to Edit</button>
+                <button type="button" id="btnFinalSubmitRequest" class="btn btn-emergency">
+                    <i data-lucide="radio"></i> Confirm & Broadcast Request
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="site-footer" role="contentinfo">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 LifeLink Portal. All rights reserved.</p>
+                <p>Medical Notice: LifeLink is a volunteer coordination directory.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/app/static/js/main.js"></script>
+    <script src="/app/static/js/api.js"></script>
+    <script src="/app/static/js/requests.js"></script>
+</body>
+</html>

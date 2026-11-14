@@ -1,0 +1,568 @@
+{% extends "base.html" %}
+
+{% set active_page = "admin_dashboard" %}
+
+{% block title %}System Administrator Portal — LifeLink{% endblock %}
+
+{% block header %}
+    <!-- Dedicated dashboard layout suppresses default public navbar -->
+{% endblock %}
+
+{% block footer %}
+    <!-- Suppress public footer in dashboard view -->
+{% endblock %}
+
+{% block content %}
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+<div class="dashboard-container">
+    <!-- ==========================================================================
+         1. ADMIN SIDEBAR NAVIGATION
+         ========================================================================== -->
+    <aside class="dashboard-sidebar" aria-label="Administrator Navigation">
+        <!-- Sidebar Brand -->
+        <div class="sidebar-header">
+            <a href="/" class="sidebar-brand">
+                <span class="sidebar-brand-icon" style="background-color: var(--color-critical);">
+                    <i data-lucide="shield"></i>
+                </span>
+                <span>LifeLink Admin</span>
+            </a>
+        </div>
+
+        <!-- Admin Mini Profile Card -->
+        <div class="sidebar-user-card" style="background: rgba(239, 68, 68, 0.08); border-color: rgba(239, 68, 68, 0.2);">
+            <div class="sidebar-avatar" style="background-color: var(--color-critical); color: #FFFFFF; border-color: #FFFFFF;">
+                {{ (session.get('user_name', 'Preetham')[:2])|upper }}
+            </div>
+            <div class="sidebar-user-details">
+                <h4>{{ session.get('user_name', 'Preetham (Administrator)') }}</h4>
+                <p style="font-size: 0.72rem; color: #94A3B8; word-break: break-all; margin: 0 0 0.35rem 0;">{{ session.get('user_email', 'preethamnyamagoud@gmail.com') }}</p>
+                <p>
+                    <span class="badge badge-critical" style="padding: 0.1rem 0.4rem; font-size: 0.65rem;">
+                        System Authority
+                    </span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="sidebar-nav">
+            <span class="sidebar-nav-heading">Platform Monitoring</span>
+            
+            <a href="{{ url_for('admin.dashboard') }}" class="sidebar-link {% if active_tab == 'overview' %}active{% endif %}">
+                <div class="sidebar-link-content">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Overview & KPIs</span>
+                </div>
+            </a>
+
+            <a href="{{ url_for('admin.manage_users') }}" class="sidebar-link {% if active_tab == 'users' %}active{% endif %}">
+                <div class="sidebar-link-content">
+                    <i data-lucide="users"></i>
+                    <span>Manage Users</span>
+                </div>
+            </a>
+
+            <a href="{{ url_for('admin.manage_requests') }}" class="sidebar-link {% if active_tab == 'requests' %}active{% endif %}">
+                <div class="sidebar-link-content">
+                    <i data-lucide="activity"></i>
+                    <span>Manage Requests</span>
+                </div>
+            </a>
+
+            <a href="{{ url_for('admin.audit_logs') }}" class="sidebar-link {% if active_tab == 'logs' %}active{% endif %}">
+                <div class="sidebar-link-content">
+                    <i data-lucide="shield-alert"></i>
+                    <span>Reports & Audits</span>
+                </div>
+            </a>
+
+            <span class="sidebar-nav-heading">Live Portals</span>
+
+            <a href="{{ url_for('donor.dashboard') }}" class="sidebar-link">
+                <div class="sidebar-link-content">
+                    <i data-lucide="heart"></i>
+                    <span>Donor Portal View</span>
+                </div>
+            </a>
+
+            <a href="{{ url_for('patient.dashboard') }}" class="sidebar-link">
+                <div class="sidebar-link-content">
+                    <i data-lucide="hospital"></i>
+                    <span>Patient Portal View</span>
+                </div>
+            </a>
+
+            <a href="/find-donors" class="sidebar-link">
+                <div class="sidebar-link-content">
+                    <i data-lucide="search"></i>
+                    <span>Public Directory</span>
+                </div>
+            </a>
+        </nav>
+
+        <!-- Sidebar Footer Action -->
+        <div class="sidebar-footer">
+            <a href="{{ url_for('auth.logout') }}" class="sidebar-link" style="color: #94A3B8;">
+                <div class="sidebar-link-content">
+                    <i data-lucide="log-out"></i>
+                    <span>Admin Logout</span>
+                </div>
+            </a>
+        </div>
+    </aside>
+
+    <!-- ==========================================================================
+         2. ADMIN MAIN CONTENT
+         ========================================================================== -->
+    <div class="dashboard-main">
+        <!-- Topbar -->
+        <header class="dashboard-topbar">
+            <div class="topbar-left">
+                <button id="sidebarToggleBtn" class="mobile-menu-toggle" type="button" aria-label="Toggle navigation menu" style="display: none;">
+                    <i data-lucide="menu"></i>
+                </button>
+                <div>
+                    <h1 class="topbar-title">Administrative Operations Center</h1>
+                    <span style="font-size: 0.78125rem; color: var(--color-text-subtle);">
+                        HIPAA & Clinical Compliance Management • Real-Time Database Metrics
+                    </span>
+                </div>
+            </div>
+
+            <div class="topbar-right" style="display: flex; align-items: center; gap: 0.75rem;">
+                <span class="badge badge-success"><span class="pulse-dot"></span> MySQL Connected</span>
+                <div style="text-align: right; display: flex; flex-direction: column;">
+                    <span style="font-size: 0.8125rem; font-weight: 600; color: var(--color-text-main);">{{ session.get('user_name', 'Preetham (Administrator)') }}</span>
+                    <span style="font-size: 0.7rem; color: var(--color-text-subtle);">{{ session.get('user_email', 'preethamnyamagoud@gmail.com') }}</span>
+                </div>
+                <div class="sidebar-avatar" style="width: 38px; height: 38px; font-size: 0.9rem; background-color: var(--color-critical); color: #FFFFFF;">
+                    {{ (session.get('user_name', 'Preetham')[:2])|upper }}
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Body Content -->
+        <div class="dashboard-body">
+
+            <!-- ==============================================================
+                 A. OVERVIEW & KPIS TAB
+                 ============================================================== -->
+            {% if active_tab == 'overview' %}
+            
+            <!-- 1. Real-Time Statistic KPI Cards Grid -->
+            <div class="dash-metrics-grid">
+                <!-- KPI 1: Total Registered Accounts -->
+                <div class="dash-metric-card" style="border-left: 4px solid var(--color-secondary);">
+                    <div>
+                        <div class="dash-metric-title">Registered Accounts</div>
+                        <div class="dash-metric-value">{{ kpis.total_users }}</div>
+                        <div class="dash-metric-trend" style="color: var(--color-text-subtle);">
+                            <i data-lucide="users"></i>
+                            <span>{{ kpis.verified_accounts }} Clinically Verified</span>
+                        </div>
+                    </div>
+                    <div class="dash-metric-icon">
+                        <i data-lucide="user-check"></i>
+                    </div>
+                </div>
+
+                <!-- KPI 2: Total Donor Profiles -->
+                <div class="dash-metric-card" style="border-left: 4px solid #10B981;">
+                    <div>
+                        <div class="dash-metric-title">Donor Profiles</div>
+                        <div class="dash-metric-value" style="color: #10B981;">{{ kpis.total_donors }}</div>
+                        <div class="dash-metric-trend">
+                            <i data-lucide="check-circle-2"></i>
+                            <span>{{ kpis.active_donors }} Currently Available</span>
+                        </div>
+                    </div>
+                    <div class="dash-metric-icon" style="background-color: #ECFDF5; color: #10B981;">
+                        <i data-lucide="heart"></i>
+                    </div>
+                </div>
+
+                <!-- KPI 3: Active Blood Requests -->
+                <div class="dash-metric-card" style="border-left: 4px solid var(--color-critical);">
+                    <div>
+                        <div class="dash-metric-title">Active Blood Requests</div>
+                        <div class="dash-metric-value" style="color: var(--color-critical);">{{ kpis.active_requests }}</div>
+                        <div class="dash-metric-trend" style="color: var(--color-critical);">
+                            <i data-lucide="alert-octagon"></i>
+                            <span>In Immediate Triage</span>
+                        </div>
+                    </div>
+                    <div class="dash-metric-icon" style="background-color: #FEF2F2; color: #EF4444;">
+                        <i data-lucide="activity"></i>
+                    </div>
+                </div>
+
+                <!-- KPI 4: Completed & Cancelled Requests -->
+                <div class="dash-metric-card" style="border-left: 4px solid #6366F1;">
+                    <div>
+                        <div class="dash-metric-title">Completed & Cancelled</div>
+                        <div class="dash-metric-value" style="color: #4F46E5;">
+                            {{ kpis.fulfilled_requests }} <span style="font-size: 1rem; color: var(--color-text-subtle); font-weight: 400;">/ {{ kpis.cancelled_requests }}</span>
+                        </div>
+                        <div class="dash-metric-trend" style="color: var(--color-text-subtle);">
+                            <i data-lucide="archive"></i>
+                            <span>{{ kpis.fulfilled_requests }} Fulfilled Transfusions</span>
+                        </div>
+                    </div>
+                    <div class="dash-metric-icon" style="background-color: #EEF2FF; color: #6366F1;">
+                        <i data-lucide="check-square"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Inventory Distribution Visual Chart Card -->
+            <div class="card" style="box-shadow: var(--shadow-sm);">
+                <div class="card-header">
+                    <div>
+                        <h2 style="font-size: 1.25rem; color: var(--color-secondary);">Donor Registry ABO & Rh Distribution</h2>
+                        <p style="font-size: 0.8125rem; color: var(--color-text-subtle);">
+                            Real-time breakdown of registered voluntary lifesavers by biological blood group.
+                        </p>
+                    </div>
+                    <span class="badge badge-neutral">8 Blood Groups</span>
+                </div>
+
+                <div style="padding: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 1rem;">
+                    {% for item in blood_distribution %}
+                    <div style="border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 1.25rem 0.75rem; text-align: center; background-color: var(--color-white);">
+                        <div class="blood-symbol-pill" style="width: 44px; height: 44px; font-size: 1.15rem; margin: 0 auto 0.5rem auto;">
+                            {{ item.blood_group }}
+                        </div>
+                        <div style="font-size: 1.35rem; font-weight: 700; color: var(--color-secondary);">
+                            {{ item.donor_count }}
+                        </div>
+                        <div style="font-size: 0.725rem; color: var(--color-text-subtle);">
+                            Verified Donors
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- 3. Two-Column Overview Tables -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <!-- Recent Requests -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 style="font-size: 1.1rem; color: var(--color-secondary); margin: 0;">Active Emergency Requisitions</h3>
+                        <a href="{{ url_for('admin.manage_requests') }}" class="btn btn-outline btn-sm">View All</a>
+                    </div>
+                    <div class="table-wrapper" style="border: none;">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Patient</th>
+                                    <th>Blood</th>
+                                    <th>Hospital</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for r in requests[:5] %}
+                                <tr>
+                                    <td><strong>{{ r.patient_name }}</strong></td>
+                                    <td><span class="badge badge-critical">{{ r.blood_group }}</span></td>
+                                    <td>{{ r.hospital_name }}</td>
+                                    <td>
+                                        {% if r.status == 'ACTIVE' %}
+                                        <span class="badge badge-success"><span class="pulse-dot"></span> Active</span>
+                                        {% elif r.status == 'FULFILLED' %}
+                                        <span class="badge badge-neutral">Fulfilled</span>
+                                        {% else %}
+                                        <span class="badge badge-neutral">{{ r.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Recent Audit Logs -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 style="font-size: 1.1rem; color: var(--color-secondary); margin: 0;">Security & Audit Events</h3>
+                        <a href="{{ url_for('admin.audit_logs') }}" class="btn btn-outline btn-sm">View All</a>
+                    </div>
+                    <div class="table-wrapper" style="border: none;">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Action</th>
+                                    <th>Description</th>
+                                    <th>Timestamp</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in audit_logs[:5] %}
+                                <tr>
+                                    <td><span class="badge badge-neutral" style="font-size: 0.7rem;">{{ log.action_type }}</span></td>
+                                    <td><span style="font-size: 0.8125rem;">{{ log.description }}</span></td>
+                                    <td><span style="font-size: 0.725rem; color: var(--color-text-subtle);">{{ log.created_at }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            {% endif %}
+
+            <!-- ==============================================================
+                 B. MANAGE USERS TAB
+                 ============================================================== -->
+            {% if active_tab == 'users' %}
+            <div class="card" style="box-shadow: var(--shadow-sm);">
+                <div class="card-header">
+                    <div>
+                        <h2 style="font-size: 1.25rem; color: var(--color-secondary);">User Accounts Administration</h2>
+                        <p style="font-size: 0.8125rem; color: var(--color-text-subtle);">
+                            Inspect registered patients, donors, and administrators. Manage activation and clinical verification.
+                        </p>
+                    </div>
+
+                    <div style="display: flex; gap: 0.5rem;">
+                        <a href="{{ url_for('admin.manage_users') }}" class="btn btn-outline btn-sm {% if not selected_role %}active{% endif %}">All Roles</a>
+                        <a href="{{ url_for('admin.manage_users', role='donor') }}" class="btn btn-outline btn-sm {% if selected_role == 'donor' %}active{% endif %}">Donors</a>
+                        <a href="{{ url_for('admin.manage_users', role='patient') }}" class="btn btn-outline btn-sm {% if selected_role == 'patient' %}active{% endif %}">Patients</a>
+                    </div>
+                </div>
+
+                <div class="table-wrapper" style="border: none;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>User ID</th>
+                                <th>Full Name</th>
+                                <th>Email Address</th>
+                                <th>Phone Number</th>
+                                <th>Role</th>
+                                <th>Account Status</th>
+                                <th>Verification</th>
+                                <th style="text-align: right;">Administrative Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in users %}
+                            <tr>
+                                <td><strong>#{{ u.id }}</strong></td>
+                                <td><span style="font-weight: 700; color: var(--color-secondary);">{{ u.full_name }}</span></td>
+                                <td>{{ u.email }}</td>
+                                <td>{{ u.phone }}</td>
+                                <td>
+                                    {% if u.role == 'admin' %}
+                                        <span class="badge badge-critical">ADMIN</span>
+                                    {% elif u.role == 'donor' %}
+                                        <span class="badge badge-success">DONOR</span>
+                                    {% else %}
+                                        <span class="badge badge-neutral">PATIENT</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if u.is_active %}
+                                        <span class="badge badge-success"><span class="pulse-dot"></span> Active</span>
+                                    {% else %}
+                                        <span class="badge badge-neutral">Disabled</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if u.is_verified %}
+                                        <span class="badge badge-success"><i data-lucide="shield-check"></i> Verified</span>
+                                    {% else %}
+                                        <span class="badge badge-urgent">Unverified</span>
+                                    {% endif %}
+                                </td>
+                                <td style="text-align: right;">
+                                    <div style="display: inline-flex; gap: 0.4rem;">
+                                        {% if not u.is_verified and u.role == 'donor' %}
+                                        <form action="{{ url_for('admin.verify_donor', user_id=u.id) }}" method="POST" style="display: inline;">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <button type="submit" class="btn btn-primary btn-sm" style="padding: 0.25rem 0.6rem;">
+                                                <i data-lucide="check"></i> Verify
+                                            </button>
+                                        </form>
+                                        {% endif %}
+
+                                        <form action="{{ url_for('admin.toggle_user_status', user_id=u.id) }}" method="POST" style="display: inline;">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <input type="hidden" name="status" value="{{ '1' if u.is_active else '0' }}">
+                                            <button type="submit" class="btn btn-outline btn-sm" style="padding: 0.25rem 0.6rem;">
+                                                {{ 'Deactivate' if u.is_active else 'Activate' }}
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- ==============================================================
+                 C. MANAGE REQUESTS TAB
+                 ============================================================== -->
+            {% if active_tab == 'requests' %}
+            <div class="card" style="box-shadow: var(--shadow-sm);">
+                <div class="card-header">
+                    <div>
+                        <h2 style="font-size: 1.25rem; color: var(--color-secondary);">Blood Transfusion Requisitions Moderation</h2>
+                        <p style="font-size: 0.8125rem; color: var(--color-text-subtle);">
+                            Moderate incoming hospital transfusion requisitions, mark completed or cancel erroneous requests.
+                        </p>
+                    </div>
+
+                    <div style="display: flex; gap: 0.5rem;">
+                        <a href="{{ url_for('admin.manage_requests') }}" class="btn btn-outline btn-sm {% if not selected_status %}active{% endif %}">All Statuses</a>
+                        <a href="{{ url_for('admin.manage_requests', status='ACTIVE') }}" class="btn btn-outline btn-sm {% if selected_status == 'ACTIVE' %}active{% endif %}">Active</a>
+                        <a href="{{ url_for('admin.manage_requests', status='FULFILLED') }}" class="btn btn-outline btn-sm {% if selected_status == 'FULFILLED' %}active{% endif %}">Fulfilled</a>
+                    </div>
+                </div>
+
+                <div class="table-wrapper" style="border: none;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Case ID</th>
+                                <th>Patient Name</th>
+                                <th>Blood Group</th>
+                                <th>Units</th>
+                                <th>Urgency</th>
+                                <th>Hospital</th>
+                                <th>Current Status</th>
+                                <th style="text-align: right;">Moderation Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in requests %}
+                            <tr>
+                                <td><strong>#REQ-{{ "%04d" % req.id }}</strong></td>
+                                <td><span style="font-weight: 700; color: var(--color-secondary);">{{ req.patient_name }}</span></td>
+                                <td>
+                                    <span class="blood-symbol-pill" style="width: 32px; height: 32px; font-size: 0.9rem; margin: 0;">
+                                        {{ req.blood_group }}
+                                    </span>
+                                </td>
+                                <td>{{ req.units_needed }} Units</td>
+                                <td>
+                                    {% if req.urgency_level == 'CRITICAL' %}
+                                    <span class="badge badge-critical">CRITICAL</span>
+                                    {% elif req.urgency_level == 'URGENT' %}
+                                    <span class="badge badge-urgent">URGENT</span>
+                                    {% else %}
+                                    <span class="badge badge-neutral">STANDARD</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div>{{ req.hospital_name }}</div>
+                                    <span style="font-size: 0.725rem; color: var(--color-text-subtle);">{{ req.city }}</span>
+                                </td>
+                                <td>
+                                    {% if req.status == 'ACTIVE' %}
+                                    <span class="badge badge-success"><span class="pulse-dot"></span> Active</span>
+                                    {% elif req.status == 'FULFILLED' %}
+                                    <span class="badge badge-neutral"><i data-lucide="check"></i> Fulfilled</span>
+                                    {% else %}
+                                    <span class="badge badge-neutral">{{ req.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td style="text-align: right;">
+                                    <div style="display: inline-flex; gap: 0.4rem;">
+                                        <a href="{{ url_for('requests.track_request', request_id=req.id) }}" class="btn btn-outline btn-sm">
+                                            <i data-lucide="radio"></i> Track
+                                        </a>
+
+                                        {% if req.status == 'ACTIVE' %}
+                                        <form action="{{ url_for('admin.moderate_request', request_id=req.id) }}" method="POST" style="display: inline;">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <input type="hidden" name="status" value="FULFILLED">
+                                            <button type="submit" class="btn btn-primary btn-sm">
+                                                Fulfill
+                                            </button>
+                                        </form>
+
+                                        <form action="{{ url_for('admin.moderate_request', request_id=req.id) }}" method="POST" style="display: inline;">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <input type="hidden" name="status" value="CANCELLED">
+                                            <button type="submit" class="btn btn-outline btn-sm" style="color: var(--color-critical); border-color: var(--color-critical);">
+                                                Cancel
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- ==============================================================
+                 D. AUDIT LOGS & SUSPICIOUS ACTIVITY TAB
+                 ============================================================== -->
+            {% if active_tab == 'logs' %}
+            <div class="card" style="box-shadow: var(--shadow-sm);">
+                <div class="card-header">
+                    <div>
+                        <h2 style="font-size: 1.25rem; color: var(--color-secondary);">Cryptographic Audit & Security Activity Logs</h2>
+                        <p style="font-size: 0.8125rem; color: var(--color-text-subtle);">
+                            Immutable records of administrative actions, profile verifications, and request moderations.
+                        </p>
+                    </div>
+                    <span class="badge badge-success"><i data-lucide="shield-check"></i> Audit Active</span>
+                </div>
+
+                <div class="table-wrapper" style="border: none;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Log ID</th>
+                                <th>Action Type</th>
+                                <th>Target Entity</th>
+                                <th>Target ID</th>
+                                <th>Description</th>
+                                <th>IP Address</th>
+                                <th>Logged At</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in audit_logs %}
+                            <tr>
+                                <td><strong>#LOG-{{ log.id }}</strong></td>
+                                <td>
+                                    <span class="badge badge-neutral" style="font-size: 0.75rem;">
+                                        {{ log.action_type }}
+                                    </span>
+                                </td>
+                                <td><code>{{ log.target_entity }}</code></td>
+                                <td>{{ log.target_id or '—' }}</td>
+                                <td><span style="font-size: 0.85rem; color: var(--color-secondary);">{{ log.description }}</span></td>
+                                <td><code>{{ log.ip_address or '127.0.0.1' }}</code></td>
+                                <td><span style="font-size: 0.75rem; color: var(--color-text-subtle);">{{ log.created_at }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,425 @@
+{% extends "base.html" %}
+
+{% set active_page = "home" %}
+
+{% block title %}LifeLink — Every Drop Counts. Every Donor Matters.{% endblock %}
+
+{% block content %}
+<!-- ==============================================================================
+     1. HERO SECTION
+     ============================================================================== -->
+<section class="hero-section" aria-labelledby="hero-heading">
+    <div class="container">
+        <div class="hero-grid">
+            <!-- Left Headline & CTAs -->
+            <div class="hero-content">
+                <div class="hero-badge-pill">
+                    <i data-lucide="shield-check" style="width: 15px; height: 15px;"></i>
+                    <span>Verified Emergency Transfusion Network</span>
+                </div>
+
+                <h1 id="hero-heading" class="hero-headline">
+                    Every Drop Counts. <br>
+                    <span class="highlight">Every Donor Matters.</span>
+                </h1>
+
+                <p class="hero-description">
+                    LifeLink bridges critical blood requirements with verified voluntary donors within minutes. 
+                    Empowered by smart ABO/Rh compatibility triage, real-time availability tracking, 
+                    and zero-friction emergency dispatch.
+                </p>
+
+                <div class="hero-actions">
+                    <a href="/find-donors" class="btn btn-primary btn-lg">
+                        <i data-lucide="search"></i>
+                        <span>Find Blood Donors</span>
+                    </a>
+                    <a href="/dashboard" class="btn btn-secondary btn-lg">
+                        <i data-lucide="heart-handshake"></i>
+                        <span>Become a Donor</span>
+                    </a>
+                </div>
+
+                <!-- Trust Badges -->
+                <div class="hero-trust-row">
+                    <div class="hero-trust-item">
+                        <i data-lucide="check-circle-2"></i>
+                        <span>100% Free & Non-Profit</span>
+                    </div>
+                    <div class="hero-trust-item">
+                        <i data-lucide="check-circle-2"></i>
+                        <span>Verified Donor Contacts</span>
+                    </div>
+                    <div class="hero-trust-item">
+                        <i data-lucide="check-circle-2"></i>
+                        <span>HIPAA-Aligned Privacy</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Quick Donor Finder Card -->
+            <div class="hero-search-card">
+                <h3>Quick Donor Lookup</h3>
+                <p style="color: var(--color-text-subtle);">Locate available donors nearby right now.</p>
+
+                <form action="/find-donors" method="GET" style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="quickBloodGroup" class="form-label">Required Blood Group</label>
+                        <select id="quickBloodGroup" name="blood_group" class="form-select" required>
+                            <option value="">Select Blood Group...</option>
+                            <option value="A+">A+ (A Positive)</option>
+                            <option value="A-">A- (A Negative)</option>
+                            <option value="B+">B+ (B Positive)</option>
+                            <option value="B-">B- (B Negative)</option>
+                            <option value="AB+">AB+ (AB Positive - Universal Recipient)</option>
+                            <option value="AB-">AB- (AB Negative)</option>
+                            <option value="O+" selected>O+ (O Positive)</option>
+                            <option value="O-">O- (O Negative - Universal Red Cell Donor)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="quickLocation" class="form-label">City or Postal District</label>
+                        <input type="text" id="quickLocation" name="location" class="form-control" placeholder="e.g. Central Metro or 560001" value="Central Metro">
+                    </div>
+
+                    <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.8125rem; color: var(--color-text-subtle);">
+                        <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer;">
+                            <input type="checkbox" name="urgent_only" checked style="accent-color: var(--color-primary);">
+                            <span>Immediate Availability Only</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i data-lucide="search"></i> Search Active Donors
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==============================================================================
+     2. BLOOD GROUP CARDS SECTION (All 8 Groups)
+     ============================================================================== -->
+<section class="section" aria-labelledby="blood-groups-heading">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-eyebrow">
+                <i data-lucide="droplets"></i> Biological Compatibility
+            </span>
+            <h2 id="blood-groups-heading" class="section-title">Blood Group Directory & Live Stock</h2>
+            <p class="section-subtitle">
+                Explore compatibility rules, biological profiles, and simulated active volunteer numbers for all 8 blood groups.
+            </p>
+        </div>
+
+        <div class="blood-grid">
+            <!-- 1. O- (Universal Donor) -->
+            <div class="blood-card">
+                <div class="blood-symbol-pill">O-</div>
+                <h3 class="blood-title">O Negative</h3>
+                <p class="blood-compatibility">
+                    <strong>Universal Donor:</strong> Can give red cells to all 8 blood groups (O±, A±, B±, AB±).
+                </p>
+                <div class="blood-stats-row">
+                    <span class="badge badge-critical"><span class="pulse-dot"></span> High Urgency</span>
+                    <span class="donor-count">142 Demo Donors</span>
+                </div>
+            </div>
+
+            <!-- 2. O+ (Most Common) -->
+            <div class="blood-card">
+                <div class="blood-symbol-pill">O+</div>
+                <h3 class="blood-title">O Positive</h3>
+                <p class="blood-compatibility">
+                    Can give to <strong>O+, A+, B+, AB+</strong>. Highest emergency transfusion demand.
+                </p>
+                <div class="blood-stats-row">
+                    <span class="badge badge-success">Available</span>
+                    <span class="donor-count">580 Demo Donors</span>
+                </div>
+            </div>
+
+            <!-- 3. A+ -->
+            <div class="blood-card">
+                <div class="blood-symbol-pill">A+</div>
+                <h3 class="blood-title">A Positive</h3>
+                <p class="blood-compatibility">
+                    Can give red blood cells to <strong>A+ and AB+</strong>. Accepts from A± and O±.
+                </p>
+                <div class="blood-stats-row">
+                    <span class="badge badge-success">Available</span>
+                    <span class="donor-count">412 Demo Donors</span>
+                </div>
+            </div>
+
+            <!-- 4. A- -->
+            <div class="blood-card">
+                <div class="blood-symbol-pill">A-</div>
+                <h3 class="blood-title">A Negative</h3>
+                <p class="blood-compatibility">
+                    Can donate to <strong>A-, A+, AB-, AB+</strong>. Can receive only from A- and O-.
+                </p>
+                <div class="blood-stats-row">
+                    <span class="badge badge-urgent">Moderate</span>
+                    <span class="donor-count">94 Demo Donors</span>
+                </div>
+            </div>
+
+            <!-- 5. B+ -->
+            <div class="blood-card">
+                <div class="blood-symbol-pill">B+</div>
+                <h3 class="blood-title">B Positive</h3>
+                <p class="blood-compatibility">
+                    Can donate to <strong>B+ and AB+</strong>. Can receive from B+, B-, O+, and O-.
+                </p>
+                <div class="blood-stats-row">
+                    <span class="badge badge-success">Available</span>
+                    <span class="donor-count">364 Demo Donors</span>
+                </div>
+            </div>
+
+            <!-- 6. B- -->
+            <div class="blood-card">
+                <div class="blood-symbol-pill">B-</div>
+                <h3 class="blood-title">B Negative</h3>
+                <p class="blood-compatibility">
+                    Can donate to <strong>B-, B+, AB-, AB+</strong>. Can receive only from B- and O-.
+                </p>
+                <div class="blood-stats-row">
+                    <span class="badge badge-critical"><span class="pulse-dot"></span> High Urgency</span>
+                    <span class="donor-count">78 Demo Donors</span>
+                </div>
+            </div>
+
+            <!-- 7. AB+ (Universal Recipient) -->
+            <div class="blood-card">
+                <div class="blood-symbol-pill">AB+</div>
+                <h3 class="blood-title">AB Positive</h3>
+                <p class="blood-compatibility">
+                    <strong>Universal Recipient:</strong> Can receive red cells from all blood types. Can donate to AB+.
+                </p>
+                <div class="blood-stats-row">
+                    <span class="badge badge-success">Available</span>
+                    <span class="donor-count">196 Demo Donors</span>
+                </div>
+            </div>
+
+            <!-- 8. AB- -->
+            <div class="blood-card">
+                <div class="blood-symbol-pill">AB-</div>
+                <h3 class="blood-title">AB Negative</h3>
+                <p class="blood-compatibility">
+                    Rarest blood group. Can donate to <strong>AB- and AB+</strong>. Universal plasma donor.
+                </p>
+                <div class="blood-stats-row">
+                    <span class="badge badge-urgent">Rare Type</span>
+                    <span class="donor-count">48 Demo Donors</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==============================================================================
+     3. HOW IT WORKS (3 SIMPLE STEPS)
+     ============================================================================== -->
+<section class="section section-grey" aria-labelledby="how-it-works-heading">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-eyebrow">
+                <i data-lucide="workflow"></i> Streamlined Coordination
+            </span>
+            <h2 id="how-it-works-heading" class="section-title">How LifeLink Saves Lives in 3 Steps</h2>
+            <p class="section-subtitle">
+                Designed to eliminate delays when seconds count. Simple, transparent, and secure.
+            </p>
+        </div>
+
+        <div class="process-grid">
+            <!-- Step 1 -->
+            <div class="process-card">
+                <span class="process-step-badge">01</span>
+                <div class="process-icon-box">
+                    <i data-lucide="search"></i>
+                </div>
+                <h3 class="process-title">1. Search or Request</h3>
+                <p class="process-desc">
+                    Find available donors by blood group and proximity, or submit an emergency hospital request with units needed and urgency tier.
+                </p>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="process-card">
+                <span class="process-step-badge">02</span>
+                <div class="process-icon-box">
+                    <i data-lucide="zap"></i>
+                </div>
+                <h3 class="process-title">2. Smart Matching</h3>
+                <p class="process-desc">
+                    Our biological compatibility algorithm identifies exact and universal matches, instantly alerting eligible active donors in your area.
+                </p>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="process-card">
+                <span class="process-step-badge">03</span>
+                <div class="process-icon-box">
+                    <i data-lucide="heart-pulse"></i>
+                </div>
+                <h3 class="process-title">3. Coordinate & Save</h3>
+                <p class="process-desc">
+                    Connect directly with verified donors to coordinate safe bedside hospital donation or blood bank handover.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==============================================================================
+     4. EMERGENCY CALL TO ACTION BANNER
+     ============================================================================== -->
+<section class="section" style="padding: 3rem 0;">
+    <div class="container">
+        <div class="emergency-callout">
+            <div class="emergency-content">
+                <span class="badge badge-critical" style="margin-bottom: 0.75rem; background: rgba(220, 38, 38, 0.2); color: #FFA4A4; border-color: rgba(220, 38, 38, 0.4);">
+                    <span class="pulse-dot"></span> Critical Care Transfusion Alert
+                </span>
+                <h2>In Urgent Need of Blood Transfusion?</h2>
+                <p>
+                    Don't lose critical time searching social media. Submit an emergency request to dispatch immediate notifications to verified compatible donors within 10 km.
+                </p>
+            </div>
+
+            <div class="emergency-actions">
+                <a href="/emergency-request" class="btn btn-emergency btn-lg">
+                    <i data-lucide="alert-octagon"></i>
+                    <span>Post Emergency Request</span>
+                </a>
+                <span class="emergency-helpline-tag">
+                    <i data-lucide="phone"></i> 24/7 Hotline: <strong>1800-LIFELINK</strong> (Simulated)
+                </span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==============================================================================
+     5. STATISTICS SECTION (Clearly Identified Demo Figures)
+     ============================================================================== -->
+<section class="section section-grey" aria-labelledby="stats-heading">
+    <div class="container">
+        <div class="section-header" style="margin-bottom: 2.5rem;">
+            <span class="section-eyebrow" style="background-color: var(--color-secondary-50); color: var(--color-secondary);">
+                <i data-lucide="bar-chart-2"></i> Simulated Prototype Metrics
+            </span>
+            <h2 id="stats-heading" class="section-title">Measurable Community Impact</h2>
+            <p class="section-subtitle">
+                Demonstrating the architectural scalability of LifeLink across regional healthcare ecosystems.
+            </p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">14,850+</div>
+                <div class="stat-label">Registered Donors</div>
+                <div class="stat-caption">Voluntary active lifesavers</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-value">38,920+</div>
+                <div class="stat-label">Units Facilitated</div>
+                <div class="stat-caption">Transfusions coordinated</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-value">11.4 min</div>
+                <div class="stat-label">Avg. Response Time</div>
+                <div class="stat-caption">From request to donor volunteer</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-value">210+</div>
+                <div class="stat-label">Partner Hospitals</div>
+                <div class="stat-caption">Accredited trauma centers</div>
+            </div>
+        </div>
+
+        <p style="text-align: center; font-size: 0.75rem; color: var(--color-text-subtle); margin-top: 1.5rem;">
+            *Note: Figures above are simulated demo metrics provided for architectural prototype visualization.
+        </p>
+    </div>
+</section>
+
+<!-- ==============================================================================
+     6. TESTIMONIALS SECTION (Clearly Labeled Fictional Demo Content)
+     ============================================================================== -->
+<section class="section" aria-labelledby="testimonials-heading">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-eyebrow">
+                <i data-lucide="message-square"></i> Community Voices
+            </span>
+            <h2 id="testimonials-heading" class="section-title">Trusted by Doctors & Donors</h2>
+            <p class="section-subtitle">
+                Read how LifeLink's streamlined matching transforms emergency care outcomes.
+            </p>
+        </div>
+
+        <div class="testimonials-grid">
+            <!-- Testimonial 1 -->
+            <div class="testimonial-card">
+                <p class="testimonial-quote">
+                    "During acute trauma resuscitations, manual phone trees waste irreplaceable time. 
+                    LifeLink's automated ABO/Rh compatibility triage connects us with verified local donors in under 15 minutes."
+                </p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">AS</div>
+                    <div class="author-info">
+                        <h4>Dr. Ananya Sharma</h4>
+                        <p>Chief Trauma Specialist, Metro Hospital (Demo)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Testimonial 2 -->
+            <div class="testimonial-card">
+                <p class="testimonial-quote">
+                    "Being an O- negative donor, I get called frequently. The availability toggle lets me pause alerts when 
+                    I'm in my 90-day cooldown, and immediately activates when urgent units are needed nearby."
+                </p>
+                <div class="testimonial-author">
+                    <div class="author-avatar" style="background-color: var(--color-primary-50); color: var(--color-primary);">RJ</div>
+                    <div class="author-info">
+                        <h4>Rajesh Verma</h4>
+                        <p>Voluntary Donor (12+ Donations) (Demo)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Testimonial 3 -->
+            <div class="testimonial-card">
+                <p class="testimonial-quote">
+                    "When my father needed 3 units of rare B- blood during cardiac bypass surgery, 
+                    two LifeLink volunteers responded within 40 minutes. Truly a lifesaver in every sense."
+                </p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">SM</div>
+                    <div class="author-info">
+                        <h4>Sunita Menon</h4>
+                        <p>Patient Caregiver, Central Ward (Demo)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <span class="badge badge-neutral" style="font-size: 0.75rem;">
+                Fictional demo testimonials created for user experience validation.
+            </span>
+        </div>
+    </div>
+</section>
+{% endblock %}

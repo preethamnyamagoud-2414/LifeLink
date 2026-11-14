@@ -1,0 +1,377 @@
+{% extends "base.html" %}
+
+{% set active_page = "emergency_request" %}
+
+{% block title %}Submit Emergency Blood Request — LifeLink Portal{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/requests.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="section" style="padding: 3rem 0 5rem 0;">
+    <div class="container" style="max-width: 880px;">
+        
+        <!-- Header -->
+        <div style="margin-bottom: 2rem;">
+            <a href="/" style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.875rem; color: var(--color-text-subtle); margin-bottom: 1rem;">
+                <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i> Return to Home
+            </a>
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <span class="badge badge-critical" style="margin-bottom: 0.5rem;">
+                        <span class="pulse-dot"></span> Emergency Transfusion Triage
+                    </span>
+                    <h1 class="section-title" style="margin-bottom: 0.35rem;">Post Emergency Blood Request</h1>
+                    <p class="section-subtitle">
+                        Provide patient and hospital details. LifeLink broadcasts urgent alerts to verified voluntary lifesavers nearby.
+                    </p>
+                </div>
+                <div>
+                    <a href="{{ url_for('requests.track_lookup') }}" class="btn btn-outline btn-sm">
+                        <i data-lucide="search"></i> Track Existing Request
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Request Form Card -->
+        <div class="card" style="padding: 2.5rem; box-shadow: var(--shadow-md);">
+            <form id="emergencyRequestForm" action="{{ url_for('requests.create_request') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <!-- 1. Urgency Level Selection -->
+                <div style="margin-bottom: 2rem;">
+                    <label class="form-label" style="font-size: 0.9375rem; margin-bottom: 0.5rem;">
+                        Urgency Level <span style="color: var(--color-critical);">*</span>
+                    </label>
+                    <div class="urgency-grid">
+                        <!-- Critical -->
+                        <label class="urgency-card-option">
+                            <input type="radio" name="urgency_level" value="CRITICAL" {% if not form_data or form_data.urgency_level == 'CRITICAL' %}checked{% endif %}>
+                            <div class="urgency-tile critical">
+                                <span class="badge badge-critical">CRITICAL</span>
+                                <div class="urgency-title" style="color: var(--color-critical);">Within 2 Hours</div>
+                                <div class="urgency-sub">Acute trauma, intensive hemorrhage, immediate ICU surgery</div>
+                            </div>
+                        </label>
+
+                        <!-- Urgent -->
+                        <label class="urgency-card-option">
+                            <input type="radio" name="urgency_level" value="URGENT" {% if form_data and form_data.urgency_level == 'URGENT' %}checked{% endif %}>
+                            <div class="urgency-tile urgent">
+                                <span class="badge badge-urgent">URGENT</span>
+                                <div class="urgency-title">Within 12 Hours</div>
+                                <div class="urgency-sub">Scheduled surgery, oncology transfusion, pediatric anemia</div>
+                            </div>
+                        </label>
+
+                        <!-- Normal -->
+                        <label class="urgency-card-option">
+                            <input type="radio" name="urgency_level" value="NORMAL" {% if form_data and form_data.urgency_level in ('NORMAL', 'STANDARD') %}checked{% endif %}>
+                            <div class="urgency-tile standard">
+                                <span class="badge badge-neutral">NORMAL</span>
+                                <div class="urgency-title">24 - 48 Hours</div>
+                                <div class="urgency-sub">Elective procedure, reserve replacement, planned therapy</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 2. Patient & Blood Specifications -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="reqPatientName" class="form-label">Patient Name <span style="color: var(--color-critical);">*</span></label>
+                        <input 
+                            type="text" 
+                            id="reqPatientName" 
+                            name="patient_name" 
+                            class="form-control" 
+                            placeholder="e.g. Robert Sterling" 
+                            value="{{ form_data.patient_name if form_data else '' }}" 
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="reqBloodGroup" class="form-label">Required Blood Group <span style="color: var(--color-critical);">*</span></label>
+                        <select id="reqBloodGroup" name="blood_group" class="form-select" required>
+                            <option value="">Select Blood Group...</option>
+                            <option value="O-" {% if form_data and form_data.blood_group == 'O-' %}selected{% endif %}>O- (Universal Red Cell Donor)</option>
+                            <option value="O+" {% if form_data and form_data.blood_group == 'O+' %}selected{% endif %}>O+ Positive</option>
+                            <option value="A+" {% if form_data and form_data.blood_group == 'A+' %}selected{% endif %}>A+ Positive</option>
+                            <option value="A-" {% if form_data and form_data.blood_group == 'A-' %}selected{% endif %}>A- Negative</option>
+                            <option value="B+" {% if form_data and form_data.blood_group == 'B+' %}selected{% endif %}>B+ Positive</option>
+                            <option value="B-" {% if form_data and form_data.blood_group == 'B-' %}selected{% endif %}>B- Negative</option>
+                            <option value="AB+" {% if form_data and form_data.blood_group == 'AB+' %}selected{% endif %}>AB+ (Universal Recipient)</option>
+                            <option value="AB-" {% if form_data and form_data.blood_group == 'AB-' %}selected{% endif %}>AB- Negative</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 3. Units, Date & Contact Preference -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="reqUnits" class="form-label">Required Units of Blood <span style="color: var(--color-critical);">*</span></label>
+                        <select id="reqUnits" name="units_needed" class="form-select" required>
+                            <option value="1">1 Unit (~450 mL)</option>
+                            <option value="2" selected>2 Units (~900 mL)</option>
+                            <option value="3">3 Units</option>
+                            <option value="4">4 Units</option>
+                            <option value="5">5+ Units</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="reqDate" class="form-label">Required Date <span style="color: var(--color-critical);">*</span></label>
+                        <input 
+                            type="date" 
+                            id="reqDate" 
+                            name="required_date" 
+                            class="form-control" 
+                            value="{{ form_data.required_date if form_data else today_date }}" 
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="reqPreferredMethod" class="form-label">Preferred Contact Method <span style="color: var(--color-critical);">*</span></label>
+                        <select id="reqPreferredMethod" name="preferred_contact_method" class="form-select" required>
+                            <option value="phone" selected>Direct Phone Call</option>
+                            <option value="whatsapp">WhatsApp Message</option>
+                            <option value="call_or_msg">Call or SMS</option>
+                            <option value="email">Email</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 4. Contact Details -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="reqContactName" class="form-label">Contact Person / Attendant <span style="color: var(--color-critical);">*</span></label>
+                        <input 
+                            type="text" 
+                            id="reqContactName" 
+                            name="contact_person" 
+                            class="form-control" 
+                            placeholder="e.g. Michael Sterling" 
+                            value="{{ form_data.contact_person if form_data else session.get('user_name', '') }}" 
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="reqContactPhone" class="form-label">Contact Number <span style="color: var(--color-critical);">*</span></label>
+                        <input 
+                            type="tel" 
+                            id="reqContactPhone" 
+                            name="contact_phone" 
+                            class="form-control" 
+                            placeholder="e.g. +1 (555) 019-0010" 
+                            value="{{ form_data.contact_phone if form_data else '' }}" 
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="reqContactEmail" class="form-label">Email Address <span style="color: var(--color-critical);">*</span></label>
+                        <input 
+                            type="email" 
+                            id="reqContactEmail" 
+                            name="contact_email" 
+                            class="form-control" 
+                            placeholder="e.g. attendant@example.com" 
+                            value="{{ form_data.contact_email if form_data else session.get('user_email', '') }}" 
+                            required
+                        >
+                    </div>
+                </div>
+
+                <!-- 5. Hospital Location Details -->
+                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="reqHospitalName" class="form-label">Hospital Name <span style="color: var(--color-critical);">*</span></label>
+                        <input 
+                            type="text" 
+                            id="reqHospitalName" 
+                            name="hospital_name" 
+                            class="form-control" 
+                            placeholder="e.g. City General Trauma Center" 
+                            value="{{ form_data.hospital_name if form_data else '' }}" 
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="reqCity" class="form-label">Hospital City <span style="color: var(--color-critical);">*</span></label>
+                        <input 
+                            type="text" 
+                            id="reqCity" 
+                            name="city" 
+                            class="form-control" 
+                            placeholder="e.g. Central Metro" 
+                            value="{{ form_data.city if form_data else 'Central Metro' }}" 
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="reqArea" class="form-label">Hospital Area / District <span style="color: var(--color-critical);">*</span></label>
+                        <input 
+                            type="text" 
+                            id="reqArea" 
+                            name="hospital_area" 
+                            class="form-control" 
+                            placeholder="e.g. District 1" 
+                            value="{{ form_data.hospital_area if form_data else 'District 1' }}" 
+                            required
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="reqHospitalAddress" class="form-label">Hospital Location & Street Address <span style="color: var(--color-critical);">*</span></label>
+                    <textarea 
+                        id="reqHospitalAddress" 
+                        name="hospital_address" 
+                        rows="2" 
+                        class="form-control" 
+                        placeholder="e.g. Ward 3, ICU Bed 12, 100 Medical Blvd" 
+                        required
+                    >{{ form_data.hospital_address if form_data else '' }}</textarea>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="reqDoctorName" class="form-label">Attending Doctor / Surgeon (Optional)</label>
+                        <input 
+                            type="text" 
+                            id="reqDoctorName" 
+                            name="doctor_name" 
+                            class="form-control" 
+                            placeholder="e.g. Dr. K. Aris" 
+                            value="{{ form_data.doctor_name if form_data else '' }}"
+                        >
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="reqState" class="form-label">State / Region <span style="color: var(--color-critical);">*</span></label>
+                        <input 
+                            type="text" 
+                            id="reqState" 
+                            name="state" 
+                            class="form-control" 
+                            placeholder="e.g. Metro State" 
+                            value="{{ form_data.state if form_data else 'Metro State' }}" 
+                            required
+                        >
+                    </div>
+                </div>
+
+                <!-- 6. Additional Information -->
+                <div class="form-group">
+                    <label for="reqNotes" class="form-label">Additional Information</label>
+                    <textarea 
+                        id="reqNotes" 
+                        name="additional_notes" 
+                        rows="2" 
+                        class="form-control" 
+                        placeholder="e.g. Patient diagnosis, cross-match status at blood bank, urgent surgical requirements..."
+                    >{{ form_data.additional_notes if form_data else '' }}</textarea>
+                </div>
+
+                <!-- Safety Certification Agreement -->
+                <div style="background-color: var(--color-bg-subtle); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 1rem 1.25rem; margin-bottom: 2rem; display: flex; gap: 0.75rem; align-items: flex-start;">
+                    <input type="checkbox" id="reqAgree" checked required style="margin-top: 0.25rem; accent-color: var(--color-primary);">
+                    <label for="reqAgree" style="font-size: 0.8125rem; color: var(--color-text-muted); cursor: pointer;">
+                        I certify that this is a genuine medical emergency authorized by attending clinical staff. 
+                        I understand that LifeLink facilitates voluntary connections, and all donated blood must undergo mandatory laboratory testing and cross-matching before transfusion.
+                    </label>
+                </div>
+
+                <!-- Action Button -->
+                <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+                    <a href="/" class="btn btn-outline">Cancel</a>
+                    <button type="button" id="btnReviewRequest" class="btn btn-emergency btn-lg">
+                        <i data-lucide="alert-octagon"></i> Submit Emergency Request
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- ==============================================================================
+     CONFIRMATION REVIEW MODAL DIALOG
+     ============================================================================== -->
+<div id="confirmRequestModal" class="confirm-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="confirm-modal-card">
+        <div class="confirm-modal-header">
+            <h3 id="confirmTitle">
+                <i data-lucide="alert-triangle" style="width: 20px; height: 20px;"></i>
+                Confirm Emergency Blood Broadcast
+            </h3>
+            <button id="btnCloseConfirmModal" class="topbar-btn-icon" type="button" aria-label="Close modal">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+
+        <div class="confirm-modal-body">
+            <p style="font-size: 0.875rem; color: var(--color-text-muted); margin-bottom: 1.25rem;">
+                Please verify the transfusion details carefully. Once confirmed, high-priority notifications will be dispatched to compatible community donors.
+            </p>
+
+            <div class="confirm-summary-grid">
+                <div>
+                    <div class="confirm-item-label">Patient Name</div>
+                    <div id="confPatientName" class="confirm-item-val">—</div>
+                </div>
+                <div>
+                    <div class="confirm-item-label">Blood Group & Units</div>
+                    <div id="confBloodGroup" class="confirm-item-val" style="color: var(--color-primary); font-weight: 700;">—</div>
+                </div>
+                <div>
+                    <div class="confirm-item-label">Urgency Level</div>
+                    <div id="confUrgency" class="confirm-item-val">—</div>
+                </div>
+                <div>
+                    <div class="confirm-item-label">Required Date</div>
+                    <div id="confDate" class="confirm-item-val">—</div>
+                </div>
+                <div>
+                    <div class="confirm-item-label">Hospital & Location</div>
+                    <div id="confHospital" class="confirm-item-val">—</div>
+                </div>
+                <div>
+                    <div class="confirm-item-label">Coordinator & Method</div>
+                    <div id="confContactPerson" class="confirm-item-val">—</div>
+                    <div id="confPreferredMethod" style="font-size: 0.75rem; color: var(--color-text-subtle); margin-top: 0.2rem;">—</div>
+                </div>
+            </div>
+
+            <div class="medical-advisory-banner" style="padding: 1rem; margin-bottom: 0;">
+                <div class="medical-advisory-icon" style="width: 32px; height: 32px; font-size: 0.9rem;">
+                    <i data-lucide="shield-alert" style="width: 18px; height: 18px;"></i>
+                </div>
+                <div class="medical-advisory-body">
+                    <h4 style="font-size: 0.9rem; margin-bottom: 0.2rem;">Clinical Authorization Notice</h4>
+                    <p style="font-size: 0.78125rem;">
+                        LifeLink is a volunteer coordination directory. In cases of immediate life endangerment, 
+                        always contact an authorized blood bank or hospital emergency transfusion room directly.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="confirm-modal-footer">
+            <button type="button" id="btnCancelConfirmModal" class="btn btn-outline">Back to Edit</button>
+            <button type="button" id="btnFinalSubmitRequest" class="btn btn-emergency">
+                <i data-lucide="radio"></i> Confirm & Broadcast Request
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="{{ url_for('static', filename='js/requests.js') }}"></script>
+{% endblock %}

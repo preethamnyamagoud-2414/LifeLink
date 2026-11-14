@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% set active_page = "track_request" %}
+
+{% block title %}Track Blood Request — LifeLink Portal{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/requests.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="section" style="padding: 3rem 0 5rem 0;">
+    <div class="container" style="max-width: 760px;">
+        
+        <div style="text-align: center; margin-bottom: 2.5rem;">
+            <span class="badge badge-neutral" style="margin-bottom: 0.5rem;">
+                <i data-lucide="activity"></i> Real-Time Transfusion Tracker
+            </span>
+            <h1 class="section-title" style="margin-bottom: 0.35rem;">Track Blood Request Status</h1>
+            <p class="section-subtitle" style="margin: 0 auto; max-width: 580px;">
+                Enter your Emergency Blood Request ID to check volunteer responses, donor arrivals, and hospital transfusion progress.
+            </p>
+        </div>
+
+        <!-- Lookup Card -->
+        <div class="card" style="padding: 2.5rem; box-shadow: var(--shadow-md); margin-bottom: 2.5rem;">
+            <form action="{{ url_for('requests.track_lookup') }}" method="GET">
+                <div class="form-group">
+                    <label for="trackRequestId" class="form-label" style="font-weight: 600; color: var(--color-secondary);">
+                        Enter Blood Request ID <span style="color: var(--color-critical);">*</span>
+                    </label>
+                    <div style="display: flex; gap: 0.75rem;">
+                        <input 
+                            type="number" 
+                            id="trackRequestId" 
+                            name="id" 
+                            class="form-control" 
+                            placeholder="e.g. 1, 2, 3 or 4" 
+                            min="1" 
+                            required 
+                            style="font-size: 1.15rem; font-weight: 600;"
+                        >
+                        <button type="submit" class="btn btn-primary btn-lg" style="white-space: nowrap;">
+                            <i data-lucide="search"></i> Track Request
+                        </button>
+                    </div>
+                    <span style="font-size: 0.75rem; color: var(--color-text-subtle); margin-top: 0.4rem; display: block;">
+                        Your Request ID was provided when submitting your emergency transfusion form (or in your SMS alert).
+                    </span>
+                </div>
+            </form>
+        </div>
+
+        <!-- Active Public Requests Quick Tracker -->
+        <div class="card" style="padding: 2rem;">
+            <h3 style="font-size: 1.1rem; color: var(--color-secondary); margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between;">
+                <span>Active Emergency Cases</span>
+                <span class="badge badge-critical"><span class="pulse-dot"></span> Live Cases</span>
+            </h3>
+
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <!-- Request #1 -->
+                <a href="{{ url_for('requests.track_request', request_id=1) }}" class="card card-hover" style="padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; text-decoration: none; border: 1px solid var(--color-border);">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div class="blood-symbol-pill" style="width: 42px; height: 42px; font-size: 1.1rem; margin-bottom: 0;">O-</div>
+                        <div>
+                            <div style="font-weight: 700; color: var(--color-secondary); font-size: 0.95rem;">Request #REQ-0001: Robert Sterling</div>
+                            <div style="font-size: 0.78125rem; color: var(--color-text-subtle);">City General Trauma Center • Central Metro</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <span class="badge badge-critical">CRITICAL</span>
+                        <i data-lucide="chevron-right" style="color: var(--color-text-subtle);"></i>
+                    </div>
+                </a>
+
+                <!-- Request #2 -->
+                <a href="{{ url_for('requests.track_request', request_id=2) }}" class="card card-hover" style="padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; text-decoration: none; border: 1px solid var(--color-border);">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div class="blood-symbol-pill" style="width: 42px; height: 42px; font-size: 1.1rem; margin-bottom: 0;">B-</div>
+                        <div>
+                            <div style="font-weight: 700; color: var(--color-secondary); font-size: 0.95rem;">Request #REQ-0002: Anita Desai</div>
+                            <div style="font-size: 0.78125rem; color: var(--color-text-subtle);">Metro Heart Institute • Central Metro</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <span class="badge badge-urgent">URGENT</span>
+                        <i data-lucide="chevron-right" style="color: var(--color-text-subtle);"></i>
+                    </div>
+                </a>
+
+                <!-- Request #3 -->
+                <a href="{{ url_for('requests.track_request', request_id=3) }}" class="card card-hover" style="padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; text-decoration: none; border: 1px solid var(--color-border);">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div class="blood-symbol-pill" style="width: 42px; height: 42px; font-size: 1.1rem; margin-bottom: 0;">A-</div>
+                        <div>
+                            <div style="font-weight: 700; color: var(--color-secondary); font-size: 0.95rem;">Request #REQ-0003: Emma Watson</div>
+                            <div style="font-size: 0.78125rem; color: var(--color-text-subtle);">Children's Specialty Hospital • North Hub</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <span class="badge badge-critical">CRITICAL</span>
+                        <i data-lucide="chevron-right" style="color: var(--color-text-subtle);"></i>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

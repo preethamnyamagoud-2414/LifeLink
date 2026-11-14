@@ -1,0 +1,283 @@
+/* ==============================================================================
+   LifeLink — Modern Healthcare Design System Tokens & Base Styles
+   Design Philosophy: Minimal, high-trust healthcare SaaS aesthetics
+   Colors: Medical Red (#C62828), Navy (#172B4D), Soft Green (#10B981)
+   ============================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap');
+
+:root {
+    /* Brand Primary (Medical Red) */
+    --color-primary: #C62828;
+    --color-primary-hover: #B71C1C;
+    --color-primary-active: #8E0000;
+    --color-primary-50: #FFEBEE;
+    --color-primary-100: #FFCDD2;
+    --color-primary-200: #EF9A9A;
+
+    /* Brand Secondary (Dark Navy Authority) */
+    --color-secondary: #172B4D;
+    --color-secondary-hover: #0F1D38;
+    --color-secondary-50: #F4F6FA;
+    --color-secondary-100: #E4E8F0;
+    --color-secondary-200: #C2CAD9;
+
+    /* Semantic Accents */
+    --color-success: #10B981;
+    --color-success-dark: #059669;
+    --color-success-bg: #ECFDF5;
+    --color-success-border: #A7F3D0;
+
+    --color-warning: #F59E0B;
+    --color-warning-dark: #D97706;
+    --color-warning-bg: #FFFBEB;
+    --color-warning-border: #FDE68A;
+
+    --color-critical: #DC2626;
+    --color-critical-bg: #FEF2F2;
+    --color-critical-border: #FECACA;
+
+    --color-info: #0284C7;
+    --color-info-bg: #F0F9FF;
+    --color-info-border: #BAE6FD;
+
+    /* Neutrals & High-Contrast Surfaces (WCAG AA compliant) */
+    --color-white: #FFFFFF;
+    --color-bg-subtle: #F8FAFC;
+    --color-bg-muted: #F1F5F9;
+    --color-border: #E2E8F0;
+    --color-border-hover: #CBD5E1;
+    
+    --color-text-main: #0F172A;
+    --color-text-muted: #334155;
+    --color-text-subtle: #475569;
+    --color-text-disabled: #94A3B8;
+
+    /* Typography */
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --font-heading: 'Poppins', var(--font-sans);
+
+    /* Elevation & Shadows (SaaS Minimal, Soft Elevation) */
+    --shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+    --shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.07), 0 1px 2px -1px rgba(15, 23, 42, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+    --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+    --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+
+    /* Border Radii */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 18px;
+    --radius-full: 9999px;
+
+    /* Layout Constraints */
+    --max-width: 1240px;
+    --header-height: 72px;
+    --sidebar-width: 260px;
+    --transition-fast: 160ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-normal: 240ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Accessibility CSS Reset & Universal Box Sizing */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    font-family: var(--font-sans);
+    background-color: var(--color-bg-subtle);
+    color: var(--color-text-main);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* Keyboard Accessibility Focus Visible Ring */
+:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
+}
+
+/* Headings Base with refined tracking & line-height */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    color: var(--color-secondary);
+    line-height: 1.25;
+    font-weight: 700;
+}
+
+h1 {
+    font-size: 2.25rem;
+    letter-spacing: -0.03em;
+}
+
+h2 {
+    font-size: 1.75rem;
+    letter-spacing: -0.025em;
+}
+
+h3 {
+    font-size: 1.35rem;
+    letter-spacing: -0.015em;
+}
+
+h4 {
+    font-size: 1.1rem;
+    letter-spacing: -0.01em;
+}
+
+p {
+    color: var(--color-text-muted);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+}
+
+a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+a:hover {
+    color: var(--color-primary-hover);
+}
+
+img, svg {
+    display: block;
+    max-width: 100%;
+}
+
+/* Container Utility */
+.container {
+    width: 100%;
+    max-width: var(--max-width);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+/* Prototype Demo Banner */
+.demo-disclaimer-bar {
+    background-color: var(--color-secondary);
+    color: #E2E8F0;
+    font-size: 0.8125rem;
+    padding: 0.45rem 1rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    z-index: 1000;
+}
+
+.demo-disclaimer-bar .demo-tag {
+    background: rgba(255, 255, 255, 0.18);
+    color: #FFFFFF;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+/* Section Wrapper Utilities */
+.section {
+    padding: 5rem 0;
+}
+
+.section-grey {
+    background-color: var(--color-white);
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.section-header {
+    text-align: center;
+    max-width: 720px;
+    margin: 0 auto 3.5rem auto;
+}
+
+.section-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-primary);
+    background-color: var(--color-primary-50);
+    padding: 0.3rem 0.8rem;
+    border-radius: var(--radius-full);
+    margin-bottom: 1rem;
+}
+
+.section-title {
+    font-size: 2.25rem;
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+}
+
+.section-subtitle {
+    font-size: 1.0625rem;
+    color: var(--color-text-subtle);
+}
+
+/* ------------------------------------------------------------------------------
+   Utility Classes (Consistent Layout, Alignment & High-Contrast Typography)
+   ------------------------------------------------------------------------------ */
+.text-primary   { color: var(--color-primary) !important; }
+.text-secondary { color: var(--color-secondary) !important; }
+.text-success   { color: var(--color-success-dark) !important; }
+.text-critical  { color: var(--color-critical) !important; }
+.text-muted     { color: var(--color-text-muted) !important; }
+.text-subtle    { color: var(--color-text-subtle) !important; }
+
+.font-bold      { font-weight: 700 !important; }
+.font-semibold  { font-weight: 600 !important; }
+.font-medium    { font-weight: 500 !important; }
+
+.flex           { display: flex; }
+.flex-col       { display: flex; flex-direction: column; }
+.flex-center    { display: flex; align-items: center; justify-content: center; }
+.flex-between   { display: flex; align-items: center; justify-content: space-between; }
+.items-center   { align-items: center; }
+.justify-center { justify-content: center; }
+
+.gap-xs         { gap: 0.25rem; }
+.gap-sm         { gap: 0.5rem; }
+.gap-md         { gap: 1rem; }
+.gap-lg         { gap: 1.5rem; }
+
+.w-full         { width: 100%; }
+
+/* Screen-reader accessible utility */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}

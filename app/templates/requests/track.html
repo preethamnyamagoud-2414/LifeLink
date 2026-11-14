@@ -1,0 +1,334 @@
+{% extends "base.html" %}
+
+{% set active_page = "track_request" %}
+
+{% block title %}Track Emergency Blood Request #{{ request.id }} — LifeLink Portal{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/requests.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="section" style="padding: 3rem 0 5rem 0;">
+    <div class="container" style="max-width: 960px;">
+        
+        <!-- Breadcrumb & Top Bar -->
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.75rem;">
+            <div>
+                <a href="/" style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.875rem; color: var(--color-text-subtle);">
+                    <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i> Return to Home
+                </a>
+            </div>
+            <div style="display: flex; gap: 0.75rem;">
+                <button type="button" id="btnCopyTrackLink" class="btn btn-outline btn-sm">
+                    <i data-lucide="share-2"></i> Share Request Link
+                </button>
+                <a href="{{ url_for('requests.create_request') }}" class="btn btn-emergency btn-sm">
+                    <i data-lucide="plus-circle"></i> Post New Request
+                </a>
+            </div>
+        </div>
+
+        <!-- ======================================================================
+             CRITICAL MEDICAL ADVISORY (SAFETY SAFEGUARD)
+             ====================================================================== -->
+        <div class="medical-advisory-banner" role="alert">
+            <div class="medical-advisory-icon">
+                <i data-lucide="alert-triangle"></i>
+            </div>
+            <div class="medical-advisory-body">
+                <h4>Mandatory Clinical & Safety Advisory</h4>
+                <p>
+                    A donor’s response in this portal indicates their <strong>voluntary personal willingness to donate</strong>. 
+                    It <strong>DOES NOT represent verified biological cross-match, laboratory clearance, or guaranteed blood availability</strong> at the medical facility.
+                </p>
+                <p style="margin-top: 0.4rem;">
+                    <strong>For life-threatening or immediate critical requirements:</strong> Please contact an authorized hospital blood bank, certified blood center, or call emergency medical services immediately.
+                </p>
+                <span class="emergency-phone-tag">
+                    <i data-lucide="phone-call" style="width: 14px; height: 14px;"></i> Emergency Helpline: 911 / 108 / 112
+                </span>
+            </div>
+        </div>
+
+        <!-- ======================================================================
+             REQUEST OVERVIEW CARD
+             ====================================================================== -->
+        <div class="track-header-card">
+            <div style="display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 1.25rem;">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                        <span class="track-id-badge">
+                            <i data-lucide="hash"></i> REQ-{{ "%04d" % request.id if request.id is number else request.id }}
+                        </span>
+                        
+                        {% if request.status == 'ACTIVE' %}
+                            <span class="badge badge-success"><span class="pulse-dot"></span> Active Request</span>
+                        {% elif request.status == 'FULFILLED' %}
+                            <span class="badge badge-success"><i data-lucide="check"></i> Transfusion Fulfilled</span>
+                        {% elif request.status == 'CANCELLED' %}
+                            <span class="badge badge-neutral"><i data-lucide="x"></i> Request Cancelled</span>
+                        {% else %}
+                            <span class="badge badge-neutral">{{ request.status }}</span>
+                        {% endif %}
+
+                        {% if request.urgency_level == 'CRITICAL' %}
+                            <span class="badge badge-critical">CRITICAL (Within 2h)</span>
+                        {% elif request.urgency_level == 'URGENT' %}
+                            <span class="badge badge-urgent">URGENT (Within 12h)</span>
+                        {% else %}
+                            <span class="badge badge-neutral">STANDARD</span>
+                        {% endif %}
+                    </div>
+
+                    <h1 style="font-size: 1.65rem; color: var(--color-secondary); margin: 0 0 0.35rem 0;">
+                        Blood Request for {{ request.patient_name }}
+                    </h1>
+                    <div style="font-size: 0.875rem; color: var(--color-text-subtle); display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                        <span><i data-lucide="calendar" style="width: 14px; height: 14px; vertical-align: -2px;"></i> Posted on {{ request.created_at }}</span>
+                        <span><i data-lucide="clock" style="width: 14px; height: 14px; vertical-align: -2px;"></i> Required Date: <strong>{{ request.required_date or 'Immediate' }}</strong></span>
+                    </div>
+                </div>
+
+                <!-- Blood Group Badge -->
+                <div style="text-align: center;">
+                    <div class="blood-symbol-pill" style="width: 64px; height: 64px; font-size: 1.75rem; margin: 0 auto 0.35rem auto;">
+                        {{ request.blood_group }}
+                    </div>
+                    <div style="font-size: 0.8125rem; font-weight: 700; color: var(--color-secondary);">
+                        {{ request.units_needed }} Unit{{ 's' if request.units_needed > 1 else '' }} (~{{ request.units_needed * 450 }} mL)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Stepper -->
+            <div class="tracking-stepper">
+                <div class="step-item completed">
+                    <div class="step-bubble"><i data-lucide="check" style="width: 20px; height: 20px;"></i></div>
+                    <div class="step-title">1. Broadcasted</div>
+                    <div class="step-desc">Triage submitted</div>
+                </div>
+
+                <div class="step-item {% if request.status in ('ACTIVE', 'FULFILLED') %}active{% endif %}">
+                    <div class="step-bubble">
+                        {% if request.status == 'FULFILLED' %}
+                            <i data-lucide="check" style="width: 20px; height: 20px;"></i>
+                        {% else %}
+                            <i data-lucide="bell" style="width: 20px; height: 20px;"></i>
+                        {% endif %}
+                    </div>
+                    <div class="step-title">2. Donors Alerted</div>
+                    <div class="step-desc">{{ volunteers|length }} volunteers responded</div>
+                </div>
+
+                <div class="step-item {% if request.status == 'FULFILLED' %}completed{% endif %}">
+                    <div class="step-bubble">
+                        {% if request.status == 'FULFILLED' %}
+                            <i data-lucide="check" style="width: 20px; height: 20px;"></i>
+                        {% else %}
+                            3
+                        {% endif %}
+                    </div>
+                    <div class="step-title">3. Cross-Match</div>
+                    <div class="step-desc">Hospital blood lab testing</div>
+                </div>
+
+                <div class="step-item {% if request.status == 'FULFILLED' %}completed{% endif %}">
+                    <div class="step-bubble">
+                        {% if request.status == 'FULFILLED' %}
+                            <i data-lucide="check" style="width: 20px; height: 20px;"></i>
+                        {% else %}
+                            4
+                        {% endif %}
+                    </div>
+                    <div class="step-title">4. Transfusion</div>
+                    <div class="step-desc">Administered safely</div>
+                </div>
+            </div>
+
+            <!-- Key Details Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--color-border);">
+                <div>
+                    <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--color-text-subtle); font-weight: 600;">Hospital Facility</span>
+                    <div style="font-weight: 600; color: var(--color-secondary); margin-top: 0.2rem;">
+                        {{ request.hospital_name }}
+                    </div>
+                    <div style="font-size: 0.8125rem; color: var(--color-text-muted);">
+                        {{ request.hospital_area ~ ', ' if request.hospital_area else '' }}{{ request.city }}{{ ', ' ~ request.state if request.state else '' }}
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--color-text-subtle); margin-top: 0.2rem;">
+                        {{ request.hospital_address }}
+                    </div>
+                </div>
+
+                <div>
+                    <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--color-text-subtle); font-weight: 600;">Contact Coordinator</span>
+                    <div style="font-weight: 600; color: var(--color-secondary); margin-top: 0.2rem;">
+                        {{ request.contact_person }}
+                    </div>
+                    {% if session.get('user_id') %}
+                        <div style="font-size: 0.8125rem; color: var(--color-text-muted); margin-top: 0.2rem;">
+                            <i data-lucide="phone" style="width: 13px; height: 13px; vertical-align: -2px;"></i> 
+                            <a href="tel:{{ request.contact_phone }}" style="color: var(--color-primary); font-weight: 600;">{{ request.contact_phone }}</a>
+                        </div>
+                        {% if request.contact_email %}
+                            <div style="font-size: 0.75rem; color: var(--color-text-subtle); margin-top: 0.15rem;">
+                                <i data-lucide="mail" style="width: 12px; height: 12px; vertical-align: -2px;"></i> {{ request.contact_email }}
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div style="font-size: 0.8125rem; color: var(--color-text-muted); margin-top: 0.25rem;">
+                            <span style="font-family: monospace; letter-spacing: 1px; color: var(--color-text-subtle);">
+                                +91 ••••• ••{{ request.contact_phone[-4:] if request.contact_phone and request.contact_phone|length >= 4 else '••••' }}
+                            </span>
+                            <div style="margin-top: 0.35rem;">
+                                <a href="{{ url_for('auth.login', next=request.path) }}" class="btn btn-outline btn-xs" style="font-size: 0.75rem; padding: 0.2rem 0.5rem;">
+                                    <i data-lucide="lock" style="width: 12px; height: 12px;"></i> Sign in to view contact
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div style="font-size: 0.75rem; color: var(--color-text-subtle); margin-top: 0.35rem;">
+                        Preferred Route: 
+                        <strong>
+                            {% if request.preferred_contact_method == 'whatsapp' %}
+                                WhatsApp
+                            {% elif request.preferred_contact_method == 'email' %}
+                                Email
+                            {% elif request.preferred_contact_method == 'call_or_msg' %}
+                                Call or SMS
+                            {% else %}
+                                Direct Phone Call
+                            {% endif %}
+                        </strong>
+                    </div>
+                </div>
+
+                <div>
+                    <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--color-text-subtle); font-weight: 600;">Attending Clinical Team</span>
+                    <div style="font-weight: 600; color: var(--color-secondary); margin-top: 0.2rem;">
+                        {{ request.doctor_name or 'Attending Trauma Surgeon' }}
+                    </div>
+                    <div style="font-size: 0.8125rem; color: var(--color-text-muted); margin-top: 0.2rem;">
+                        {{ request.additional_notes or 'No special cross-match instructions logged.' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======================================================================
+             DONOR RESPONSES SECTION (PRIVACY PROTECTED)
+             ====================================================================== -->
+        <div class="responses-card">
+            <div class="responses-header">
+                <div>
+                    <h2 style="font-size: 1.25rem; color: var(--color-secondary); margin: 0 0 0.25rem 0;">
+                        Registered Donor Responses
+                    </h2>
+                    <p style="font-size: 0.8125rem; color: var(--color-text-subtle); margin: 0;">
+                        Voluntary community lifesavers who have offered assistance for this emergency case.
+                    </p>
+                </div>
+                <div>
+                    <span class="badge badge-neutral" style="font-size: 0.8125rem;">
+                        {{ volunteers|length }} Total {{ 'Offer' if volunteers|length == 1 else 'Offers' }}
+                    </span>
+                </div>
+            </div>
+
+            {% if volunteers %}
+                <div class="volunteer-list">
+                    {% for volunteer in volunteers %}
+                    <div class="volunteer-card">
+                        <!-- Avatar -->
+                        <div class="volunteer-avatar">
+                            {{ volunteer.donor_display_name[:2].upper() }}
+                        </div>
+
+                        <!-- Info -->
+                        <div>
+                            <div class="volunteer-name">
+                                {{ volunteer.donor_display_name }}
+                                <span class="badge badge-neutral" style="font-size: 0.75rem; padding: 0.15rem 0.5rem;">
+                                    Blood Group: {{ volunteer.blood_group }}
+                                </span>
+                            </div>
+
+                            <p style="font-size: 0.875rem; color: var(--color-secondary); margin: 0.35rem 0 0.25rem 0; font-style: italic;">
+                                "{{ volunteer.message or 'I am available and willing to donate for this patient.' }}"
+                            </p>
+
+                            <div class="volunteer-meta">
+                                <span><i data-lucide="clock" style="width: 13px; height: 13px;"></i> {{ volunteer.responded_at }}</span>
+                                <span><i data-lucide="map-pin" style="width: 13px; height: 13px;"></i> {{ volunteer.donor_city or 'Regional Area' }}</span>
+                                <span class="safeguard-badge">
+                                    <i data-lucide="shield-check" style="width: 12px; height: 12px;"></i>
+                                    Voluntary Intent (Pending Clinical Cross-Match)
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Status Badge -->
+                        <div>
+                            {% if volunteer.status == 'ACCEPTED' %}
+                                <span class="badge badge-success"><span class="pulse-dot"></span> Accepted & En Route</span>
+                            {% elif volunteer.status == 'DONATED' %}
+                                <span class="badge badge-success"><i data-lucide="check-circle-2"></i> Donated</span>
+                            {% elif volunteer.status == 'INTERESTED' %}
+                                <span class="badge badge-urgent"><i data-lucide="user-check"></i> Willing to Donate</span>
+                            {% else %}
+                                <span class="badge badge-neutral">{{ volunteer.status }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <!-- Empty responses state -->
+                <div style="text-align: center; padding: 3rem 1.5rem; background: var(--color-bg-subtle); border-radius: var(--radius-lg); border: 1px dashed var(--color-border);">
+                    <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--color-primary-50); color: var(--color-primary); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto;">
+                        <i data-lucide="users" style="width: 24px; height: 24px;"></i>
+                    </div>
+                    <h3 style="font-size: 1.1rem; color: var(--color-secondary); margin-bottom: 0.35rem;">Waiting for Community Donor Responses</h3>
+                    <p style="font-size: 0.875rem; color: var(--color-text-subtle); max-width: 500px; margin: 0 auto 1.5rem auto;">
+                        Nearby compatible voluntary donors have been notified. As soon as a donor confirms their availability, their response will appear here.
+                    </p>
+                    <div style="display: flex; justify-content: center; gap: 0.75rem; flex-wrap: wrap;">
+                        <button type="button" id="btnCopyTrackLink2" class="btn btn-outline btn-sm" onclick="document.getElementById('btnCopyTrackLink').click();">
+                            <i data-lucide="share-2"></i> Share This Request
+                        </button>
+                        <a href="/find-donors?blood_group={{ request.blood_group }}&location={{ request.city }}" class="btn btn-primary btn-sm">
+                            <i data-lucide="search"></i> Directly Browse Available Donors
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Bottom Actions -->
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; padding-top: 1.25rem; border-top: 1px solid var(--color-border);">
+                <div style="font-size: 0.8125rem; color: var(--color-text-subtle);">
+                    Need to modify this request? Contact your attending hospital blood coordinator.
+                </div>
+
+                <div style="display: flex; gap: 0.75rem;">
+                    {% if session.get('user_id') == request.requester_user_id or session.get('user_role') == 'admin' %}
+                        {% if request.status == 'ACTIVE' %}
+                            <form action="{{ url_for('requests.cancel_request', request_id=request.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this request?');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-outline btn-sm" style="color: var(--color-critical); border-color: var(--color-critical);">
+                                    <i data-lucide="x"></i> Cancel Request
+                                </button>
+                            </form>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="{{ url_for('static', filename='js/requests.js') }}"></script>
+{% endblock %}

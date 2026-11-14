@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Blood Request — LifeLink</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/app/static/css/main.css">
+    <link rel="stylesheet" href="/app/static/css/components.css">
+    <link rel="stylesheet" href="/app/static/css/dashboard.css">
+    <link rel="stylesheet" href="/app/static/css/responsive.css">
+    <link rel="stylesheet" href="/app/static/css/app.css">
+    <link rel="stylesheet" href="/app/static/css/requests.css">
+
+    <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+    <!-- Clinical Emergency Notice Bar -->
+    <div class="demo-disclaimer-bar" role="alert" style="background-color: #1E293B; color: #F1F5F9; font-size: 0.78125rem;">
+        <span class="demo-tag" style="background-color: var(--color-primary); color: #fff;">CRITICAL NOTICE</span>
+        <span>LifeLink facilitates voluntary blood donor coordination. For acute medical emergencies, contact hospital emergency rooms directly.</span>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="navbar" role="banner">
+        <div class="container">
+            <a href="/" class="nav-brand">
+                <span class="nav-brand-icon"><i data-lucide="droplet"></i></span>
+                <span>LifeLink</span>
+            </a>
+            <nav aria-label="Primary Navigation">
+                <ul class="nav-links">
+                    <li><a href="/" class="nav-link">Home</a></li>
+                    <li><a href="/find-donors" class="nav-link">Find Donors</a></li>
+                    <li><a href="/track-request" class="nav-link active">Track Request</a></li>
+                    <li><a href="/#about" class="nav-link">About Us</a></li>
+                </ul>
+            </nav>
+            <div id="navAuthActions" class="nav-actions">
+                <a href="/emergency-request" class="btn btn-emergency btn-sm"><i data-lucide="alert-circle"></i> Emergency Request</a>
+                <a href="/auth/login" class="btn btn-outline btn-sm"><i data-lucide="log-in"></i> Sign In</a>
+                <a href="/auth/register" class="btn btn-primary btn-sm"><i data-lucide="user-plus"></i> Register</a>
+            </div>
+
+            <button id="mobileMenuToggle" class="mobile-menu-toggle" type="button" aria-label="Open mobile menu" aria-expanded="false" aria-controls="mobileDrawer">
+                <i data-lucide="menu"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Drawer -->
+    <div id="mobileNavOverlay" class="mobile-nav-overlay" aria-hidden="true"></div>
+    <aside id="mobileDrawer" class="mobile-drawer" aria-label="Mobile Navigation" role="dialog" aria-modal="true">
+        <div class="mobile-drawer-header">
+            <a href="/" class="nav-brand">
+                <span class="nav-brand-icon"><i data-lucide="droplet"></i></span>
+                <span>LifeLink</span>
+            </a>
+            <button id="mobileDrawerClose" class="mobile-menu-toggle" type="button" aria-label="Close mobile menu">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <ul class="mobile-drawer-links">
+            <li><a href="/" class="mobile-drawer-link"><i data-lucide="home"></i> Home</a></li>
+            <li><a href="/find-donors" class="mobile-drawer-link"><i data-lucide="search"></i> Find Blood Donors</a></li>
+            <li><a href="/track-request" class="mobile-drawer-link active"><i data-lucide="radio"></i> Track Request</a></li>
+            <li data-nav-dashboard style="display:none;"><a href="/donor/dashboard" class="mobile-drawer-link"><i data-lucide="layout-dashboard"></i> My Dashboard</a></li>
+            <li><a href="/#about" class="mobile-drawer-link"><i data-lucide="info"></i> About LifeLink</a></li>
+        </ul>
+        <div id="mobileDrawerActions" class="mobile-drawer-actions">
+            <a href="/emergency-request" class="btn btn-emergency btn-block">
+                <i data-lucide="alert-circle"></i> Emergency Request
+            </a>
+            <a href="/auth/login" class="btn btn-outline btn-block">
+                <i data-lucide="log-in"></i> Sign In
+            </a>
+            <a href="/auth/register" class="btn btn-primary btn-block">
+                <i data-lucide="user-plus"></i> Create Account (Register)
+            </a>
+        </div>
+    </aside>
+
+    <main id="main-content" role="main">
+        <section class="section" style="padding: 3rem 0 5rem 0;">
+            <div class="container" style="max-width: 960px;">
+                
+                <!-- Breadcrumbs & Actions -->
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.75rem;">
+                    <div>
+                        <a href="/" style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.875rem; color: var(--color-text-subtle);">
+                            <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i> Return to Home
+                        </a>
+                    </div>
+                    <div style="display: flex; gap: 0.75rem;">
+                        <button type="button" id="btnCopyTrackLink" class="btn btn-outline btn-sm">
+                            <i data-lucide="share-2"></i> Share Request Link
+                        </button>
+                        <a href="/emergency-request" class="btn btn-emergency btn-sm">
+                            <i data-lucide="plus-circle"></i> Post New Request
+                        </a>
+                    </div>
+                </div>
+
+                <!-- CRITICAL MEDICAL ADVISORY NOTICE -->
+                <div class="medical-advisory-banner" role="alert">
+                    <div class="medical-advisory-icon">
+                        <i data-lucide="alert-triangle"></i>
+                    </div>
+                    <div class="medical-advisory-body">
+                        <h4>Mandatory Clinical & Safety Advisory</h4>
+                        <p>
+                            A donor’s response in this portal indicates their <strong>voluntary personal willingness to donate</strong>. 
+                            It <strong>DOES NOT represent verified biological cross-match, laboratory clearance, or guaranteed blood availability</strong> at the medical facility.
+                        </p>
+                        <p style="margin-top: 0.4rem;">
+                            <strong>For life-threatening or immediate critical requirements:</strong> Please contact an authorized hospital blood bank, certified blood center, or call emergency medical services immediately.
+                        </p>
+                        <span class="emergency-phone-tag">
+                            <i data-lucide="phone-call" style="width: 14px; height: 14px;"></i> Emergency Helpline: 911 / 108 / 112
+                        </span>
+                    </div>
+                </div>
+
+                <!-- LOOKUP (shown when no request id is given) -->
+                <div id="lookupCard" class="track-header-card" style="display:none;">
+                    <h1 style="font-size: 1.5rem; color: var(--color-secondary); margin: 0 0 0.35rem 0;">Track a blood request</h1>
+                    <p style="font-size: 0.875rem; color: var(--color-text-subtle); margin-bottom: 1.25rem;">Enter the request ID you received, for example <strong>REQ-0001</strong> or just <strong>1</strong>.</p>
+                    <form id="lookupForm" style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+                        <input type="text" id="lookupInput" class="form-control" placeholder="REQ-0001" style="flex:1; min-width:200px;" required>
+                        <button type="submit" class="btn btn-primary"><i data-lucide="search"></i> Track request</button>
+                    </form>
+                    <div id="myOpenRequests" style="margin-top: 1.5rem;"></div>
+                </div>
+
+                <!-- REQUEST OVERVIEW CARD -->
+                <div id="requestCard" class="track-header-card" style="display:none;">
+                    <div style="display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 1.25rem;">
+                        <div>
+                            <div id="trackBadges" style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; flex-wrap: wrap;"></div>
+                            <h1 id="trackTitle" style="font-size: 1.65rem; color: var(--color-secondary); margin: 0 0 0.35rem 0;"></h1>
+                            <div id="trackMeta" style="font-size: 0.875rem; color: var(--color-text-subtle); display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;"></div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div class="blood-symbol-pill" id="trackBlood" style="width: 64px; height: 64px; font-size: 1.75rem; margin: 0 auto 0.35rem auto;"></div>
+                            <div id="trackUnits" style="font-size: 0.8125rem; font-weight: 700; color: var(--color-secondary);"></div>
+                        </div>
+                    </div>
+
+                    <div class="tracking-stepper" id="trackStepper"></div>
+
+                    <div id="trackDetails" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--color-border);"></div>
+
+                    <div id="trackActions" style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid var(--color-border);"></div>
+                </div>
+
+                <!-- DONOR RESPONSES -->
+                <div class="responses-card" id="responsesCard" style="display:none;">
+                    <div class="responses-header">
+                        <div>
+                            <h2 style="font-size: 1.25rem; color: var(--color-secondary); margin: 0 0 0.25rem 0;">Donor Responses</h2>
+                            <p style="font-size: 0.8125rem; color: var(--color-text-subtle); margin: 0;">Registered donors who offered to donate for this request.</p>
+                        </div>
+                        <span class="badge badge-neutral" id="responsesBadge" style="font-size: 0.8125rem;">0</span>
+                    </div>
+                    <div class="volunteer-list" id="volunteerList"></div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; padding-top: 1.25rem; border-top: 1px solid var(--color-border);">
+                        <div style="font-size: 0.8125rem; color: var(--color-text-subtle);">Need more donors? Search for compatible donors near you.</div>
+                        <a href="/find-donors" id="findMoreLink" class="btn btn-outline btn-sm"><i data-lucide="search"></i> Find more donors</a>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer" role="contentinfo">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 LifeLink Portal. All rights reserved.</p>
+                <p>Medical Notice: LifeLink is a volunteer coordination directory.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/app/static/js/main.js"></script>
+    <script src="/app/static/js/api.js"></script>
+    <script src="/app/static/js/requests.js"></script>
+    <script>
+    (function () {
+        const $ = id => document.getElementById(id);
+        let me = null, data = null;
+        const params = new URLSearchParams(location.search);
+        let reqId = params.get('id') || params.get('req') || '';
+        const pathMatch = location.pathname.match(/\/track\/(?:REQ-)?(\d+)|\/requests\/track\/(?:REQ-)?(\d+)/i);
+        if (!reqId && pathMatch) reqId = pathMatch[1] || pathMatch[2];
+        reqId = String(reqId).replace(/^#?REQ-?/i, '').replace(/^0+(?=\d)/, '');
+
+        function detail(label, main, sub) {
+            return `<div><span style="font-size: 0.75rem; text-transform: uppercase; color: var(--color-text-subtle); font-weight: 600;">${label}</span>
+                <div style="font-weight: 600; color: var(--color-secondary); margin-top: 0.2rem;">${main || '\u2014'}</div>
+                ${sub ? `<div style="font-size: 0.8125rem; color: var(--color-text-muted); margin-top: 0.2rem;">${sub}</div>` : ''}</div>`;
+        }
+
+        function stepper(r, responses) {
+            const offered = responses.filter(x => x.status !== 'WITHDRAWN').length;
+            const donated = responses.filter(x => x.status === 'DONATED').length;
+            const steps = [
+                ['Posted', 'Request broadcast', true],
+                ['Donors alerted', offered ? `${offered} volunteer${offered > 1 ? 's' : ''}` : 'Waiting for volunteers', offered > 0 || r.status !== 'ACTIVE'],
+                ['Donation', donated ? `${donated} confirmed` : 'Not confirmed yet', donated > 0 || r.status === 'FULFILLED'],
+                [r.status === 'CANCELLED' ? 'Cancelled' : 'Fulfilled', r.status === 'ACTIVE' ? 'Open' : LL.fmtDate(r.closed_at), r.status !== 'ACTIVE']
+            ];
+            let activeSet = false;
+            return steps.map((s, i) => {
+                let cls = '';
+                if (s[2]) cls = 'completed';
+                else if (!activeSet) { cls = 'active'; activeSet = true; }
+                return `<div class="step-item ${cls}">
+                    <div class="step-bubble">${s[2] ? '<i data-lucide="check" style="width: 20px; height: 20px;"></i>' : i + 1}</div>
+                    <div class="step-title">${i + 1}. ${LL.esc(s[0])}</div>
+                    <div class="step-desc">${LL.esc(s[1])}</div></div>`;
+            }).join('');
+        }
+
+        function render() {
+            const r = data.request, responses = data.responses;
+            document.title = `Track ${r.code} \u2014 LifeLink`;
+            $('requestCard').style.display = '';
+            $('responsesCard').style.display = '';
+            $('trackBadges').innerHTML = `<span class="track-id-badge"><i data-lucide="hash"></i> ${LL.esc(r.code)}</span> ${LL.statusBadge(r.status)} ${LL.urgencyBadge(r.urgency_level)}`;
+            $('trackTitle').textContent = `Blood request for ${r.patient_name}`;
+            $('trackMeta').innerHTML = `<span><i data-lucide="calendar" style="width: 14px; height: 14px; vertical-align: -2px;"></i> Posted ${LL.esc(LL.fmtDateTime(r.created_at))}</span>
+                <span><i data-lucide="clock" style="width: 14px; height: 14px; vertical-align: -2px;"></i> Needed by <strong>${LL.esc(LL.fmtDate(r.required_date))}</strong></span>
+                ${r.distance_km != null ? `<span class="ll-distance"><i data-lucide="navigation"></i> ${LL.fmtKm(r.distance_km)} from you</span>` : ''}`;
+            $('trackBlood').textContent = r.blood_group;
+            $('trackUnits').textContent = `${r.units_needed} unit${r.units_needed > 1 ? 's' : ''} needed`;
+            $('trackStepper').innerHTML = stepper(r, responses);
+
+            const contactSub = r.contact_visible
+                ? `<a href="tel:${LL.esc(r.contact_phone)}"><i data-lucide="phone" style="width: 13px; height: 13px; vertical-align: -2px;"></i> ${LL.esc(r.contact_phone)}</a>${r.contact_email ? `<br><a href="mailto:${LL.esc(r.contact_email)}">${LL.esc(r.contact_email)}</a>` : ''}`
+                : `<span id="trackContactMasked" style="font-family: monospace;">${LL.esc(r.contact_phone)}</span><br><a href="/auth/login?next=${encodeURIComponent(location.pathname + location.search)}" class="btn btn-outline btn-sm" style="margin-top:0.35rem;"><i data-lucide="lock"></i> Sign In to View Contact</a>`;
+            const methods = { phone: 'Phone call', whatsapp: 'WhatsApp', call_or_msg: 'Call or SMS', email: 'Email' };
+            $('trackDetails').innerHTML =
+                detail('Hospital', LL.esc(r.hospital_name), LL.esc([r.hospital_area, r.city, r.state].filter(Boolean).join(', ')) + (r.hospital_address ? `<br>${LL.esc(r.hospital_address)}` : '')) +
+                detail('Contact person', LL.esc(r.contact_person), contactSub + `<div class="ll-muted" style="margin-top:0.3rem;">Preferred: ${LL.esc(methods[r.preferred_contact_method] || r.preferred_contact_method)}</div>`) +
+                detail('Doctor & notes', LL.esc(r.doctor_name || 'Not given'), LL.esc(r.additional_notes));
+
+            // Actions depend on who is viewing
+            const acts = [];
+            const donor = me && me.donor;
+            if (r.status === 'ACTIVE' && r.can_manage) {
+                acts.push(`<button type="button" class="btn btn-primary" data-set-status="FULFILLED"><i data-lucide="check-circle-2"></i> Mark fulfilled</button>`);
+                acts.push(`<button type="button" class="btn btn-outline" data-set-status="CANCELLED" style="color: var(--color-critical);"><i data-lucide="x"></i> Cancel request</button>`);
+            } else if (r.status !== 'ACTIVE' && r.can_manage) {
+                acts.push(`<button type="button" class="btn btn-outline" data-set-status="ACTIVE"><i data-lucide="rotate-ccw"></i> Re-open request</button>`);
+            }
+            if (r.status === 'ACTIVE' && !r.is_owner) {
+                if (r.my_response && r.my_response.status !== 'WITHDRAWN') {
+                    acts.push(`<span class="badge badge-success" style="align-self:center;"><i data-lucide="check"></i> You volunteered for this request</span>`);
+                } else if (!me) {
+                    acts.push(`<a href="/auth/login?next=${encodeURIComponent(location.pathname + location.search)}" class="btn btn-emergency"><i data-lucide="heart-handshake"></i> Sign in to volunteer</a>`);
+                } else if (!donor) {
+                    acts.push(`<a href="/donor/dashboard" class="btn btn-emergency"><i data-lucide="heart-handshake"></i> Become a donor to volunteer</a>`);
+                } else if (r.compatible) {
+                    acts.push(`<button type="button" class="btn btn-emergency" data-volunteer><i data-lucide="heart-handshake"></i> I can donate</button>`);
+                } else {
+                    acts.push(`<span class="ll-muted" style="align-self:center;">Your blood group (${LL.esc(donor.blood_group)}) is not compatible with ${LL.esc(r.blood_group)}.</span>`);
+                }
+            }
+            if (me) acts.push(`<a href="${me.dashboard}" class="btn btn-outline"><i data-lucide="layout-dashboard"></i> My dashboard</a>`);
+            $('trackActions').innerHTML = acts.join('');
+            $('trackActions').style.display = acts.length ? 'flex' : 'none';
+
+            const live = responses.filter(x => x.status !== 'WITHDRAWN');
+            $('responsesBadge').textContent = `${live.length} volunteer${live.length === 1 ? '' : 's'}`;
+            $('findMoreLink').href = `/find-donors?blood_group=${encodeURIComponent(r.blood_group)}`;
+            $('findMoreLink').innerHTML = `<i data-lucide="search"></i> Find more ${LL.esc(r.blood_group)}-compatible donors`;
+            $('volunteerList').innerHTML = responses.length ? responses.map(v => `
+                <div class="volunteer-card" style="${v.status === 'WITHDRAWN' ? 'opacity:0.6;' : ''}">
+                    <div class="volunteer-avatar">${LL.esc(LL.initials(v.donor_name))}</div>
+                    <div>
+                        <div class="volunteer-name">${LL.esc(v.donor_name)}${v.is_me ? ' (you)' : ''}
+                            <span class="badge badge-neutral" style="font-size: 0.75rem; padding: 0.15rem 0.5rem;">Blood group: ${LL.esc(v.blood_group)}</span></div>
+                        <p style="font-size: 0.875rem; color: var(--color-secondary); margin: 0.35rem 0 0.25rem 0; font-style: italic;">"${LL.esc(v.message)}"</p>
+                        <div class="volunteer-meta">
+                            <span><i data-lucide="clock" style="width: 13px; height: 13px;"></i> ${LL.esc(LL.fmtDateTime(v.created_at))}</span>
+                            <span><i data-lucide="map-pin" style="width: 13px; height: 13px;"></i> ${LL.esc([v.district, v.city].filter(Boolean).join(', '))}${v.distance_km != null ? ` \u2022 ${LL.fmtKm(v.distance_km)} from hospital` : ''}</span>
+                            ${v.donor_phone ? `<a href="tel:${LL.esc(v.donor_phone)}"><i data-lucide="phone" style="width: 13px; height: 13px;"></i> ${LL.esc(v.donor_phone)}</a>` : ''}
+                            <span class="safeguard-badge"><i data-lucide="shield-check" style="width: 12px; height: 12px;"></i> Voluntary intent (hospital cross-match still required)</span>
+                        </div>
+                    </div>
+                    <div class="ll-actions" style="flex-direction:column; align-items:flex-end;">
+                        ${LL.responseBadge(v.status)}
+                        ${r.can_manage && v.status === 'OFFERED' ? `<button type="button" class="btn btn-primary btn-sm" data-donated="${v.id}" data-donor="${LL.esc(v.donor_name)}"><i data-lucide="heart"></i> Confirm donated</button>` : ''}
+                        ${v.is_me && v.status === 'OFFERED' && r.status === 'ACTIVE' ? `<button type="button" class="btn btn-outline btn-sm" data-withdraw="${v.id}">Withdraw</button>` : ''}
+                    </div>
+                </div>`).join('')
+                : '<div class="ll-empty"><i data-lucide="users"></i><div>No donors have responded yet. Compatible eligible donors nearby were alerted.</div></div>';
+            LL.icons();
+        }
+
+        async function load() {
+            data = await LL.api(`/api/requests/${encodeURIComponent(reqId)}`);
+            render();
+        }
+
+        async function showLookup() {
+            $('lookupCard').style.display = '';
+            if (me) {
+                try {
+                    const d = await LL.api('/api/requests?scope=mine');
+                    if (d.requests.length) {
+                        $('myOpenRequests').innerHTML = `<div class="ll-muted" style="margin-bottom:0.5rem;">Your requests:</div>` +
+                            d.requests.slice(0, 8).map(r => `<a href="/track-request?id=${r.id}" class="btn btn-outline btn-sm" style="margin:0 0.4rem 0.4rem 0;">${LL.esc(r.code)} \u2022 ${LL.esc(r.patient_name)} ${r.status !== 'ACTIVE' ? '(' + r.status.toLowerCase() + ')' : ''}</a>`).join('');
+                    }
+                } catch (e) { /* ignore */ }
+            }
+            LL.icons();
+        }
+
+        $('lookupForm').addEventListener('submit', e => {
+            e.preventDefault();
+            const v = $('lookupInput').value.trim().replace(/^#?REQ-?/i, '').replace(/^0+(?=\d)/, '');
+            if (!/^\d+$/.test(v)) { LL.toast('Please enter a valid request ID like REQ-0001.', 'error'); return; }
+            location.href = `/track-request?id=${v}`;
+        });
+
+        document.addEventListener('click', e => {
+            const t = e.target.closest('button');
+            if (!t || !data) return;
+            const r = data.request;
+            if (t.dataset.setStatus) {
+                const st = t.dataset.setStatus;
+                const words = { FULFILLED: ['Mark as fulfilled?', 'The request moves to History and volunteers are told.', 'Mark fulfilled'], CANCELLED: ['Cancel this request?', 'Donors will no longer see it. It moves to History.', 'Cancel request'], ACTIVE: ['Re-open this request?', 'Donors will see it again.', 'Re-open'] }[st];
+                LL.confirmAction(words[0], words[1], words[2], async () => {
+                    const d = await LL.api(`/api/requests/${r.id}/status`, { body: { status: st } });
+                    LL.toast(d.message); await load();
+                }, st === 'CANCELLED');
+            } else if (t.hasAttribute('data-volunteer')) {
+                LL.openModal({
+                    title: `Volunteer for ${r.code}`,
+                    body: `<p style="font-size:0.875rem;color:var(--color-text-muted);margin-top:0;">Your name and phone number will be shared with ${LL.esc(r.contact_person)} so they can contact you.</p>
+                        <div class="form-group" style="margin-bottom:0;"><label class="form-label" for="volMsg">Message</label>
+                        <textarea id="volMsg" class="form-control" rows="2" maxlength="300">I can donate. Please call me.</textarea></div>`,
+                    actions: [{ label: 'Cancel', cls: 'btn-outline' }, {
+                        label: '<i data-lucide="check"></i> Confirm, I can donate', cls: 'btn-emergency',
+                        onClick: async ov => { const d = await LL.api(`/api/requests/${r.id}/respond`, { body: { message: ov.querySelector('#volMsg').value } }); LL.toast(d.message); await load(); }
+                    }]
+                });
+            } else if (t.dataset.donated) {
+                LL.confirmAction('Confirm donation?', `Confirm that <strong>${LL.esc(t.dataset.donor)}</strong> has donated.`, 'Confirm donated', async () => {
+                    const d = await LL.api(`/api/responses/${t.dataset.donated}/donated`, { method: 'POST' }); LL.toast(d.message); await load();
+                });
+            } else if (t.dataset.withdraw) {
+                LL.confirmAction('Withdraw your offer?', 'The requester will be told.', 'Withdraw', async () => {
+                    const d = await LL.api(`/api/responses/${t.dataset.withdraw}/withdraw`, { method: 'POST' }); LL.toast(d.message); await load();
+                }, true);
+            }
+        });
+
+        (async () => {
+            try { me = await LL.initPublicNav(); } catch (e) { me = null; }
+            if (!reqId || !/^\d+$/.test(reqId)) { await showLookup(); return; }
+            try { await load(); }
+            catch (e) {
+                await showLookup();
+                $('lookupInput').value = 'REQ-' + String(reqId).padStart(4, '0');
+                LL.toast(e.message, 'error');
+            }
+        })();
+    })();
+    </script>
+</body>
+</html>

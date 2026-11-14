@@ -1,0 +1,18 @@
+<!-- Flash Messages / Notifications Partial -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="container" style="margin-top: 1.25rem;">
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'critical' or category == 'danger' else category }}" role="alert">
+                    <i data-lucide="{% if category == 'danger' or category == 'critical' %}alert-circle{% elif category == 'success' %}check-circle-2{% elif category == 'warning' %}alert-triangle{% else %}info{% endif %}" class="alert-icon"></i>
+                    <div class="alert-content">
+                        <span>{{ message }}</span>
+                    </div>
+                    <button type="button" class="btn btn-ghost btn-sm" onclick="this.closest('.alert').remove()" aria-label="Dismiss alert" style="padding: 0.2rem 0.4rem; min-height: auto;">
+                        <i data-lucide="x" style="width: 14px; height: 14px;"></i>
+                    </button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}

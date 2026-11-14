@@ -1,0 +1,744 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donor Dashboard — LifeLink</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/app/static/css/main.css">
+    <link rel="stylesheet" href="/app/static/css/components.css">
+    <link rel="stylesheet" href="/app/static/css/dashboard.css">
+    <link rel="stylesheet" href="/app/static/css/responsive.css">
+    <link rel="stylesheet" href="/app/static/css/app.css">
+
+    <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+
+    <div class="demo-disclaimer-bar" role="alert" style="background-color: #1E293B; color: #F1F5F9; font-size: 0.78125rem;">
+        <span class="demo-tag" style="background-color: var(--color-primary); color: #fff;">CRITICAL NOTICE</span>
+        <span>LifeLink facilitates voluntary blood donor coordination. For acute medical emergencies, contact hospital emergency rooms directly.</span>
+    </div>
+
+    <div class="dashboard-container">
+        <!-- SIDEBAR -->
+        <aside class="dashboard-sidebar" aria-label="Donor Navigation">
+            <div class="sidebar-header">
+                <a href="/" class="sidebar-brand">
+                    <span class="sidebar-brand-icon"><i data-lucide="droplet"></i></span>
+                    <span>LifeLink</span>
+                </a>
+            </div>
+
+            <div class="sidebar-user-card">
+                <div class="sidebar-avatar" data-user-initials>--</div>
+                <div class="sidebar-user-details">
+                    <h4 data-user-name>Loading...</h4>
+                    <p>
+                        <span id="sidebarBloodBadge" class="badge badge-critical" style="padding: 0.1rem 0.4rem; font-size: 0.65rem; display: none;"></span>
+                        <span id="sidebarRoleText">Member</span>
+                    </p>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <span class="sidebar-nav-heading">Main Navigation</span>
+                <a href="#top" class="sidebar-link active">
+                    <div class="sidebar-link-content"><i data-lucide="layout-dashboard"></i> <span>Overview</span></div>
+                </a>
+                <a href="/find-donors" class="sidebar-link">
+                    <div class="sidebar-link-content"><i data-lucide="search"></i> <span>Find Donors</span></div>
+                </a>
+                <a href="#requests-section" class="sidebar-link">
+                    <div class="sidebar-link-content"><i data-lucide="alert-circle"></i> <span>Urgent Requests</span></div>
+                    <span class="sidebar-badge" id="navRequestsCount" style="display:none;">0</span>
+                </a>
+                <a href="#responded-requests" class="sidebar-link">
+                    <div class="sidebar-link-content"><i data-lucide="heart-handshake"></i> <span>My Responses</span></div>
+                    <span class="badge badge-neutral" id="navResponsesCount" style="font-size: 0.7rem; display:none;">0</span>
+                </a>
+                <a href="#notifications-section" class="sidebar-link">
+                    <div class="sidebar-link-content"><i data-lucide="bell"></i> <span>Notifications</span></div>
+                    <span class="sidebar-badge" id="navNotifCount" style="background-color: var(--color-primary); display:none;">0</span>
+                </a>
+
+                <span class="sidebar-nav-heading">My Health Record</span>
+                <a href="#eligibility-section" class="sidebar-link">
+                    <div class="sidebar-link-content"><i data-lucide="clipboard-check"></i> <span>Health &amp; Eligibility</span></div>
+                </a>
+                <a href="#donations-history" class="sidebar-link">
+                    <div class="sidebar-link-content"><i data-lucide="history"></i> <span>Donation Log</span></div>
+                </a>
+
+                <span class="sidebar-nav-heading">Dual Role Switcher</span>
+                <a href="/patient/dashboard" class="sidebar-link" style="background: rgba(37, 99, 235, 0.12); color: #93C5FD; border: 1px solid rgba(59, 130, 246, 0.25);">
+                    <div class="sidebar-link-content"><i data-lucide="hospital" style="color: #60A5FA;"></i> <span>Requester Portal</span></div>
+                    <span class="badge badge-standard" style="font-size: 0.625rem; padding: 0.15rem 0.4rem;">Switch</span>
+                </a>
+
+                <span class="sidebar-nav-heading">Preferences</span>
+                <a href="#settings" class="sidebar-link">
+                    <div class="sidebar-link-content"><i data-lucide="settings"></i> <span>Profile &amp; Location</span></div>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button type="button" data-logout class="sidebar-link" style="background: none; border: none; width: 100%; text-align: left; cursor: pointer; color: #F87171;">
+                    <div class="sidebar-link-content"><i data-lucide="log-out"></i> <span>Sign Out</span></div>
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN -->
+        <div class="dashboard-main" id="top">
+            <header class="dashboard-topbar">
+                <div class="topbar-left">
+                    <button id="sidebarToggleBtn" class="mobile-menu-toggle" type="button" aria-label="Toggle navigation menu" style="display: none;">
+                        <i data-lucide="menu"></i>
+                    </button>
+                    <div>
+                        <h1 class="topbar-title">Donor Dashboard</h1>
+                        <span id="topbarGreeting" style="font-size: 0.78125rem; color: var(--color-text-subtle);">Loading your profile...</span>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <a href="/emergency-request" class="btn btn-emergency btn-sm"><i data-lucide="plus"></i> New Request</a>
+                    <button type="button" class="topbar-btn-icon" id="topbarBellBtn" aria-label="View notifications">
+                        <i data-lucide="bell"></i>
+                        <span class="ll-badge-dot" id="bellCount" style="display:none;">0</span>
+                    </button>
+                    <a href="#settings" class="author-avatar" style="width: 38px; height: 38px; text-decoration: none;" data-user-initials title="Profile">--</a>
+                </div>
+            </header>
+
+            <div class="dashboard-body">
+
+                <!-- NOT A DONOR YET -->
+                <section id="becomeDonorCard" class="card" style="display:none; padding: 2rem; text-align: center;">
+                    <div style="width:56px;height:56px;border-radius:50%;background:var(--color-primary-50);color:var(--color-primary);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;"><i data-lucide="heart-handshake"></i></div>
+                    <h2 style="font-size:1.35rem;color:var(--color-secondary);margin-bottom:0.4rem;">Become a blood donor</h2>
+                    <p style="color:var(--color-text-muted);max-width:520px;margin:0 auto 1.25rem;font-size:0.9rem;">
+                        Answer a short health questionnaire and share your location. If you are eligible, patients nearby will be able to find you and you will get alerts for compatible emergencies.
+                    </p>
+                    <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;">
+                        <button type="button" class="btn btn-primary btn-lg" data-open-screening><i data-lucide="clipboard-check"></i> Start donor registration</button>
+                        <a href="/patient/dashboard" class="btn btn-outline btn-lg"><i data-lucide="hospital"></i> Go to Requester Portal</a>
+                    </div>
+                </section>
+
+                <div id="donorContent" style="display: none; flex-direction: column; gap: inherit;">
+                    <!-- STATUS HERO -->
+                    <section class="donor-status-hero" aria-label="Donor availability status">
+                        <div class="donor-status-left">
+                            <div class="donor-blood-symbol" id="heroBloodGroup">--</div>
+                            <div class="donor-status-info">
+                                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.25rem; flex-wrap: wrap;">
+                                    <h2 data-user-name>--</h2>
+                                    <span id="availabilityPill" class="badge badge-neutral">--</span>
+                                </div>
+                                <p id="heroCompatText" style="font-size: 0.875rem; color: var(--color-text-muted); margin-bottom: 0.5rem;"></p>
+                                <div class="donor-status-tags" id="heroTags"></div>
+                            </div>
+                        </div>
+                        <div class="donor-status-right">
+                            <span style="font-size: 0.8125rem; font-weight: 600; color: var(--color-secondary);">Emergency alerts</span>
+                            <label class="toggle-wrapper" for="availabilityToggle">
+                                <span style="font-size: 0.875rem; color: var(--color-text-muted);">Available for urgent calls:</span>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="availabilityToggle" aria-label="Toggle donor availability">
+                                    <span class="toggle-slider"></span>
+                                </div>
+                            </label>
+                            <span style="font-size: 0.75rem; color: var(--color-text-subtle);">Turn off anytime to pause alerts.</span>
+                        </div>
+                    </section>
+
+                    <!-- METRICS -->
+                    <section class="dash-metrics-grid" aria-label="Summary statistics">
+                        <div class="dash-metric-card" style="border-left: 4px solid var(--color-success);">
+                            <div>
+                                <div class="dash-metric-title">Eligibility</div>
+                                <div class="dash-metric-value" id="mEligibility" style="font-size: 1.35rem;">--</div>
+                                <div class="dash-metric-trend" id="mEligibilitySub"><span>--</span></div>
+                            </div>
+                            <div class="dash-metric-icon" style="background-color: #ECFDF5; color: #10B981;"><i data-lucide="user-check"></i></div>
+                        </div>
+                        <div class="dash-metric-card">
+                            <div>
+                                <div class="dash-metric-title">Donations Recorded</div>
+                                <div class="dash-metric-value" id="mDonations">0</div>
+                                <div class="dash-metric-trend"><i data-lucide="droplet"></i> <span id="mLastDonation">No donations yet</span></div>
+                            </div>
+                            <div class="dash-metric-icon"><i data-lucide="droplet"></i></div>
+                        </div>
+                        <div class="dash-metric-card">
+                            <div>
+                                <div class="dash-metric-title">Active Volunteer Offers</div>
+                                <div class="dash-metric-value" id="mResponses" style="color: var(--color-primary);">0</div>
+                                <div class="dash-metric-trend"><i data-lucide="heart-handshake"></i> <span>Requests you answered</span></div>
+                            </div>
+                            <div class="dash-metric-icon" style="background-color: var(--color-info-bg); color: var(--color-info);"><i data-lucide="heart-handshake"></i></div>
+                        </div>
+                        <div class="dash-metric-card">
+                            <div>
+                                <div class="dash-metric-title">Open Requests Nearby</div>
+                                <div class="dash-metric-value" id="mNearby">0</div>
+                                <div class="dash-metric-trend"><i data-lucide="map-pin"></i> <span>Compatible, within 50 km</span></div>
+                            </div>
+                            <div class="dash-metric-icon"><i data-lucide="activity"></i></div>
+                        </div>
+                    </section>
+
+                    <!-- ELIGIBILITY -->
+                    <section id="eligibility-section" class="card">
+                        <div class="card-header">
+                            <div>
+                                <h2 style="font-size: 1.15rem; color: var(--color-secondary);">Health &amp; Eligibility</h2>
+                                <p style="font-size: 0.8125rem; color: var(--color-text-subtle);" id="screenedAtText">Based on your health screening answers.</p>
+                            </div>
+                            <button type="button" class="btn btn-outline btn-sm" data-open-screening><i data-lucide="clipboard-check"></i> Update health screening</button>
+                        </div>
+                        <div style="padding: 1.25rem;" id="eligibilityBody"></div>
+                    </section>
+
+                    <!-- LIVE REQUESTS -->
+                    <section id="requests-section" class="card">
+                        <div class="card-header">
+                            <div>
+                                <h2 style="font-size: 1.15rem; color: var(--color-secondary);">Live Emergency Blood Requests</h2>
+                                <p style="font-size: 0.8125rem; color: var(--color-text-subtle);">Open requests, nearest first. Distances are from your saved location.</p>
+                            </div>
+                            <div class="ll-section-tabs" role="tablist">
+                                <button type="button" class="active" data-req-filter="compatible">Compatible with me</button>
+                                <button type="button" data-req-filter="all">All open</button>
+                            </div>
+                        </div>
+                        <div class="table-wrapper" style="border: none; border-radius: 0;">
+                            <table class="table" aria-label="Open blood requests">
+                                <thead>
+                                    <tr>
+                                        <th>Case &amp; Patient</th>
+                                        <th>Blood Needed</th>
+                                        <th>Hospital &amp; Distance</th>
+                                        <th>Units</th>
+                                        <th>Urgency</th>
+                                        <th style="text-align: right;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="requestsTbody"><tr><td colspan="6"><div class="ll-empty">Loading...</div></td></tr></tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <!-- MY RESPONSES -->
+                    <section id="responded-requests" class="card">
+                        <div class="card-header">
+                            <div>
+                                <h2 style="font-size: 1.15rem; color: var(--color-secondary);">Requests You Responded To</h2>
+                                <p style="font-size: 0.8125rem; color: var(--color-text-subtle);">Fulfilled, cancelled and withdrawn ones move to History.</p>
+                            </div>
+                            <div class="ll-section-tabs" role="tablist">
+                                <button type="button" class="active" data-resp-filter="active">Active</button>
+                                <button type="button" data-resp-filter="history">History</button>
+                            </div>
+                        </div>
+                        <div class="table-wrapper" style="border: none; border-radius: 0;">
+                            <table class="table" aria-label="Requests you responded to">
+                                <thead>
+                                    <tr>
+                                        <th>Case</th>
+                                        <th>Patient</th>
+                                        <th>Blood</th>
+                                        <th>Hospital</th>
+                                        <th>Request Status</th>
+                                        <th>Your Response</th>
+                                        <th style="text-align: right;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="responsesTbody"></tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <!-- DONATION LOG -->
+                    <section id="donations-history" class="card">
+                        <div class="card-header">
+                            <div>
+                                <h2 style="font-size: 1.15rem; color: var(--color-secondary);">Personal Donation Record</h2>
+                                <p style="font-size: 0.8125rem; color: var(--color-text-subtle);">Your last donation date decides when you can donate again (90 days, or 120 days for women).</p>
+                            </div>
+                            <button type="button" class="btn btn-outline btn-sm" id="addDonationBtn"><i data-lucide="plus"></i> Add a donation</button>
+                        </div>
+                        <div class="table-wrapper" style="border: none; border-radius: 0;">
+                            <table class="table" aria-label="Donation log">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>Hospital / Blood Bank</th>
+                                        <th>Units</th>
+                                        <th>Source</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="donationsTbody"></tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- NOTIFICATIONS -->
+                <section id="notifications-section" class="card">
+                    <div class="card-header">
+                        <div>
+                            <h2 style="font-size: 1.15rem; color: var(--color-secondary);">Alerts &amp; Notifications</h2>
+                            <p style="font-size: 0.8125rem; color: var(--color-text-subtle);">Emergency alerts near you, contact requests and updates on your responses.</p>
+                        </div>
+                        <button type="button" class="btn btn-outline btn-sm" id="markAllReadBtn"><i data-lucide="check-check"></i> Mark all as read</button>
+                    </div>
+                    <div id="notificationsList" style="display: flex; flex-direction: column; gap: 0.75rem; padding: 1.25rem;"></div>
+                </section>
+
+                <!-- SETTINGS -->
+                <section id="settings" class="card">
+                    <div class="card-header">
+                        <div>
+                            <h2 style="font-size: 1.15rem; color: var(--color-secondary);">Profile &amp; Location</h2>
+                            <p style="font-size: 0.8125rem; color: var(--color-text-subtle);">Your phone number is shared only with patients whose requests you volunteer for.</p>
+                        </div>
+                    </div>
+                    <div style="padding: 1.25rem;">
+                        <div id="profileCard" style="margin-bottom: 1.25rem;"></div>
+                        <div class="ll-location-box" id="settingsLocationBox" style="display:none; margin-bottom: 0;">
+                            <div class="ll-location-icon"><i data-lucide="map-pin"></i></div>
+                            <div class="ll-location-text">
+                                <strong>Donor location</strong>
+                                <span id="settingsLocationText">--</span>
+                            </div>
+                            <button type="button" class="btn btn-outline btn-sm" id="updateLocationBtn"><i data-lucide="crosshair"></i> Update to current location</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <script src="/app/static/js/main.js"></script>
+    <script src="/app/static/js/api.js"></script>
+    <script src="/app/static/js/donor-form.js"></script>
+    <script src="/app/static/js/profile.js"></script>
+    <script>
+    (function () {
+        const $ = id => document.getElementById(id);
+        const state = { me: null, requests: [], responses: [], notifications: [], reqFilter: 'compatible', respFilter: 'active' };
+        let profile = null;
+
+        function setText(sel, text) { document.querySelectorAll(sel).forEach(el => el.textContent = text); }
+
+        // ---------------- LOADERS ----------------
+        async function loadMe() {
+            state.me = await LL.requireAuth();
+            renderProfile();
+        }
+        async function loadRequests() {
+            const d = await LL.api('/api/requests?scope=open');
+            state.requests = d.requests;
+            renderRequests();
+        }
+        async function loadResponses() {
+            const d = await LL.api('/api/my/responses');
+            state.responses = d.responses;
+            renderResponses();
+        }
+        async function loadNotifications() {
+            const d = await LL.api('/api/notifications');
+            state.notifications = d.notifications;
+            renderNotifications(d.unread);
+        }
+        async function refreshAll() {
+            await loadMe();
+            await Promise.all([loadRequests(), loadResponses(), loadNotifications()].map(p => p.catch(e => LL.toast(e.message, 'error'))));
+        }
+
+        // ---------------- RENDER: PROFILE ----------------
+        function renderProfile() {
+            const { user, donor } = state.me;
+            setText('[data-user-name]', user.full_name);
+            setText('[data-user-initials]', LL.initials(user.full_name));
+            if (!profile) profile = LLProfile.mount($('profileCard'), { getMe: () => state.me, onSaved: loadMe, onEditHealth: openScreening });
+            else if (!$('profileCard').querySelector('form')) profile.refresh();
+
+            if (!donor) {
+                $('becomeDonorCard').style.display = '';
+                $('donorContent').style.display = 'none';
+                $('sidebarRoleText').textContent = 'Not a donor yet';
+                $('topbarGreeting').textContent = `Welcome, ${user.full_name.split(' ')[0]}. Complete donor registration to start helping.`;
+                $('settingsLocationBox').style.display = 'none';
+                LL.icons();
+                return;
+            }
+            $('becomeDonorCard').style.display = 'none';
+            $('donorContent').style.display = 'flex';
+
+            const el = donor.eligibility;
+            const badge = $('sidebarBloodBadge');
+            badge.style.display = '';
+            badge.textContent = donor.blood_group;
+            $('sidebarRoleText').textContent = el.eligible ? 'Eligible Donor' : 'Donor (not eligible now)';
+            $('topbarGreeting').textContent = `Welcome back, ${user.full_name.split(' ')[0]} • ${donor.city || 'Location saved'}`;
+
+            $('heroBloodGroup').textContent = donor.blood_group;
+            const canGive = Object.keys(LL.COMPAT).filter(g => LL.COMPAT[g].includes(donor.blood_group));
+            $('heroCompatText').textContent = `Your red cells can be given to: ${canGive.join(', ')}.`;
+            $('availabilityToggle').checked = !!donor.is_available;
+            renderAvailabilityPill();
+
+            const tags = [];
+            tags.push(`<span class="badge badge-neutral"><i data-lucide="map-pin"></i> ${LL.esc(donor.city || 'Unknown city')}${donor.district ? ', ' + LL.esc(donor.district) : ''}</span>`);
+            tags.push(donor.last_donation_date
+                ? `<span class="badge badge-neutral"><i data-lucide="calendar"></i> Last donation: ${LL.esc(LL.fmtDate(donor.last_donation_date))}</span>`
+                : '<span class="badge badge-neutral"><i data-lucide="calendar"></i> No previous donation</span>');
+            tags.push(LL.eligibilityBadge(el));
+            if (!donor.has_location) tags.push('<span class="badge badge-critical"><i data-lucide="map-pin-off"></i> Location missing</span>');
+            $('heroTags').innerHTML = tags.join('');
+
+            // Metrics
+            $('mEligibility').textContent = el.eligible ? 'Eligible' : (el.status === 'PERMANENT_DEFERRAL' ? 'Not eligible' : 'Deferred');
+            $('mEligibility').style.color = el.eligible ? 'var(--color-success-dark)' : 'var(--color-critical)';
+            $('mEligibilitySub').innerHTML = el.eligible
+                ? '<i data-lucide="check-circle-2"></i> <span>Visible in donor search</span>'
+                : `<i data-lucide="calendar"></i> <span>${el.eligible_from ? 'From ' + LL.esc(LL.fmtDate(el.eligible_from)) : 'Hidden from search'}</span>`;
+            $('mDonations').textContent = donor.donations_count;
+            $('mLastDonation').textContent = donor.last_donation_date ? 'Last: ' + LL.fmtDate(donor.last_donation_date) : 'No donations yet';
+
+            // Eligibility card
+            $('eligibilityBody').innerHTML = LLDonorForm.eligibilityHtml(el);
+            const at = donor.screening && donor.screening.screened_at;
+            $('screenedAtText').textContent = at ? `Health screening last updated ${LL.fmtDateTime(at)}. This is a basic self-check; the blood bank does the final medical check.` : 'Based on your health screening answers.';
+
+            // Donations
+            $('donationsTbody').innerHTML = donor.donations.length ? donor.donations.map(d => `
+                <tr>
+                    <td><strong>${LL.esc(LL.fmtDate(d.date))}</strong></td>
+                    <td>${LL.esc(d.type || 'Whole blood')}</td>
+                    <td>${LL.esc(d.center)}</td>
+                    <td>${LL.esc(d.units)} unit${d.units > 1 ? 's' : ''}</td>
+                    <td>${d.request_id ? `<a href="/track-request?id=${d.request_id}" class="badge badge-success" style="text-decoration:none;"><i data-lucide="file-check"></i> Confirmed for ${LL.reqCode(d.request_id)}</a>` : '<span class="badge badge-neutral">Added by you</span>'}</td>
+                </tr>`).join('')
+                : '<tr><td colspan="5"><div class="ll-empty"><i data-lucide="droplet"></i><div>No donations recorded yet. Use "Add a donation" to record a past donation.</div></div></td></tr>';
+
+            // Settings location
+            $('settingsLocationBox').style.display = '';
+            $('settingsLocationBox').classList.remove('is-error');
+            $('settingsLocationBox').classList.toggle('is-set', !!donor.has_location);
+            $('settingsLocationText').textContent = donor.has_location
+                ? `Saved ${donor.location_updated_at ? LL.timeAgo(donor.location_updated_at) : ''}. Others only see your distance, never your exact location.`
+                : 'No location saved. Patients cannot see how far you are.';
+            LL.icons();
+        }
+
+        function renderAvailabilityPill() {
+            const on = $('availabilityToggle').checked;
+            const pill = $('availabilityPill');
+            const eligible = state.me.donor && state.me.donor.eligibility.eligible;
+            if (!eligible) {
+                pill.className = 'badge badge-urgent';
+                pill.innerHTML = '<i data-lucide="clock"></i> Not eligible right now';
+            } else if (on) {
+                pill.className = 'badge badge-success';
+                pill.innerHTML = '<span class="pulse-dot"></span> Available to donate';
+            } else {
+                pill.className = 'badge badge-neutral';
+                pill.innerHTML = '<i data-lucide="moon"></i> Alerts paused';
+            }
+            LL.icons();
+        }
+
+        // ---------------- RENDER: REQUESTS ----------------
+        function renderRequests() {
+            const donor = state.me.donor;
+            let list = state.requests.filter(r => !r.is_owner);
+            if (state.reqFilter === 'compatible' && donor) list = list.filter(r => r.compatible);
+            list.sort((a, b) => (a.distance_km ?? 1e9) - (b.distance_km ?? 1e9));
+
+            const nearby = state.requests.filter(r => !r.is_owner && r.compatible && (r.distance_km == null || r.distance_km <= 50)).length;
+            $('mNearby').textContent = nearby;
+            const navC = $('navRequestsCount');
+            navC.textContent = nearby; navC.style.display = nearby ? '' : 'none';
+
+            const tbody = $('requestsTbody');
+            if (!list.length) {
+                tbody.innerHTML = `<tr><td colspan="6"><div class="ll-empty"><i data-lucide="inbox"></i><div>${state.reqFilter === 'compatible' ? 'No open requests match your blood group right now.' : 'No open blood requests right now.'}</div></div></td></tr>`;
+                LL.icons();
+                return;
+            }
+            tbody.innerHTML = list.map(r => {
+                let action;
+                if (r.my_response && r.my_response.status !== 'WITHDRAWN') {
+                    action = `<span class="badge badge-success"><i data-lucide="check"></i> You volunteered</span>
+                              <a href="/track-request?id=${r.id}" class="btn btn-outline btn-sm"><i data-lucide="eye"></i> View</a>`;
+                } else if (donor && r.compatible) {
+                    action = `<button type="button" class="btn btn-emergency btn-sm" data-volunteer="${r.id}"><i data-lucide="check"></i> I Can Donate</button>
+                              <a href="/track-request?id=${r.id}" class="btn btn-outline btn-sm"><i data-lucide="eye"></i> View</a>`;
+                } else {
+                    action = `<a href="/track-request?id=${r.id}" class="btn btn-outline btn-sm"><i data-lucide="eye"></i> View case</a>`;
+                }
+                return `
+                <tr>
+                    <td><div class="table-patient-cell">
+                        <span class="table-patient-name">${LL.esc(r.code)} — ${LL.esc(r.patient_name)}</span>
+                        <span class="table-patient-meta">Posted ${LL.esc(LL.timeAgo(r.created_at))} • needed by ${LL.esc(LL.fmtDate(r.required_date))}</span>
+                    </div></td>
+                    <td><span class="badge ${r.compatible ? 'badge-critical' : 'badge-neutral'}" style="font-size: 0.85rem;">${LL.esc(r.blood_group)}</span>
+                        ${donor ? (r.compatible ? '<div class="ll-muted">Compatible</div>' : '<div class="ll-muted">Not compatible</div>') : ''}</td>
+                    <td><div class="table-patient-cell">
+                        <span style="font-weight: 500; color: var(--color-secondary);">${LL.esc(r.hospital_name)}</span>
+                        <span class="table-patient-meta">${LL.esc([r.hospital_area, r.city].filter(Boolean).join(', '))}
+                        ${r.distance_km != null ? ` • <span class="ll-distance"><i data-lucide="navigation"></i>${LL.fmtKm(r.distance_km)} away</span>` : ''}</span>
+                    </div></td>
+                    <td><strong>${r.units_needed} unit${r.units_needed > 1 ? 's' : ''}</strong><div class="ll-muted">${r.responses_count} volunteer${r.responses_count === 1 ? '' : 's'}</div></td>
+                    <td>${LL.urgencyBadge(r.urgency_level)}</td>
+                    <td style="text-align: right;"><div class="ll-actions">${action}</div></td>
+                </tr>`;
+            }).join('');
+            LL.icons();
+        }
+
+        // ---------------- RENDER: RESPONSES ----------------
+        function isHistory(resp) {
+            return resp.request.status !== 'ACTIVE' || resp.status === 'WITHDRAWN' || resp.status === 'DONATED';
+        }
+        function renderResponses() {
+            const active = state.responses.filter(r => !isHistory(r));
+            $('mResponses').textContent = active.length;
+            const navR = $('navResponsesCount');
+            navR.textContent = active.length; navR.style.display = active.length ? '' : 'none';
+
+            const list = state.respFilter === 'active' ? active : state.responses.filter(isHistory);
+            const tbody = $('responsesTbody');
+            if (!list.length) {
+                tbody.innerHTML = `<tr><td colspan="7"><div class="ll-empty"><i data-lucide="heart-handshake"></i><div>${state.respFilter === 'active' ? 'You have no active volunteer offers. Use "I Can Donate" on a request above.' : 'No past responses yet.'}</div></div></td></tr>`;
+                LL.icons();
+                return;
+            }
+            tbody.innerHTML = list.map(resp => {
+                const r = resp.request;
+                const canWithdraw = resp.status === 'OFFERED' && r.status === 'ACTIVE';
+                return `
+                <tr>
+                    <td><strong>${LL.esc(r.code)}</strong></td>
+                    <td><span style="font-weight: 600; color: var(--color-secondary);">${LL.esc(r.patient_name)}</span>
+                        <div class="ll-muted">${LL.esc(r.contact_person)} • <a href="tel:${LL.esc(r.contact_phone)}">${LL.esc(r.contact_phone)}</a></div></td>
+                    <td><span class="badge badge-critical" style="font-size: 0.75rem;">${LL.esc(r.blood_group)}</span></td>
+                    <td>${LL.esc(r.hospital_name)}${r.distance_km != null ? `<div class="ll-muted">${LL.fmtKm(r.distance_km)} away</div>` : ''}</td>
+                    <td>${LL.statusBadge(r.status)}${r.closed_at ? `<div class="ll-muted">${LL.esc(LL.fmtDate(r.closed_at))}</div>` : ''}</td>
+                    <td>${LL.responseBadge(resp.status)}<div class="ll-muted" style="font-style: italic;">"${LL.esc(resp.message)}"</div></td>
+                    <td style="text-align: right;"><div class="ll-actions">
+                        ${canWithdraw ? `<button type="button" class="btn btn-outline btn-sm" data-withdraw="${resp.id}"><i data-lucide="undo-2"></i> Withdraw</button>` : ''}
+                        <a href="/track-request?id=${r.id}" class="btn btn-outline btn-sm"><i data-lucide="external-link"></i> Track</a>
+                    </div></td>
+                </tr>`;
+            }).join('');
+            LL.icons();
+        }
+
+        // ---------------- RENDER: NOTIFICATIONS ----------------
+        function renderNotifications(unread) {
+            const box = $('notificationsList');
+            ['navNotifCount', 'bellCount'].forEach(id => { $(id).textContent = unread; $(id).style.display = unread ? '' : 'none'; });
+            if (!state.notifications.length) {
+                box.innerHTML = '<div class="ll-empty"><i data-lucide="bell-off"></i><div>No notifications yet.</div></div>';
+                LL.icons();
+                return;
+            }
+            const iconFor = { request: 'alert-octagon', contact: 'phone-incoming', response: 'heart-handshake', request_status: 'check-circle-2', donated: 'award', welcome: 'party-popper', eligibility: 'clipboard-x' };
+            box.innerHTML = state.notifications.map(n => `
+                <div class="ll-notification ${n.is_read ? '' : 'unread'}">
+                    <div class="ll-notification-icon"><i data-lucide="${iconFor[n.type] || 'bell'}"></i></div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="display: flex; justify-content: space-between; gap: 0.5rem;">
+                            <h4>${LL.esc(n.title)}</h4>
+                            <time>${LL.esc(LL.timeAgo(n.created_at))}</time>
+                        </div>
+                        <p>${LL.esc(n.body)}</p>
+                        ${n.link ? `<a href="${LL.esc(n.link)}" class="btn btn-outline btn-sm" style="margin-top: 0.5rem;">Open <i data-lucide="arrow-right"></i></a>` : ''}
+                    </div>
+                </div>`).join('');
+            LL.icons();
+        }
+
+        // ---------------- ACTIONS ----------------
+        function openScreening() {
+            const donor = state.me.donor;
+            LL.openModal({
+                title: donor ? 'Update health screening' : 'Become a blood donor',
+                wide: true,
+                body: '<div id="screeningForm"></div>',
+                onOpen: ov => LLDonorForm.render(ov.querySelector('#screeningForm'), donor || { city: state.me.user.city, district: state.me.user.district }),
+                actions: [
+                    { label: 'Cancel', cls: 'btn-outline' },
+                    {
+                        label: '<i data-lucide="save"></i> Save &amp; check eligibility', cls: 'btn-primary',
+                        onClick: async ov => {
+                            const payload = LLDonorForm.collect(ov.querySelector('#screeningForm'));
+                            const d = await LL.api('/api/donor/profile', { body: payload });
+                            LL.toast(d.message, d.donor.eligibility.eligible ? 'info' : 'error');
+                            await refreshAll();
+                            $('eligibility-section').scrollIntoView({ behavior: 'smooth' });
+                        }
+                    }
+                ]
+            });
+        }
+
+        function volunteer(id) {
+            const r = state.requests.find(x => x.id === id);
+            if (!r) return;
+            LL.openModal({
+                title: `Volunteer for ${r.code}`,
+                body: `
+                    <p style="font-size:0.875rem;color:var(--color-text-muted);margin-top:0;">
+                        <strong>${LL.esc(r.patient_name)}</strong> needs <strong>${r.units_needed} unit(s) of ${LL.esc(r.blood_group)}</strong> at
+                        <strong>${LL.esc(r.hospital_name)}</strong>${r.distance_km != null ? ` (${LL.fmtKm(r.distance_km)} from you)` : ''}.
+                        Your name and phone number will be shared with the requester so they can contact you.
+                    </p>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label" for="volMsg">Message to the family</label>
+                        <textarea id="volMsg" class="form-control" rows="2" maxlength="300">I can donate. I can reach the hospital in about 30 minutes.</textarea>
+                    </div>`,
+                actions: [
+                    { label: 'Cancel', cls: 'btn-outline' },
+                    {
+                        label: '<i data-lucide="check"></i> Confirm, I can donate', cls: 'btn-emergency',
+                        onClick: async ov => {
+                            const d = await LL.api(`/api/requests/${id}/respond`, { body: { message: ov.querySelector('#volMsg').value } });
+                            LL.toast(d.message);
+                            await Promise.all([loadRequests(), loadResponses()]);
+                        }
+                    }
+                ]
+            });
+        }
+
+        function withdraw(respId) {
+            LL.confirmAction('Withdraw your offer?', 'The requester will be told you can no longer donate for this case.', 'Withdraw offer', async () => {
+                const d = await LL.api(`/api/responses/${respId}/withdraw`, { method: 'POST' });
+                LL.toast(d.message);
+                await Promise.all([loadRequests(), loadResponses()]);
+            }, true);
+        }
+
+        function addDonation() {
+            const today = new Date().toISOString().slice(0, 10);
+            LL.openModal({
+                title: 'Add a past donation',
+                body: `
+                    <div class="form-group"><label class="form-label" for="dnDate">Donation date</label>
+                        <input type="date" id="dnDate" class="form-control" max="${today}" value="${today}"></div>
+                    <div class="form-group"><label class="form-label" for="dnCenter">Hospital or blood bank</label>
+                        <input type="text" id="dnCenter" class="form-control" placeholder="e.g. Red Cross Blood Bank"></div>
+                    <div class="form-group" style="margin-bottom:0;"><label class="form-label" for="dnUnits">Units</label>
+                        <select id="dnUnits" class="form-select"><option value="1">1 unit (~350-450 mL)</option><option value="2">2 units</option></select></div>`,
+                actions: [
+                    { label: 'Cancel', cls: 'btn-outline' },
+                    {
+                        label: '<i data-lucide="plus"></i> Add donation', cls: 'btn-primary',
+                        onClick: async ov => {
+                            const d = await LL.api('/api/donor/donations', { body: { date: ov.querySelector('#dnDate').value, center: ov.querySelector('#dnCenter').value, units: ov.querySelector('#dnUnits').value } });
+                            LL.toast(d.message);
+                            state.me.donor = d.donor;
+                            renderProfile();
+                            loadRequests().catch(() => {});
+                        }
+                    }
+                ]
+            });
+        }
+
+        async function updateLocation(btn) {
+            btn.disabled = true;
+            const orig = btn.innerHTML;
+            btn.textContent = 'Getting location...';
+            try {
+                const loc = await LL.getLocation();
+                const d = await LL.api('/api/donor/location', { body: loc });
+                LL.toast(d.message);
+                state.me.donor = d.donor;
+                renderProfile();
+                await loadRequests();
+            } catch (e) {
+                LL.toast(e.message, 'error');
+                $('settingsLocationBox').classList.add('is-error');
+                $('settingsLocationText').textContent = e.message;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = orig;
+                LL.icons();
+            }
+        }
+
+        // ---------------- WIRING ----------------
+        document.addEventListener('click', e => {
+            const t = e.target.closest('button, a');
+            if (!t) return;
+            if (t.matches('[data-open-screening]')) openScreening();
+            else if (t.dataset.volunteer) volunteer(Number(t.dataset.volunteer));
+            else if (t.dataset.withdraw) withdraw(Number(t.dataset.withdraw));
+            else if (t.dataset.reqFilter) {
+                state.reqFilter = t.dataset.reqFilter;
+                document.querySelectorAll('[data-req-filter]').forEach(b => b.classList.toggle('active', b === t));
+                renderRequests();
+            } else if (t.dataset.respFilter) {
+                state.respFilter = t.dataset.respFilter;
+                document.querySelectorAll('[data-resp-filter]').forEach(b => b.classList.toggle('active', b === t));
+                renderResponses();
+            }
+        });
+
+        $('availabilityToggle').addEventListener('change', async e => {
+            const val = e.target.checked;
+            renderAvailabilityPill();
+            try {
+                const d = await LL.api('/api/donor/availability', { body: { is_available: val } });
+                state.me.donor.is_available = d.is_available;
+                LL.toast(d.message);
+            } catch (err) {
+                e.target.checked = !val;
+                renderAvailabilityPill();
+                LL.toast(err.message, 'error');
+            }
+        });
+
+        $('topbarBellBtn').addEventListener('click', () => $('notifications-section').scrollIntoView({ behavior: 'smooth' }));
+        $('markAllReadBtn').addEventListener('click', async () => {
+            try {
+                const d = await LL.api('/api/notifications/read-all', { method: 'POST' });
+                LL.toast(d.message);
+                await loadNotifications();
+            } catch (e) { LL.toast(e.message, 'error'); }
+        });
+        $('addDonationBtn').addEventListener('click', addDonation);
+        $('updateLocationBtn').addEventListener('click', e => updateLocation(e.currentTarget));
+
+
+        // Sidebar active link highlighting
+        document.querySelectorAll('.sidebar-nav a[href^="#"]').forEach(a => a.addEventListener('click', () => {
+            document.querySelectorAll('.sidebar-nav .sidebar-link').forEach(l => l.classList.remove('active'));
+            a.classList.add('active');
+        }));
+
+        refreshAll().then(() => {
+            if (location.hash) {
+                const target = document.querySelector(location.hash);
+                if (target) setTimeout(() => target.scrollIntoView({ behavior: 'smooth' }), 100);
+            }
+        });
+        // Keep alerts fresh while the page is open
+        setInterval(() => { if (!document.hidden) { loadNotifications().catch(() => {}); loadRequests().catch(() => {}); } }, 30000);
+    })();
+    </script>
+</body>
+</html>

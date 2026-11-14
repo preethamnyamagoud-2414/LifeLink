@@ -1,0 +1,337 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account — LifeLink Healthcare Portal</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- CSS Design System -->
+    <link rel="stylesheet" href="/app/static/css/main.css">
+    <link rel="stylesheet" href="/app/static/css/components.css">
+    <link rel="stylesheet" href="/app/static/css/dashboard.css">
+    <link rel="stylesheet" href="/app/static/css/responsive.css">
+    <link rel="stylesheet" href="/app/static/css/app.css">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+
+    <!-- Clinical Emergency Notice Bar -->
+    <div class="demo-disclaimer-bar" role="alert" style="background-color: #1E293B; color: #F1F5F9; font-size: 0.78125rem;">
+        <span class="demo-tag" style="background-color: var(--color-primary); color: #fff;">CRITICAL NOTICE</span>
+        <span>LifeLink facilitates voluntary blood donor coordination. For acute medical emergencies, contact hospital emergency rooms directly.</span>
+    </div>
+
+    <!-- Navigation Bar -->
+    <header class="navbar" role="banner">
+        <div class="container">
+            <a href="/" class="nav-brand" aria-label="LifeLink Home">
+                <span class="nav-brand-icon"><i data-lucide="droplet"></i></span>
+                <span>LifeLink</span>
+            </a>
+            <nav aria-label="Primary Navigation">
+                <ul class="nav-links">
+                    <li><a href="/" class="nav-link">Home</a></li>
+                    <li><a href="/find-donors" class="nav-link">Find Donors</a></li>
+                    <li><a href="/track-request" class="nav-link">Track Request</a></li>
+                    <li><a href="/#about" class="nav-link">About Us</a></li>
+                </ul>
+            </nav>
+            <div class="nav-actions">
+                <a href="/emergency-request" class="btn btn-emergency btn-sm">
+                    <i data-lucide="alert-circle"></i>
+                    <span>Emergency Request</span>
+                </a>
+                <a href="/auth/login" class="btn btn-outline btn-sm">
+                    <i data-lucide="log-in"></i>
+                    <span>Sign In</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main id="main-content" role="main">
+        <section class="section" style="padding: 3.5rem 0 5rem 0;">
+            <div class="container" style="max-width: 760px;">
+                <div class="card" style="padding: 2.75rem 2.25rem; box-shadow: var(--shadow-md); border-radius: var(--radius-lg);">
+                    <!-- Brand Header -->
+                    <div style="text-align: center; margin-bottom: 2rem;">
+                        <span class="section-eyebrow" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.85rem; background-color: var(--color-primary-50); color: var(--color-primary); border-radius: 999px; font-size: 0.8125rem; font-weight: 600; margin-bottom: 0.75rem;">
+                            <i data-lucide="shield-check" style="width: 15px; height: 15px;"></i> LifeLink Member Registration
+                        </span>
+                        <h1 style="font-size: 1.85rem; color: var(--color-secondary); margin-bottom: 0.4rem; font-weight: 700;">
+                            Create Your Account
+                        </h1>
+                        <p style="font-size: 0.875rem; color: var(--color-text-subtle); max-width: 520px; margin: 0 auto; line-height: 1.5;">
+                            One unified account allows you to volunteer as a verified blood donor <strong>and</strong> submit emergency blood requests for yourself, family, or patients.
+                        </p>
+                    </div>
+
+                    <!-- Alert message container -->
+                    <div id="registerAlertBox" style="display: none; margin-bottom: 1.25rem;"></div>
+
+                    <!-- Registration Form -->
+                    <form id="registerForm" method="POST" action="/auth/register" novalidate>
+                        <!-- Section 1: Account Information -->
+                        <div style="margin-bottom: 1.75rem;">
+                            <h3 style="font-size: 1.05rem; color: var(--color-secondary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; font-weight: 600;">
+                                <i data-lucide="user" style="width: 18px; height: 18px; color: var(--color-primary);"></i>
+                                1. Account Information
+                            </h3>
+
+                            <!-- Full Name -->
+                            <div class="form-group">
+                                <label for="regFullName" class="form-label">
+                                    Full Name <span class="required-mark">*</span>
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="regFullName" 
+                                    name="full_name" 
+                                    class="form-control" 
+                                    placeholder="Enter your full name" 
+                                    required 
+                                    autocomplete="name"
+                                    autofocus
+                                >
+                            </div>
+
+                            <!-- Email & Phone Grid -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+                                <div class="form-group">
+                                    <label for="regEmail" class="form-label">
+                                        Email Address <span class="required-mark">*</span>
+                                    </label>
+                                    <input 
+                                        type="email" 
+                                        id="regEmail" 
+                                        name="email" 
+                                        class="form-control" 
+                                        placeholder="name@example.com" 
+                                        required 
+                                        autocomplete="email"
+                                    >
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="regPhone" class="form-label">
+                                        Mobile Number <span class="required-mark">*</span>
+                                    </label>
+                                    <input 
+                                        type="tel" 
+                                        id="regPhone" 
+                                        name="phone" 
+                                        class="form-control" 
+                                        placeholder="e.g. +1 555-010-2345" 
+                                        required 
+                                        autocomplete="tel"
+                                    >
+                                </div>
+                            </div>
+
+                            <!-- Password with Show/Hide Toggle -->
+                            <div class="form-group">
+                                <label for="regPassword" class="form-label">
+                                    Password <span class="required-mark">*</span>
+                                </label>
+                                <div class="password-input-group">
+                                    <input 
+                                        type="password" 
+                                        id="regPassword" 
+                                        name="password" 
+                                        class="form-control" 
+                                        placeholder="Minimum 8 characters with letters & numbers" 
+                                        required 
+                                        minlength="8" 
+                                        autocomplete="new-password"
+                                    >
+                                    <button 
+                                        type="button" 
+                                        class="password-toggle-btn" 
+                                        onclick="togglePasswordVisibility('regPassword', this)" 
+                                        aria-label="Show or hide password"
+                                        tabindex="-1"
+                                    >
+                                        <i data-lucide="eye"></i>
+                                    </button>
+                                </div>
+                                <span class="form-hint">Must contain at least 8 characters, with letters and numbers.</span>
+                            </div>
+
+                            <!-- Confirm Password with Show/Hide Toggle -->
+                            <div class="form-group">
+                                <label for="regConfirmPassword" class="form-label">
+                                    Confirm Password <span class="required-mark">*</span>
+                                </label>
+                                <div class="password-input-group">
+                                    <input 
+                                        type="password" 
+                                        id="regConfirmPassword" 
+                                        name="confirm_password" 
+                                        class="form-control" 
+                                        placeholder="Re-enter your password to confirm" 
+                                        required 
+                                        minlength="8" 
+                                        autocomplete="new-password"
+                                    >
+                                    <button 
+                                        type="button" 
+                                        class="password-toggle-btn" 
+                                        onclick="togglePasswordVisibility('regConfirmPassword', this)" 
+                                        aria-label="Show or hide password"
+                                        tabindex="-1"
+                                    >
+                                        <i data-lucide="eye"></i>
+                                    </button>
+                                </div>
+                                <div id="passwordMatchMessage" style="font-size: 0.8125rem; margin-top: 0.35rem; display: none;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Section 2: Donor enrolment -->
+                        <div style="background-color: var(--color-bg-subtle); border: 1.5px solid var(--color-border); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.75rem;">
+                            <div style="display: flex; align-items: flex-start; gap: 0.85rem;">
+                                <input type="checkbox" id="enableDonorProfile" name="enable_donor_profile" value="1"
+                                    style="margin-top: 0.25rem; width: 18px; height: 18px; accent-color: var(--color-primary); cursor: pointer;">
+                                <div>
+                                    <label for="enableDonorProfile" style="font-weight: 700; color: var(--color-secondary); font-size: 0.95rem; cursor: pointer;">
+                                        I want to register as a blood donor
+                                    </label>
+                                    <p style="font-size: 0.8125rem; color: var(--color-text-subtle); margin: 0.25rem 0 0 0; line-height: 1.4;">
+                                        You will be asked a few health questions and for location access, so patients nearby can find you.
+                                        Leave this unticked if you only need to request blood. You can become a donor later from your dashboard.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div id="donorFieldsContainer" style="display: none; margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px dashed var(--color-border);"></div>
+                        </div>
+
+                        <!-- Policy Notice -->
+                        <div style="font-size: 0.78125rem; color: var(--color-text-subtle); background-color: var(--color-bg-muted); padding: 0.75rem 1rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <i data-lucide="shield" style="width: 16px; height: 16px; color: var(--color-secondary); flex-shrink: 0;"></i>
+                            <span>Notice: Administrator accounts cannot be created via public registration. Privileged credentials are provisioned strictly through administrative server utilities.</span>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" id="createAccountBtn" class="btn btn-primary btn-block btn-lg" style="margin-bottom: 1.5rem; font-size: 1rem; font-weight: 600;">
+                            <i data-lucide="user-plus"></i> Create Account
+                        </button>
+
+                        <!-- Footer Navigation -->
+                        <div style="text-align: center; font-size: 0.875rem; color: var(--color-text-subtle); padding-top: 1.25rem; border-top: 1px solid var(--color-border);">
+                            Already have an account? <a href="/auth/login" style="font-weight: 600; color: var(--color-primary); text-decoration: none;">Sign In</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Custom Frontend JavaScript -->
+    <script src="/app/static/js/main.js"></script>
+    <script src="/app/static/js/api.js"></script>
+    <script src="/app/static/js/donor-form.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', async function() {
+        const params = new URLSearchParams(location.search);
+        const passwordInput = document.getElementById('regPassword');
+        const confirmInput = document.getElementById('regConfirmPassword');
+        const matchMsg = document.getElementById('passwordMatchMessage');
+        const alertBox = document.getElementById('registerAlertBox');
+        const form = document.getElementById('registerForm');
+        const donorToggle = document.getElementById('enableDonorProfile');
+        const donorBox = document.getElementById('donorFieldsContainer');
+        const submitBtn = document.getElementById('createAccountBtn');
+        let donorRendered = false;
+
+        // Already signed in? Go straight to the dashboard.
+        try {
+            const current = await LL.me();
+            if (current) { location.replace(current.dashboard); return; }
+        } catch (e) { /* server offline: the submit will report it */ }
+
+        function showAlert(html, cls) {
+            alertBox.style.display = 'block';
+            alertBox.className = cls === undefined ? 'alert alert-danger' : cls;
+            alertBox.innerHTML = html;
+            LL.icons();
+            alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function syncDonor() {
+            donorBox.style.display = donorToggle.checked ? 'block' : 'none';
+            if (donorToggle.checked && !donorRendered) {
+                LLDonorForm.render(donorBox, {});
+                donorRendered = true;
+            }
+        }
+        donorToggle.addEventListener('change', syncDonor);
+        if (params.get('donor') === '1') donorToggle.checked = true;
+        syncDonor();
+
+        function checkPasswordsMatch() {
+            if (!confirmInput.value) { matchMsg.style.display = 'none'; return true; }
+            matchMsg.style.display = 'block';
+            const ok = passwordInput.value === confirmInput.value;
+            matchMsg.style.color = ok ? '#10B981' : '#DC2626';
+            matchMsg.textContent = ok ? '\u2713 Passwords match' : '\u2717 Passwords do not match';
+            return ok;
+        }
+        passwordInput.addEventListener('input', checkPasswordsMatch);
+        confirmInput.addEventListener('input', checkPasswordsMatch);
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const fullName = document.getElementById('regFullName').value.trim();
+            const email = document.getElementById('regEmail').value.trim().toLowerCase();
+            const phone = document.getElementById('regPhone').value.trim();
+            const password = passwordInput.value;
+
+            if (!fullName || !email || !phone || !password || !confirmInput.value) {
+                return showAlert('<i data-lucide="alert-circle"></i> <span>Please fill in all fields marked with *.</span>');
+            }
+            if (password.length < 8 || !/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
+                return showAlert('<i data-lucide="alert-circle"></i> <span>Password must be at least 8 characters and contain letters and numbers.</span>');
+            }
+            if (password !== confirmInput.value) {
+                return showAlert('<i data-lucide="alert-circle"></i> <span>Passwords do not match.</span>');
+            }
+
+            const payload = { full_name: fullName, email, phone, password, become_donor: donorToggle.checked };
+            if (donorToggle.checked) {
+                try { payload.donor = LLDonorForm.collect(donorBox); }
+                catch (err) { return showAlert(`<i data-lucide="alert-circle"></i> <span>${LL.esc(err.message)}</span>`); }
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating account...';
+            try {
+                const data = await LL.api('/api/auth/register', { body: payload });
+                LL.storeUser(data.user);
+                if (data.donor) {
+                    // Show the screening result before continuing
+                    form.style.display = 'none';
+                    showAlert(`${LLDonorForm.eligibilityHtml(data.donor.eligibility)}
+                        <a href="${data.redirect}" class="btn btn-primary btn-block" style="margin-top:1rem;"><i data-lucide="layout-dashboard"></i> Continue to my dashboard</a>`, '');
+                } else {
+                    location.href = params.get('next') || data.redirect;
+                }
+            } catch (err) {
+                showAlert(`<i data-lucide="alert-circle"></i> <span>${LL.esc(err.message)}</span>`);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i data-lucide="user-plus"></i> Create Account';
+                LL.icons();
+            }
+        });
+    });
+    </script>
+</body>
+</html>

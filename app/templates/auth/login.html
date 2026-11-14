@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In — LifeLink Healthcare Portal{% endblock %}
+
+{% block content %}
+<section class="section" style="padding: 4rem 0 5rem 0;">
+    <div class="container" style="max-width: 480px;">
+        <div class="card" style="padding: 2.75rem 2.25rem; box-shadow: var(--shadow-md); border-radius: var(--radius-lg);">
+            <!-- Brand & Heading -->
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <span class="nav-brand-icon" style="width: 52px; height: 52px; margin: 0 auto 1.25rem auto; font-size: 1.35rem; display: flex; align-items: center; justify-content: center; background-color: var(--color-primary-50); border: 2px solid rgba(198, 40, 40, 0.15); border-radius: 50%; color: var(--color-primary);">
+                    <i data-lucide="droplet"></i>
+                </span>
+                <h1 style="font-size: 1.75rem; color: var(--color-secondary); margin-bottom: 0.35rem; font-weight: 700;">
+                    Sign In to LifeLink
+                </h1>
+                <p style="font-size: 0.875rem; color: var(--color-text-subtle);">
+                    Access your donor profile, manage requests, or monitor emergency alerts.
+                </p>
+            </div>
+
+            <!-- Login Form -->
+            <form action="{{ url_for('auth.login') }}" method="POST" id="loginForm" novalidate>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                
+                <!-- Email Address -->
+                <div class="form-group">
+                    <label for="loginEmail" class="form-label">
+                        Email Address <span class="required-mark">*</span>
+                    </label>
+                    <input 
+                        type="email" 
+                        id="loginEmail" 
+                        name="email" 
+                        class="form-control" 
+                        placeholder="name@example.com" 
+                        value="{{ email or '' }}" 
+                        required 
+                        autocomplete="username"
+                        autofocus
+                    >
+                </div>
+
+                <!-- Password with Show/Hide Toggle -->
+                <div class="form-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                        <label for="loginPassword" class="form-label" style="margin-bottom: 0;">
+                            Password <span class="required-mark">*</span>
+                        </label>
+                        <a href="{{ url_for('auth.forgot_password') }}" style="font-size: 0.8125rem; color: var(--color-primary); font-weight: 500; text-decoration: none;">
+                            Forgot password?
+                        </a>
+                    </div>
+                    <div class="password-input-group">
+                        <input 
+                            type="password" 
+                            id="loginPassword" 
+                            name="password" 
+                            class="form-control" 
+                            placeholder="Enter your password" 
+                            required 
+                            autocomplete="current-password"
+                        >
+                        <button 
+                            type="button" 
+                            class="password-toggle-btn" 
+                            onclick="togglePasswordVisibility('loginPassword', this)" 
+                            aria-label="Show or hide password"
+                            tabindex="-1"
+                        >
+                            <i data-lucide="eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Remember Me Checkbox -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; font-size: 0.875rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--color-text-main); user-select: none;">
+                        <input type="checkbox" name="remember" value="1" checked style="width: 16px; height: 16px; accent-color: var(--color-primary); cursor: pointer;">
+                        <span>Remember me on this device</span>
+                    </label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-bottom: 1.5rem; font-size: 1rem; font-weight: 600;">
+                    <i data-lucide="log-in"></i> Sign In
+                </button>
+
+                <!-- Footer Navigation -->
+                <div style="text-align: center; font-size: 0.875rem; color: var(--color-text-subtle); padding-top: 1.25rem; border-top: 1px solid var(--color-border);">
+                    Don't have an account? <a href="{{ url_for('auth.register') }}" style="font-weight: 600; color: var(--color-primary); text-decoration: none;">Create an Account</a>
+                </div>
+
+                <!-- Administrative Login Link -->
+                <div style="text-align: center; margin-top: 1.25rem;">
+                    <a href="{{ url_for('admin.login') }}" style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.8125rem; color: var(--color-text-subtle); text-decoration: none;">
+                        <i data-lucide="shield" style="width: 14px; height: 14px;"></i>
+                        <span>Administrator Portal Sign In</span>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Operations Center — LifeLink</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/app/static/css/main.css">
+    <link rel="stylesheet" href="/app/static/css/components.css">
+    <link rel="stylesheet" href="/app/static/css/dashboard.css">
+    <link rel="stylesheet" href="/app/static/css/responsive.css">
+    <link rel="stylesheet" href="/app/static/css/app.css">
+
+    <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+    <div class="demo-disclaimer-bar" role="alert" style="background-color: #1E293B; color: #F1F5F9; font-size: 0.78125rem;">
+        <span class="demo-tag" style="background-color: var(--color-primary); color: #fff;">CRITICAL NOTICE</span>
+        <span>LifeLink facilitates voluntary blood donor coordination. For acute medical emergencies, contact hospital emergency rooms directly.</span>
+    </div>
+
+    <div class="dashboard-container">
+        <aside class="dashboard-sidebar" aria-label="Administrator Navigation">
+            <div class="sidebar-header">
+                <a href="/" class="sidebar-brand">
+                    <span class="sidebar-brand-icon" style="background-color: var(--color-critical);"><i data-lucide="shield"></i></span>
+                    <span>LifeLink Admin</span>
+                </a>
+            </div>
+
+            <div class="sidebar-user-card" style="background: rgba(239, 68, 68, 0.08); border-color: rgba(239, 68, 68, 0.2);">
+                <div class="sidebar-avatar" data-user-initials style="background-color: var(--color-critical); color: #FFFFFF; border-color: #FFFFFF;">--</div>
+                <div class="sidebar-user-details">
+                    <h4 data-user-name>Administrator</h4>
+                    <p data-user-email style="font-size: 0.72rem; color: #94A3B8; word-break: break-all; margin: 0 0 0.35rem 0;">preethamnyamagoud@gmail.com</p>
+                    <p><span class="badge badge-critical" style="padding: 0.1rem 0.4rem; font-size: 0.65rem;">System Authority</span></p>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <span class="sidebar-nav-heading">Platform Monitoring</span>
+                <a href="#top" class="sidebar-link active">
+                    <div class="sidebar-link-content"><i data-lucide="layout-dashboard"></i> <span>Overview &amp; KPIs</span></div>
+                </a>
+                <a href="#users-section" class="sidebar-link">
+                    <div class="sidebar-link-content"><i data-lucide="users"></i> <span>Manage Users</span></div>
+                    <span class="badge badge-neutral" id="navUsers" style="font-size: 0.7rem;">0</span>
+                </a>
+                <a href="#requests-section" class="sidebar-link">
+                    <div class="sidebar-link-content"><i data-lucide="activity"></i> <span>Active Requests</span></div>
+                    <span class="sidebar-badge" id="navActive">0</span>
+                </a>
+                <a href="#history-section" class="sidebar-link">
+                    <div class="sidebar-link-content"><i data-lucide="archive"></i> <span>Request History</span></div>
+                </a>
+                <a href="#audit-section" class="sidebar-link">
+                    <div class="sidebar-link-content"><i data-lucide="shield-alert"></i> <span>Audit Log</span></div>
+                </a>
+
+                <span class="sidebar-nav-heading">Live Portals</span>
+                <a href="/find-donors" class="sidebar-link">
+                    <div class="sidebar-link-content"><i data-lucide="search"></i> <span>Public Donor Search</span></div>
+                </a>
+                <a href="/track-request" class="sidebar-link">
+                    <div class="sidebar-link-content"><i data-lucide="radio"></i> <span>Track a Request</span></div>
+                </a>
+                <a href="/" class="sidebar-link">
+                    <div class="sidebar-link-content"><i data-lucide="home"></i> <span>Public Home Page</span></div>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button type="button" data-logout class="sidebar-link" style="background: none; border: none; width: 100%; text-align: left; cursor: pointer; color: #F87171;">
+                    <div class="sidebar-link-content"><i data-lucide="log-out"></i> <span>Sign Out</span></div>
+                </button>
+            </div>
+        </aside>
+
+        <div class="dashboard-main" id="top">
+            <header class="dashboard-topbar">
+                <div class="topbar-left">
+                    <button id="sidebarToggleBtn" class="mobile-menu-toggle" type="button" aria-label="Toggle navigation menu" style="display: none;">
+                        <i data-lucide="menu"></i>
+                    </button>
+                    <div>
+                        <h1 class="topbar-title">Administrative Operations Center</h1>
+                        <span style="font-size: 0.78125rem; color: var(--color-text-subtle);">Live data from the LifeLink server</span>
+                    </div>
+                </div>
+                <div class="topbar-right" style="display: flex; align-items: center; gap: 0.75rem;">
+                    <button type="button" class="btn btn-outline btn-sm" id="refreshBtn"><i data-lucide="refresh-cw"></i> Refresh</button>
+                    <div style="text-align: right; display: flex; flex-direction: column;">
+                        <span data-user-name style="font-size: 0.8125rem; font-weight: 600; color: var(--color-text-main);"></span>
+                        <span data-user-email style="font-size: 0.7rem; color: var(--color-text-subtle);">preethamnyamagoud@gmail.com</span>
+                    </div>
+                    <div class="sidebar-avatar" data-user-initials style="width: 38px; height: 38px; font-size: 0.9rem; background-color: var(--color-critical); color: #FFFFFF;">--</div>
+                </div>
+            </header>
+
+            <div class="dashboard-body">
+                <div class="dash-metrics-grid">
+                    <div class="dash-metric-card" style="border-left: 4px solid var(--color-secondary);">
+                        <div>
+                            <div class="dash-metric-title">Registered Accounts</div>
+                            <div class="dash-metric-value" id="kUsers">0</div>
+                            <div class="dash-metric-trend" style="color: var(--color-text-subtle);"><i data-lucide="users"></i> <span id="kDonors">0 donor profiles</span></div>
+                        </div>
+                        <div class="dash-metric-icon"><i data-lucide="user-check"></i></div>
+                    </div>
+                    <div class="dash-metric-card" style="border-left: 4px solid #10B981;">
+                        <div>
+                            <div class="dash-metric-title">Eligible Donors</div>
+                            <div class="dash-metric-value" id="kEligible" style="color: #10B981;">0</div>
+                            <div class="dash-metric-trend"><i data-lucide="check-circle-2"></i> <span id="kAvailable">0 available now</span></div>
+                        </div>
+                        <div class="dash-metric-icon" style="background-color: #ECFDF5; color: #10B981;"><i data-lucide="heart"></i></div>
+                    </div>
+                    <div class="dash-metric-card" style="border-left: 4px solid var(--color-critical);">
+                        <div>
+                            <div class="dash-metric-title">Active Blood Requests</div>
+                            <div class="dash-metric-value" id="kActive" style="color: var(--color-critical);">0</div>
+                            <div class="dash-metric-trend" style="color: var(--color-critical);"><i data-lucide="alert-octagon"></i> <span id="kCritical">0 critical</span></div>
+                        </div>
+                        <div class="dash-metric-icon" style="background-color: #FEF2F2; color: #EF4444;"><i data-lucide="activity"></i></div>
+                    </div>
+                    <div class="dash-metric-card" style="border-left: 4px solid #6366F1;">
+                        <div>
+                            <div class="dash-metric-title">Fulfilled / Cancelled</div>
+                            <div class="dash-metric-value" id="kClosed" style="color: #4F46E5;">0 / 0</div>
+                            <div class="dash-metric-trend" style="color: var(--color-text-subtle);"><i data-lucide="check-square"></i> <span>In request history</span></div>
+                        </div>
+                        <div class="dash-metric-icon" style="background-color: #EEF2FF; color: #6366F1;"><i data-lucide="archive"></i></div>
+                    </div>
+                </div>
+
+                <div class="card" style="box-shadow: var(--shadow-sm);">
+                    <div class="card-header">
+                        <div>
+                            <h2 style="font-size: 1.25rem; color: var(--color-secondary);">Eligible Donors by Blood Group</h2>
+                            <p style="font-size: 0.8125rem; color: var(--color-text-subtle);">Only donors who currently pass health screening are counted.</p>
+                        </div>
+                    </div>
+                    <div id="bloodDist" style="padding: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 1rem;"></div>
+                </div>
+
+                <div id="users-section" class="card" style="box-shadow: var(--shadow-sm);">
+                    <div class="card-header">
+                        <div>
+                            <h2 style="font-size: 1.25rem; color: var(--color-secondary);">Manage Registered Users</h2>
+                            <p style="font-size: 0.8125rem; color: var(--color-text-subtle);">Deactivated users cannot sign in and are hidden from donor search.</p>
+                        </div>
+                        <input type="search" id="userFilter" class="form-control" placeholder="Search name or email" style="max-width: 240px;">
+                    </div>
+                    <div class="table-wrapper" style="border: none;">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Role</th>
+                                    <th>Donor Status</th>
+                                    <th>Account</th>
+                                    <th style="text-align: right;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="requests-section" class="card" style="box-shadow: var(--shadow-sm);">
+                    <div class="card-header">
+                        <div>
+                            <h2 style="font-size: 1.25rem; color: var(--color-secondary);">Active Blood Requests</h2>
+                            <p style="font-size: 0.8125rem; color: var(--color-text-subtle);">Fulfilled or cancelled requests move to Request History below.</p>
+                        </div>
+                        <span class="badge badge-critical" id="activeBadge"><span class="pulse-dot"></span> 0 Active</span>
+                    </div>
+                    <div class="table-wrapper" style="border: none;">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Case ID</th>
+                                    <th>Patient</th>
+                                    <th>Blood</th>
+                                    <th>Units</th>
+                                    <th>Urgency</th>
+                                    <th>Hospital</th>
+                                    <th>Volunteers</th>
+                                    <th style="text-align: right;">Moderation</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activeTbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="history-section" class="card" style="box-shadow: var(--shadow-sm);">
+                    <div class="card-header">
+                        <div>
+                            <h2 style="font-size: 1.25rem; color: var(--color-secondary);">Request History</h2>
+                            <p style="font-size: 0.8125rem; color: var(--color-text-subtle);">Fulfilled and cancelled requests.</p>
+                        </div>
+                        <span class="badge badge-neutral" id="historyBadge">0</span>
+                    </div>
+                    <div class="table-wrapper" style="border: none;">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Case ID</th>
+                                    <th>Patient</th>
+                                    <th>Blood</th>
+                                    <th>Hospital</th>
+                                    <th>Status</th>
+                                    <th>Closed On</th>
+                                    <th style="text-align: right;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="audit-section" class="card" style="box-shadow: var(--shadow-sm);">
+                    <div class="card-header">
+                        <div>
+                            <h2 style="font-size: 1.25rem; color: var(--color-secondary);">Audit Log</h2>
+                            <p style="font-size: 0.8125rem; color: var(--color-text-subtle);">Latest 50 recorded actions.</p>
+                        </div>
+                    </div>
+                    <div class="table-wrapper" style="border: none;">
+                        <table class="table">
+                            <thead>
+                                <tr><th>Log ID</th><th>Action</th><th>Target</th><th>Description</th><th>Logged At</th></tr>
+                            </thead>
+                            <tbody id="auditTbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/app/static/js/main.js"></script>
+    <script src="/app/static/js/api.js"></script>
+    <script>
+    (function () {
+        const $ = id => document.getElementById(id);
+        let data = null;
+        const statusLabel = { ELIGIBLE: ['badge-success', 'Eligible'], TEMPORARY_DEFERRAL: ['badge-urgent', 'Deferred'], PERMANENT_DEFERRAL: ['badge-critical', 'Not eligible'] };
+
+        async function load() {
+            data = await LL.api('/api/admin/overview');
+            render();
+        }
+
+        function render() {
+            const s = data.stats;
+            $('kUsers').textContent = s.users;
+            $('kDonors').textContent = `${s.donors} donor profile${s.donors === 1 ? '' : 's'}`;
+            $('kEligible').textContent = s.eligible_donors;
+            $('kAvailable').textContent = `${s.available_donors} available now`;
+            $('kActive').textContent = s.active_requests;
+            $('kCritical').textContent = `${s.critical_requests} critical`;
+            $('kClosed').innerHTML = `${s.fulfilled} <span style="font-size: 1rem; color: var(--color-text-subtle); font-weight: 400;">/ ${s.cancelled}</span>`;
+            $('navUsers').textContent = s.users;
+            $('navActive').textContent = s.active_requests;
+            $('activeBadge').innerHTML = `<span class="pulse-dot"></span> ${s.active_requests} Active`;
+
+            $('bloodDist').innerHTML = data.blood_distribution.map(b => `
+                <div style="border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 1.25rem 0.75rem; text-align: center;">
+                    <div class="blood-symbol-pill" style="width: 44px; height: 44px; font-size: 1.15rem; margin: 0 auto 0.5rem auto;">${LL.esc(b.blood_group)}</div>
+                    <div style="font-size: 1.35rem; font-weight: 700; color: var(--color-secondary);">${b.count}</div>
+                    <div style="font-size: 0.725rem; color: var(--color-text-subtle);">eligible donor${b.count === 1 ? '' : 's'}</div>
+                </div>`).join('');
+
+            renderUsers();
+
+            const active = data.requests.filter(r => r.status === 'ACTIVE');
+            const history = data.requests.filter(r => r.status !== 'ACTIVE');
+            $('historyBadge').textContent = `${history.length} archived`;
+
+            $('activeTbody').innerHTML = active.length ? active.map(r => `
+                <tr>
+                    <td><strong>#${LL.esc(r.code)}</strong><div class="ll-muted">${LL.esc(LL.timeAgo(r.created_at))}</div></td>
+                    <td><span style="font-weight: 700; color: var(--color-secondary);">${LL.esc(r.patient_name)}</span><div class="ll-muted">${LL.esc(r.contact_person)} • ${LL.esc(r.contact_phone)}</div></td>
+                    <td><span class="blood-symbol-pill" style="width: 32px; height: 32px; font-size: 0.9rem; margin: 0;">${LL.esc(r.blood_group)}</span></td>
+                    <td>${r.units_needed} unit${r.units_needed > 1 ? 's' : ''}</td>
+                    <td>${LL.urgencyBadge(r.urgency_level)}</td>
+                    <td>${LL.esc(r.hospital_name)} <div class="ll-muted">${LL.esc(r.city)}</div></td>
+                    <td>${r.responses_count}</td>
+                    <td style="text-align: right;"><div class="ll-actions">
+                        <a href="/track-request?id=${r.id}" class="btn btn-outline btn-sm">Track</a>
+                        <button type="button" class="btn btn-primary btn-sm" data-status="FULFILLED" data-id="${r.id}">Fulfill</button>
+                        <button type="button" class="btn btn-outline btn-sm" data-status="CANCELLED" data-id="${r.id}" style="color: var(--color-critical);">Cancel</button>
+                    </div></td>
+                </tr>`).join('')
+                : '<tr><td colspan="8"><div class="ll-empty"><i data-lucide="inbox"></i><div>No active requests.</div></div></td></tr>';
+
+            $('historyTbody').innerHTML = history.length ? history.map(r => `
+                <tr>
+                    <td><strong>#${LL.esc(r.code)}</strong></td>
+                    <td>${LL.esc(r.patient_name)}</td>
+                    <td><span class="badge badge-neutral">${LL.esc(r.blood_group)}</span></td>
+                    <td>${LL.esc(r.hospital_name)}</td>
+                    <td>${LL.statusBadge(r.status)}</td>
+                    <td>${LL.esc(LL.fmtDateTime(r.closed_at))}</td>
+                    <td style="text-align: right;"><div class="ll-actions">
+                        <a href="/track-request?id=${r.id}" class="btn btn-outline btn-sm">View</a>
+                        <button type="button" class="btn btn-outline btn-sm" data-status="ACTIVE" data-id="${r.id}">Re-open</button>
+                    </div></td>
+                </tr>`).join('')
+                : '<tr><td colspan="7"><div class="ll-empty"><i data-lucide="archive"></i><div>No fulfilled or cancelled requests yet.</div></div></td></tr>';
+
+            $('auditTbody').innerHTML = data.audit.length ? data.audit.map(a => `
+                <tr>
+                    <td><strong>#LOG-${a.id}</strong></td>
+                    <td><span class="badge badge-neutral" style="font-size: 0.7rem;">${LL.esc(a.action)}</span></td>
+                    <td><code>${LL.esc(a.target)}</code></td>
+                    <td>${LL.esc(a.description)}</td>
+                    <td>${LL.esc(a.created_at)}</td>
+                </tr>`).join('')
+                : '<tr><td colspan="5"><div class="ll-empty">No activity yet.</div></td></tr>';
+            LL.icons();
+        }
+
+        function renderUsers() {
+            const q = $('userFilter').value.trim().toLowerCase();
+            const list = data.users.filter(u => !q || u.full_name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+            $('usersTbody').innerHTML = list.length ? list.map(u => {
+                const roleCls = u.role === 'admin' ? 'badge-critical' : (u.role === 'donor' ? 'badge-success' : 'badge-neutral');
+                const st = statusLabel[u.eligibility_status];
+                return `
+                <tr>
+                    <td><strong>#${u.id}</strong></td>
+                    <td><span style="font-weight: 700; color: var(--color-secondary);">${LL.esc(u.full_name)}</span>${u.blood_group ? ` <span class="badge badge-critical" style="font-size:0.65rem;">${LL.esc(u.blood_group)}</span>` : ''}</td>
+                    <td>${LL.esc(u.email)}</td>
+                    <td>${LL.esc(u.phone)}</td>
+                    <td><span class="badge ${roleCls}">${LL.esc(u.role.toUpperCase())}</span></td>
+                    <td>${st ? `<span class="badge ${st[0]}">${st[1]}</span>` : '<span class="ll-muted">—</span>'}</td>
+                    <td>${u.is_active ? '<span class="badge badge-success"><span class="pulse-dot"></span> Active</span>' : '<span class="badge badge-neutral">Deactivated</span>'}</td>
+                    <td style="text-align: right;">${u.role === 'admin'
+                        ? '<span style="font-size: 0.75rem; color: var(--color-text-subtle);">Protected</span>'
+                        : `<button type="button" class="btn btn-outline btn-sm" data-toggle-user="${u.id}">${u.is_active ? 'Deactivate' : 'Activate'}</button>`}</td>
+                </tr>`;
+            }).join('') : '<tr><td colspan="8"><div class="ll-empty">No users match.</div></td></tr>';
+            LL.icons();
+        }
+
+        document.addEventListener('click', e => {
+            const t = e.target.closest('button');
+            if (!t) return;
+            if (t.dataset.toggleUser) {
+                const u = data.users.find(x => x.id === Number(t.dataset.toggleUser));
+                LL.confirmAction(u.is_active ? 'Deactivate user?' : 'Activate user?',
+                    u.is_active ? `${LL.esc(u.full_name)} will be signed out, unable to sign in, and hidden from donor search.` : `${LL.esc(u.full_name)} will be able to sign in again.`,
+                    u.is_active ? 'Deactivate' : 'Activate',
+                    async () => { const d = await LL.api(`/api/admin/users/${u.id}/toggle`, { method: 'POST' }); LL.toast(d.message); await load(); },
+                    u.is_active);
+            } else if (t.dataset.status) {
+                const id = Number(t.dataset.id), status = t.dataset.status;
+                const r = data.requests.find(x => x.id === id);
+                const words = { FULFILLED: 'Mark as fulfilled', CANCELLED: 'Cancel request', ACTIVE: 'Re-open request' };
+                LL.confirmAction(`${words[status]}?`, `${LL.esc(r.code)} for ${LL.esc(r.patient_name)} (${LL.esc(r.blood_group)}).${status !== 'ACTIVE' ? ' It will move to Request History.' : ''}`, words[status],
+                    async () => { const d = await LL.api(`/api/requests/${id}/status`, { body: { status } }); LL.toast(d.message); await load(); },
+                    status === 'CANCELLED');
+            }
+        });
+        $('userFilter').addEventListener('input', renderUsers);
+        $('refreshBtn').addEventListener('click', () => load().then(() => LL.toast('Dashboard refreshed.')).catch(e => LL.toast(e.message, 'error')));
+        document.querySelectorAll('.sidebar-nav a[href^="#"]').forEach(a => a.addEventListener('click', () => {
+            document.querySelectorAll('.sidebar-nav .sidebar-link').forEach(l => l.classList.remove('active'));
+            a.classList.add('active');
+        }));
+
+        (async () => {
+            const me = await LL.requireAuth();
+            if (me.user.role !== 'admin') { location.replace(me.dashboard); return; }
+            document.querySelectorAll('[data-user-name]').forEach(el => el.textContent = me.user.full_name);
+            document.querySelectorAll('[data-user-email]').forEach(el => el.textContent = me.user.email);
+            document.querySelectorAll('[data-user-initials]').forEach(el => el.textContent = LL.initials(me.user.full_name));
+            try { await load(); } catch (e) { LL.toast(e.message, 'error'); }
+        })();
+    })();
+    </script>
+</body>
+</html>
