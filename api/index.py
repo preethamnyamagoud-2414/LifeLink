@@ -28,17 +28,22 @@ class VercelWSGIHandler:
             start_response("500 Internal Server Error", [("Content-Type", "text/plain; charset=utf-8")])
             return [f"=== LIFELINK APPLICATION INITIALIZATION ERROR ===\n\n{import_error}".encode("utf-8")]
 
-        # Diagnostic inspection endpoint
-        if (
-            environ.get("PATH_INFO") in ("/__debug_env", "/debug-env")
-            or "debug_env=1" in environ.get("QUERY_STRING", "")
-        ):
-            safe_env = {
-                k: str(v) for k, v in environ.items()
-                if not any(secret_term in k.upper() for secret_term in ("KEY", "PASS", "SECRET", "TOKEN", "AUTH"))
+        # Diagnostic file & environment inspection endpoint
+        if "list_files=1" in environ.get("QUERY_STRING", ""):
+            tree = []
+            for r, dirs, files in os.walk("/var/task"):
+                for f in files:
+                    # skip .git or large wheels
+                    if not any(ign in r for ign in [".git", "__pycache__"]):
+                        tree.append(os.path.join(r, f))
+            resp_obj = {
+                "raw_path_info": environ.get("PATH_INFO"),
+                "raw_query_string": environ.get("QUERY_STRING"),
+                "all_headers": {k: str(v) for k, v in environ.items() if not any(s in k.upper() for s in ["KEY", "PASS", "SECRET", "TOKEN", "AUTH"])},
+                "task_files": tree
             }
             start_response("200 OK", [("Content-Type", "application/json; charset=utf-8")])
-            return [json.dumps(safe_env, indent=2).encode("utf-8")]
+            return [json.dumps(resp_obj, indent=2).encode("utf-8")]
 
         try:
             # Handle Vercel internal rewrites:
