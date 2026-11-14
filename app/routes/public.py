@@ -225,18 +225,6 @@ def about():
     return render_template("public/about.html")
 
 
-@public_bp.route("/emergency-request", methods=["GET", "POST"])
-def emergency_request():
-    """Direct alias to emergency blood request creation."""
-    return redirect(url_for("requests.create_request"))
-
-
-@public_bp.route("/track-request")
-def track_request():
-    """Direct alias to emergency blood request tracking lookup."""
-    return redirect(url_for("requests.track_lookup"))
-
-
 @public_bp.route("/dashboard")
 def general_dashboard():
     """Smart role-based dashboard router."""
@@ -268,8 +256,7 @@ def legacy_admin_dashboard_redirect():
 @public_bp.route("/emergency-request.html", methods=["GET", "POST"])
 def emergency_request():
     """Canonical Emergency Blood Request entry point."""
-    from app.routes.requests import create_request
-    return create_request()
+    return redirect(url_for("requests.create_request"))
 
 
 @public_bp.route("/track-request")

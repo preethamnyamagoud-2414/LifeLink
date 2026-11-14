@@ -8,6 +8,7 @@ import re
 import time
 import secrets
 import logging
+from datetime import datetime, date
 from functools import wraps
 from typing import Dict, Tuple, Optional, Any, List
 from flask import session, request, abort, render_template, current_app
@@ -207,14 +208,12 @@ def validate_blood_request_payload(data: Dict[str, Any]) -> Tuple[bool, Dict[str
     if not ok_phone:
         errors["contact_phone"] = msg_phone
 
-    # 3. Contact email
+    # 3. Contact email (optional, but validated if provided)
     contact_email = (data.get("contact_email") or "").strip()
     if contact_email:
         ok_email, msg_email = validate_email(contact_email)
         if not ok_email:
             errors["contact_email"] = msg_email
-    else:
-        errors["contact_email"] = "Contact email address is required."
 
     # 4. Blood group
     ok, msg = validate_blood_group(data.get("blood_group", ""))
@@ -253,11 +252,9 @@ def validate_blood_request_payload(data: Dict[str, Any]) -> Tuple[bool, Dict[str
     if pref_method not in ("phone", "whatsapp", "email", "call_or_msg"):
         errors["preferred_contact_method"] = "Invalid preferred contact method selected."
 
-    # 10. Required Date validation
+    # 10. Required Date validation (optional, defaults to current date)
     req_date = (data.get("required_date") or "").strip()
-    if not req_date:
-        errors["required_date"] = "Required transfusion date is required."
-    else:
+    if req_date:
         try:
             parsed_date = datetime.strptime(req_date, "%Y-%m-%d").date()
             if parsed_date < date.today():

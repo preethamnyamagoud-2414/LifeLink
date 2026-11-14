@@ -26,10 +26,9 @@ def list_requests():
     return render_template("requests/lookup.html", requests=requests_list)
 
 
-@request_bp.route("/new", methods=["GET", "POST"])
-@request_bp.route("/create", methods=["GET", "POST"])
 @request_bp.route("/emergency-request", methods=["GET", "POST"])
-@login_required
+@request_bp.route("/create", methods=["GET", "POST"])
+@request_bp.route("/new", methods=["GET", "POST"])
 @rate_limit(max_requests=10, window_seconds=60)
 def create_request():
     """
@@ -125,8 +124,8 @@ def create_request():
     return render_template("requests/create.html", form_data=initial_form, today_date=str(date.today()))
 
 
-@request_bp.route("/track/<int:request_id>")
 @request_bp.route("/<int:request_id>")
+@request_bp.route("/track/<int:request_id>")
 def track_request(request_id: int):
     """
     Renders the dedicated request tracking page.
