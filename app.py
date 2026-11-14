@@ -1,0 +1,15 @@
+"""
+LifeLink - Default Flask Entrypoint
+Exposes the application instance for standard Flask auto-discovery.
+"""
+import os
+import sys
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+
+from run import app
+
+if __name__ == "__main__":
+    app.run()
