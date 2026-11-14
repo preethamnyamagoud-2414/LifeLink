@@ -40,6 +40,19 @@ def create_app(config_name: str = None) -> Flask:
         static_folder=os.path.join(base_dir, "static")
     )
 
+    # Configure multiple template search roots for serverless resilience
+    import jinja2
+    template_candidates = [
+        os.path.join(base_dir, "templates"),
+        os.path.abspath("templates"),
+        os.path.abspath("app/templates"),
+        "/var/task/app/templates",
+        "/var/task/templates"
+    ]
+    discovered_template_dirs = [d for d in template_candidates if os.path.isdir(d)]
+    if discovered_template_dirs:
+        app.jinja_loader = jinja2.FileSystemLoader(discovered_template_dirs)
+
     # 1. Load configuration
     selected_config = config_by_name.get(config_name, config_by_name["default"])
     app.config.from_object(selected_config)
@@ -157,7 +170,8 @@ def create_app(config_name: str = None) -> Flask:
         tb = traceback.format_exc()
         logger.error(f"Internal Server Error: {error}\n{tb}", exc_info=True)
         if request.args.get("debug") == "1" or os.getenv("SHOW_ERRORS") == "1":
-            return f"<pre>=== 500 INTERNAL SERVER ERROR ===\n\n{tb}\n\nError: {error}</pre>", 500
+            env_debug = "\n".join(f"{k}: {v}" for k, v in sorted(request.environ.items()) if not any(s in k.upper() for s in ["KEY", "PASS", "SECRET", "TOKEN", "AUTH"]))
+            return f"<pre>=== 500 INTERNAL SERVER ERROR ===\n\n{tb}\n\nError: {error}\n\n=== WSGI ENVIRON ===\n\n{env_debug}</pre>", 500
         return render_template("errors/500.html"), 500
 
     logger.info(f"LifeLink Flask Application initialized [Config: {config_name}] with Blueprints: {list(app.blueprints.keys())}")
