@@ -84,6 +84,12 @@ def create_app(config_name: str = None) -> Flask:
             "timestamp": datetime.utcnow().isoformat() + "Z"
         }), (200 if db_ok else 503)
 
+    # Asset Route Compatibility for /app/static/
+    @app.route("/app/static/<path:filename>")
+    def app_static_route(filename):
+        from flask import send_from_directory
+        return send_from_directory(app.static_folder, filename)
+
     # 7. Global HTTP Error Handlers
     @app.errorhandler(400)
     def handle_bad_request(error):
