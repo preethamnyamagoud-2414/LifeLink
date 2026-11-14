@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import traceback
 
 # Ensure repository root is on sys.path
@@ -26,6 +27,18 @@ class VercelWSGIHandler:
         if import_error:
             start_response("500 Internal Server Error", [("Content-Type", "text/plain; charset=utf-8")])
             return [f"=== LIFELINK APPLICATION INITIALIZATION ERROR ===\n\n{import_error}".encode("utf-8")]
+
+        # Diagnostic inspection endpoint
+        if (
+            environ.get("PATH_INFO") in ("/__debug_env", "/debug-env")
+            or "debug_env=1" in environ.get("QUERY_STRING", "")
+        ):
+            safe_env = {
+                k: str(v) for k, v in environ.items()
+                if not any(secret_term in k.upper() for secret_term in ("KEY", "PASS", "SECRET", "TOKEN", "AUTH"))
+            }
+            start_response("200 OK", [("Content-Type", "application/json; charset=utf-8")])
+            return [json.dumps(safe_env, indent=2).encode("utf-8")]
 
         try:
             # Handle Vercel internal rewrites:
