@@ -106,20 +106,54 @@ class Config:
 
     @classmethod
     def get_db_config(cls) -> dict:
-        """Returns MySQL connection parameters as a dictionary for PyMySQL."""
+        """
+        Returns MySQL connection parameters as a dictionary for PyMySQL.
+        Evaluates environment variables dynamically to support serverless runtime changes.
+        """
+        raw_db_url = (
+            os.getenv("DATABASE_URL")
+            or os.getenv("MYSQL_URL")
+            or os.getenv("JAWSDB_URL")
+            or os.getenv("CLEARDB_DATABASE_URL")
+        )
+        url_cfg = parse_database_url(raw_db_url) if raw_db_url else {}
+
+        host = url_cfg.get("host") or os.getenv("DB_HOST", "127.0.0.1")
+        port_val = url_cfg.get("port") or os.getenv("DB_PORT", 3306)
+        try:
+            port = int(port_val)
+        except (ValueError, TypeError):
+            port = 3306
+
+        database = url_cfg.get("database") or os.getenv("DB_NAME", "lifelink_db")
+        user = url_cfg.get("user") or os.getenv("DB_USER", "root")
+        password = url_cfg.get("password") or os.getenv("DB_PASSWORD", "")
+        charset = os.getenv("DB_CHARSET", "utf8mb4")
+
+        try:
+            connect_timeout = int(os.getenv("DB_CONNECT_TIMEOUT", 10))
+        except (ValueError, TypeError):
+            connect_timeout = 10
+
+        autocommit = os.getenv("DB_AUTOCOMMIT", "false").lower() in ("true", "1", "yes")
+        ssl_mode = str(url_cfg.get("ssl_mode") or os.getenv("DB_SSL_MODE", "AUTO")).strip().upper()
+        ssl_ca = url_cfg.get("ssl_ca") or os.getenv("DB_SSL_CA", None)
+        ssl_cert = os.getenv("DB_SSL_CERT", None)
+        ssl_key = os.getenv("DB_SSL_KEY", None)
+
         return {
-            "host": cls.DB_HOST,
-            "port": cls.DB_PORT,
-            "user": cls.DB_USER,
-            "password": cls.DB_PASSWORD,
-            "database": cls.DB_NAME,
-            "charset": cls.DB_CHARSET,
-            "connect_timeout": cls.DB_CONNECT_TIMEOUT,
-            "autocommit": cls.DB_AUTOCOMMIT,
-            "ssl_mode": cls.DB_SSL_MODE,
-            "ssl_ca": cls.DB_SSL_CA,
-            "ssl_cert": cls.DB_SSL_CERT,
-            "ssl_key": cls.DB_SSL_KEY,
+            "host": host,
+            "port": port,
+            "user": user,
+            "password": password,
+            "database": database,
+            "charset": charset,
+            "connect_timeout": connect_timeout,
+            "autocommit": autocommit,
+            "ssl_mode": ssl_mode,
+            "ssl_ca": ssl_ca,
+            "ssl_cert": ssl_cert,
+            "ssl_key": ssl_key,
         }
 
 

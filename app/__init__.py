@@ -84,6 +84,15 @@ def create_app(config_name: str = None) -> Flask:
     @app.route("/health")
     def health_check():
         db_ok, db_msg, db_details = test_db_connection()
+        from app.config import Config
+        db_cfg = Config.get_db_config()
+
+        db_env_keys = [
+            k for k in ["DATABASE_URL", "MYSQL_URL", "JAWSDB_URL", "CLEARDB_DATABASE_URL",
+                        "DB_HOST", "DB_PORT", "DB_NAME", "DB_USER", "DB_PASSWORD", "DB_SSL_MODE"]
+            if os.getenv(k)
+        ]
+
         return jsonify({
             "status": "healthy" if db_ok else "degraded",
             "app": app.config.get("APP_NAME", "LifeLink"),
@@ -92,6 +101,14 @@ def create_app(config_name: str = None) -> Flask:
             "database": {
                 "connected": db_ok,
                 "message": db_msg,
+                "target_host": db_cfg.get("host"),
+                "target_port": db_cfg.get("port"),
+                "target_database": db_cfg.get("database"),
+                "target_user": db_cfg.get("user"),
+                "has_password": bool(db_cfg.get("password")),
+                "ssl_mode": db_cfg.get("ssl_mode"),
+                "is_localhost": db_cfg.get("host") in ("127.0.0.1", "localhost", "::1"),
+                "detected_db_env_keys": db_env_keys,
                 "version": db_details.get("mysql_version"),
                 "table_count": db_details.get("table_count", 0),
             },
