@@ -4,7 +4,8 @@ Handles public landing page, privacy-preserving donor search, about page,
 contact inquiries, and secure donor contact alerts.
 """
 
-from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify
+import os
+from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify, current_app
 from app.models.donor import Donor
 from app.models.blood_request import BloodRequest
 from app.models.message import ContactMessage
@@ -152,13 +153,15 @@ def find_donors():
             city=location if location else None,
             limit=50
         )
-    else:
-        # Fallback to simulated demo donors
+    elif current_app.config.get("TESTING") or os.getenv("FLASK_ENV") == "development":
         donors = [d for d in FALLBACK_DEMO_DONORS if not available_only or d["is_available"]]
         if search_groups:
             donors = [d for d in donors if d["blood_group"] in search_groups]
         if location:
-            donors = [d for d in donors if location.lower() in d["city"].lower() or location.lower() in d["district"].lower()]
+            donors = [d for d in donors if location.lower() in d["city"].lower() or location.lower() in d.get("district", "").lower()]
+    else:
+        donors = []
+        flash("Database connection offline. Please ensure MySQL server is running and configured to search live donors.", "warning")
 
     # Return JSON response for AJAX requests
     if request.headers.get("Accept") == "application/json" or request.args.get("format") == "json":

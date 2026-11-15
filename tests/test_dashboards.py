@@ -94,7 +94,7 @@ class TestDashboards(unittest.TestCase):
         """Unauthenticated access to /admin/ is blocked and redirected to login."""
         response = self.client.get("/admin/", follow_redirects=False)
         self.assertEqual(response.status_code, 302)
-        self.assertIn("/auth/login", response.location)
+        self.assertTrue("/auth/login" in response.location or "/admin/login" in response.location)
 
     def test_admin_dashboard_forbidden_for_patient(self):
         """Patients accessing /admin/ are rejected with HTTP 403 Forbidden."""

@@ -117,7 +117,7 @@ def validate_email(email: str) -> Tuple[bool, str]:
     if not email or len(email.strip()) > 120:
         return False, "Email address is required and cannot exceed 120 characters."
     if not EMAIL_REGEX.match(email.strip()):
-        return False, "Please enter a valid email address."
+        return False, "Please provide a valid email address."
     return True, ""
 
 

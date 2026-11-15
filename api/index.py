@@ -63,6 +63,11 @@ class VercelWSGIHandler:
             return self.wsgi_app(environ, start_response)
         except Exception as exc:
             err_tb = traceback.format_exc()
+            try:
+                from app.database.connection import sanitize_db_error
+                err_tb = sanitize_db_error(err_tb)
+            except Exception:
+                pass
             start_response("500 Internal Server Error", [("Content-Type", "text/plain; charset=utf-8")])
             return [f"=== LIFELINK RUNTIME WSGI INVOCATION ERROR ===\n\n{err_tb}".encode("utf-8")]
 

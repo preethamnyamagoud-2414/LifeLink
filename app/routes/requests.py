@@ -4,8 +4,9 @@ Handles emergency blood request creation, triage, cancellation,
 public tracking, and volunteer matching with strict privacy defenses.
 """
 
+import os
 from datetime import date
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify, abort
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify, abort, current_app
 from app.models.blood_request import BloodRequest
 from app.models.response import RequestResponse
 from app.models.notification import Notification
@@ -74,6 +75,9 @@ def create_request():
             ), 400
 
         requester_id = session.get("user_id")
+        if not requester_id:
+            flash("Please sign in to post an emergency blood request so donors can reach you.", "warning")
+            return redirect(url_for("auth.login", next=request.path))
 
         db_ok, _, _ = test_db_connection()
         req_id = None
@@ -101,11 +105,16 @@ def create_request():
                     required_within_hours=payload["required_within_hours"]
                 )
             except Exception as e:
-                flash(f"Database error saving request: {str(e)}", "danger")
+                from app.database.connection import sanitize_db_error
+                clean_err = sanitize_db_error(str(e))
+                flash(f"Database error saving request: {clean_err}", "danger")
                 return render_template("requests/create.html", form_data=payload, today_date=str(date.today())), 500
-        else:
-            # Fallback simulated request creation
+        elif not db_ok and (current_app.config.get("TESTING") or os.getenv("FLASK_ENV") == "development"):
+            # Offline test/demo fallback
             req_id = 1
+        else:
+            flash("Database connection offline. Please ensure MySQL server is running to broadcast emergency requests.", "danger")
+            return render_template("requests/create.html", form_data=payload, today_date=str(date.today())), 503
 
         flash(
             f"Emergency Blood Request #REQ-{req_id:04d} broadcast successfully! Compatible donors have been notified.",

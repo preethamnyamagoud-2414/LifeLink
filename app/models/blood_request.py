@@ -4,9 +4,12 @@ Encapsulates database operations for emergency and planned transfusion requests.
 Operates on the 'blood_requests' database table.
 """
 
+import logging
 from typing import Optional, Dict, Any, List
 from datetime import date, datetime
 from app.extensions import execute_query
+
+logger = logging.getLogger(__name__)
 
 # Fictional fallback demo requests for offline preview and demonstration
 FALLBACK_DEMO_REQUESTS = {
@@ -211,7 +214,7 @@ class BloodRequest:
 
     @staticmethod
     def find_by_id(request_id: int) -> Optional[Dict[str, Any]]:
-        """Retrieves blood request details by ID with user attribution and offline fallback."""
+        """Retrieves blood request details by ID with user attribution."""
         try:
             query = """
                 SELECT 
@@ -221,11 +224,11 @@ class BloodRequest:
                 JOIN users u ON r.requester_user_id = u.id
                 WHERE r.id = %s;
             """
-            result = execute_query(query, (request_id,), fetchone=True)
-            if result:
-                return result
-        except Exception:
-            pass
+            row = execute_query(query, (request_id,), fetchone=True)
+            if row:
+                return row
+        except Exception as e:
+            logger.error(f"Error querying blood request #{request_id}: {e}")
 
         return FALLBACK_DEMO_REQUESTS.get(request_id)
 
