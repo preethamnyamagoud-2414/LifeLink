@@ -24,7 +24,21 @@ def load_statements(path: Path):
     sql = "\n".join(l for l in sql.splitlines() if not l.strip().startswith("--"))
     sql = re.sub(r"CREATE DATABASE[^;]*;", "", sql, flags=re.I)
     sql = re.sub(r"^\s*USE\s+[^;]*;", "", sql, flags=re.I | re.M)
-    return [s.strip() for s in sql.split(";") if s.strip()]
+    # Split on ';' but ignore semicolons inside quoted strings
+    stmts, buf, quote = [], [], None
+    for i, ch in enumerate(sql):
+        if quote:
+            if ch == quote and sql[i - 1] != "\\":
+                quote = None
+        elif ch in ("'", '"', "`"):
+            quote = ch
+        elif ch == ";":
+            stmts.append("".join(buf).strip())
+            buf = []
+            continue
+        buf.append(ch)
+    stmts.append("".join(buf).strip())
+    return [s for s in stmts if s]
 
 
 def main():
@@ -36,6 +50,14 @@ def main():
         files.append(BASE_DIR / "database" / "seed.sql")
 
     print(f"Connecting to {Config.DB_HOST}:{Config.DB_PORT}/{Config.DB_NAME} (SSL={Config.DB_SSL_MODE}) ...")
+    # Create the database itself if it does not exist yet (cloud clusters start empty)
+    server = get_db_connection(database="")
+    with server.cursor() as cur:
+        cur.execute(f"CREATE DATABASE IF NOT EXISTS `{Config.DB_NAME}` "
+                    "CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
+    server.commit()
+    server.close()
+
     conn = get_db_connection()
     try:
         with conn.cursor() as cur:
