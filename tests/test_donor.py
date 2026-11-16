@@ -83,6 +83,36 @@ class TestDonorModule(unittest.TestCase):
             self.assertIn("city", donor)
             self.assertIn("is_available", donor)
 
+    def test_search_donors_location_belagavi(self):
+        """Searching for location 'Belagavi' via API succeeds with HTTP 200 without error."""
+        response = self.client.get("/api/donors/search?location=Belagavi&blood_group=ALL&format=json")
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertTrue(data["success"])
+        self.assertIn("donors", data)
+        self.assertEqual(data["query"]["location"], "Belagavi")
+
+    def test_search_donors_all_blood_groups(self):
+        """All 8 blood groups and ALL filter return valid responses."""
+        blood_groups = ["ALL", "O-", "O+", "A-", "A+", "B-", "B+", "AB-", "AB+"]
+        for bg in blood_groups:
+            res = self.client.get(f"/api/donors/search?blood_group={bg}&format=json")
+            self.assertEqual(res.status_code, 200)
+            data = res.get_json()
+            self.assertTrue(data["success"])
+
+    def test_search_donors_compatibility_and_availability_filters(self):
+        """Compatibility and availability parameters toggle search criteria."""
+        # 1. Available only = 0 (includes cooldown)
+        res_all_status = self.client.get("/api/donors/search?blood_group=O-&available_only=0&format=json")
+        self.assertEqual(res_all_status.status_code, 200)
+        self.assertFalse(res_all_status.get_json()["query"]["available_only"])
+
+        # 2. Compatible = 0 (exact match only)
+        res_exact = self.client.get("/api/donors/search?blood_group=A+&compatible=0&format=json")
+        self.assertEqual(res_exact.status_code, 200)
+        self.assertFalse(res_exact.get_json()["query"]["compatible"])
+
     def test_contact_request_validation_failure(self):
         """Contact request rejects invalid phone number with HTTP 400."""
         with self.client:

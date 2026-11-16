@@ -158,6 +158,7 @@ def find_donors():
         donors = Donor.search_privacy_filtered(
             blood_groups=search_groups,
             city=location if location else None,
+            available_only=available_only,
             limit=50
         )
     elif current_app.config.get("TESTING") or os.getenv("FLASK_ENV") == "development":
@@ -165,10 +166,17 @@ def find_donors():
         if search_groups:
             donors = [d for d in donors if d["blood_group"] in search_groups]
         if location:
-            donors = [d for d in donors if location.lower() in d["city"].lower() or location.lower() in d.get("district", "").lower()]
+            loc_low = location.lower()
+            donors = [d for d in donors if loc_low in d["city"].lower() or loc_low in d.get("district", "").lower() or loc_low in d.get("state", "").lower()]
     else:
         donors = []
         flash("Database connection offline. Please ensure MySQL server is running and configured to search live donors.", "warning")
+
+    # Enrich donors with exact match indicators
+    for d in donors:
+        d["exact_match"] = (blood_group != "ALL" and d.get("blood_group") == blood_group)
+        if "donations_count" not in d:
+            d["donations_count"] = d.get("total_donations", 0)
 
     # Return JSON response for AJAX requests
     if request.headers.get("Accept") == "application/json" or request.args.get("format") == "json":

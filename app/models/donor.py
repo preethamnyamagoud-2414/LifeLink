@@ -203,6 +203,7 @@ class Donor:
         blood_groups: List[str],
         city: Optional[str] = None,
         state: Optional[str] = None,
+        available_only: bool = True,
         limit: int = 50
     ) -> List[Dict[str, Any]]:
         """
@@ -210,29 +211,36 @@ class Donor:
         
         CRITICAL PRIVACY RULES:
         1. Only displays donors who opted-in to be discoverable (`is_discoverable = TRUE`).
-        2. Only displays currently available donors (`is_available = TRUE`) with active accounts (`is_active = TRUE`).
+        2. Only displays currently available donors (`is_available = TRUE`) when available_only is True.
         3. Never exposes private street address or exact phone numbers directly in search results.
         4. Formats name as 'First Name + Last Initial' (e.g. 'Sarah J.').
         """
         conditions = [
             "u.is_active = TRUE",
-            "d.is_available = TRUE",
             "d.is_discoverable = TRUE"
         ]
         params = []
 
+        if available_only:
+            conditions.append("d.is_available = TRUE")
+
         if blood_groups:
-            placeholders = ", ".join(["%s"] * len(blood_groups))
-            conditions.append(f"d.blood_group IN ({placeholders})")
-            params.extend(blood_groups)
+            valid_bgs = [bg.strip().upper() for bg in blood_groups if bg and bg.strip().upper() != "ALL"]
+            if valid_bgs:
+                placeholders = ", ".join(["%s"] * len(valid_bgs))
+                conditions.append(f"d.blood_group IN ({placeholders})")
+                params.extend(valid_bgs)
 
         if city:
-            conditions.append("(LOWER(d.city) = LOWER(%s) OR LOWER(d.district) = LOWER(%s))")
-            params.extend([city.strip(), city.strip()])
-
-        if state:
-            conditions.append("LOWER(d.state) = LOWER(%s)")
-            params.append(state.strip())
+            clean_loc = city.strip()
+            loc_pattern = f"%{clean_loc}%"
+            conditions.append("(LOWER(d.city) LIKE LOWER(%s) OR LOWER(d.district) LIKE LOWER(%s) OR LOWER(d.state) LIKE LOWER(%s))")
+            params.extend([loc_pattern, loc_pattern, loc_pattern])
+        elif state:
+            clean_st = state.strip()
+            st_pattern = f"%{clean_st}%"
+            conditions.append("LOWER(d.state) LIKE LOWER(%s)")
+            params.append(st_pattern)
 
         where_clause = " AND ".join(conditions)
         params.append(limit)
@@ -262,6 +270,7 @@ class Donor:
             else:
                 masked_name = name_parts[0]
 
+            total_donations_val = donor.get("total_donations") or 0
             sanitized_donors.append({
                 "id": donor["id"],
                 "user_id": donor["user_id"],
@@ -271,7 +280,8 @@ class Donor:
                 "district": donor["district"],
                 "state": donor["state"],
                 "is_available": donor["is_available"],
-                "total_donations": donor["total_donations"],
+                "total_donations": total_donations_val,
+                "donations_count": total_donations_val,
                 "last_donation_date": donor["last_donation_date"],
                 "contact_preference": donor.get("contact_preference", "both"),
                 "is_verified": donor["is_verified"],

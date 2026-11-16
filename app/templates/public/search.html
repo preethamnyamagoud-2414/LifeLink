@@ -143,14 +143,34 @@
                     </div>
                 </div>
 
-                <!-- 2. Search Bar for City, Area or District -->
+                <!-- Location Banner with Geolocation Option -->
+                <div id="locationBanner" class="ll-location-banner" style="margin-bottom: 1.25rem;">
+                    <i data-lucide="map-pin"></i>
+                    <span id="locationBannerText">Enable location access to discover active donors closest to you, with exact distance calculation.</span>
+                    <button type="button" id="useLocationBtn" class="btn btn-primary btn-sm">
+                        <i data-lucide="crosshair"></i> Use My Current Location
+                    </button>
+                </div>
+
+                <!-- 2. Search Bar for City, Area or District with Radius -->
                 <div class="search-input-row">
+                    <div class="search-input-wrapper" style="flex: 0 0 170px;">
+                        <span class="search-input-icon"><i data-lucide="radar"></i></span>
+                        <select name="radius_km" id="radiusSelect" class="search-input-field" style="cursor: pointer;">
+                            <option value="10">Within 10 km</option>
+                            <option value="25" selected>Within 25 km</option>
+                            <option value="50">Within 50 km</option>
+                            <option value="100">Within 100 km</option>
+                            <option value="0">Any distance</option>
+                        </select>
+                    </div>
+
                     <div class="search-input-wrapper">
                         <span class="search-input-icon">
-                            <i data-lucide="map-pin"></i>
+                            <i data-lucide="building-2"></i>
                         </span>
                         <input type="text" name="location" id="searchLocationInput" class="search-input-field"
-                            placeholder="Enter city, district, or area (e.g. Central Metro, District 1, North Hub)"
+                            placeholder="Enter city, district, or area (e.g. Belagavi, Central Metro, District 1)"
                             value="{{ selected_location or '' }}" aria-label="City or area location">
                     </div>
 
@@ -209,12 +229,12 @@
                         style="font-weight: 700; color: var(--color-secondary); font-size: 1.15rem;">
                         {{ donors|length }} Verified {{ 'Donor' if donors|length == 1 else 'Donors' }} Found
                     </span>
+                    <span class="badge badge-neutral" id="resultsNearBadge" style="margin-left: 0.5rem; {% if not selected_location %}display: none;{% endif %}">
+                        {% if selected_location %}In: {{ selected_location }}{% endif %}
+                    </span>
                     {% if selected_blood_group and selected_blood_group != 'ALL' %}
                     <span class="badge badge-neutral" style="margin-left: 0.5rem;">Group: {{ selected_blood_group
                         }}</span>
-                    {% endif %}
-                    {% if selected_location %}
-                    <span class="badge badge-neutral">Near: {{ selected_location }}</span>
                     {% endif %}
                 </div>
                 <span class="badge badge-neutral" style="font-size: 0.75rem;">Showing Publicly Discoverable
@@ -285,6 +305,9 @@
                         </div>
 
                         <button class="btn btn-primary btn-block btn-sm"
+                            data-contact="{{ donor.user_id }}"
+                            data-name="{{ donor.display_name }}"
+                            data-bg="{{ donor.blood_group }}"
                             onclick="openContactModal({{ donor.user_id }}, '{{ donor.display_name }}', '{{ donor.blood_group }}')"
                             type="button">
                             <i data-lucide="send"></i> Request Emergency Contact
