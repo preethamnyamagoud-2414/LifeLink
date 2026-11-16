@@ -5,14 +5,19 @@ contact inquiries, and secure donor contact alerts.
 """
 
 import os
+import json
 import logging
+from datetime import datetime, timezone
 from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify, current_app, session
 from app.models.donor import Donor
 from app.models.blood_request import BloodRequest
 from app.models.message import ContactMessage
 from app.models.notification import Notification
+from app.models.user import User
 from app.services.matching_service import get_compatible_donors
-from app.services.security import rate_limit, validate_email, validate_phone
+from app.services.donor_service import check_eligibility, DONOR_SCREENING_QUESTIONS
+from app.services.auth_service import login_user
+from app.services.security import rate_limit, validate_email, validate_phone, validate_password_strength
 from app.extensions import test_db_connection
 
 logger = logging.getLogger(__name__)
@@ -395,6 +400,230 @@ def api_update_profile():
 
     session["user_name"] = full_name
     return jsonify({"success": True, "message": "Profile updated successfully."})
+
+
+@public_bp.route("/api/donor/profile", methods=["POST"])
+def api_donor_profile():
+    """Asynchronous endpoint to update health screening answers, donor vitals, and check clinical eligibility."""
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"success": False, "message": "Authentication required."}), 401
+
+    data = request.get_json(silent=True) or request.form
+    answers = data.get("answers") or {}
+    if not answers and "screening_unwell" in request.form:
+        answers = {
+            "unwell": request.form.get("screening_unwell") == "yes",
+            "antibiotics": request.form.get("screening_antibiotics") == "yes",
+            "tattoo": request.form.get("screening_tattoo") == "yes",
+            "surgery": request.form.get("screening_surgery") == "yes",
+            "malaria": request.form.get("screening_malaria") == "yes",
+            "pregnant": request.form.get("screening_pregnant") == "yes",
+            "blood_pressure": request.form.get("screening_blood_pressure") == "yes",
+            "infection": request.form.get("screening_infection") == "yes",
+            "chronic": request.form.get("screening_chronic") == "yes",
+            "insulin": request.form.get("screening_insulin") == "yes",
+        }
+
+    weight_val = data.get("weight_kg")
+    weight_kg = None
+    if weight_val is not None and str(weight_val).strip():
+        try:
+            weight_kg = float(weight_val)
+        except ValueError:
+            weight_kg = None
+
+    city = (data.get("city") or "").strip() or None
+    district = (data.get("district") or "").strip() or None
+    gender = (data.get("gender") or "").strip().lower() or None
+    dob = (data.get("dob") or data.get("date_of_birth") or "").strip() or None
+    blood_group = (data.get("blood_group") or "").strip().upper() or None
+    consent = data.get("consent") in (True, "true", "1", 1, "on")
+
+    notes_payload = {
+        "screened_at": datetime.now(timezone.utc).isoformat(),
+        "answers": answers,
+        "consent": consent
+    }
+    notes_json = json.dumps(notes_payload)
+
+    db_ok, _, _ = test_db_connection()
+    donor = None
+    if db_ok:
+        donor = Donor.find_by_user_id(user_id)
+        if not donor:
+            Donor.create(
+                user_id=user_id,
+                blood_group=blood_group or "O+",
+                gender=gender or "other",
+                date_of_birth=dob or "2000-01-01",
+                weight_kg=weight_kg or 55.0,
+                state="Metro State",
+                city=city or "Central Metro",
+                district=district or "District 1",
+                pin_code="00000",
+                medical_notes=notes_json
+            )
+            session["has_donor_profile"] = True
+            donor = Donor.find_by_user_id(user_id)
+        else:
+            Donor.update_clinical_screening(
+                user_id=user_id,
+                medical_notes=notes_json,
+                weight_kg=weight_kg,
+                city=city,
+                district=district
+            )
+            donor = Donor.find_by_user_id(user_id)
+
+    is_eligible, message, eligibility_status = check_eligibility(
+        birth_date=dob or (donor.get("date_of_birth") if donor else None),
+        weight_kg=weight_kg or (float(donor.get("weight_kg", 55.0)) if donor else 55.0),
+        last_donation=donor.get("last_donation_date") if donor else None,
+        gender=gender or (donor.get("gender") if donor else None),
+        screening_answers=answers,
+        medical_notes=notes_json
+    )
+
+    return jsonify({
+        "success": True,
+        "message": "Health screening questionnaire updated successfully.",
+        "donor": {
+            **(donor or {}),
+            "eligibility": eligibility_status
+        }
+    })
+
+
+@public_bp.route("/api/auth/register", methods=["POST"])
+@rate_limit(max_requests=10, window_seconds=60)
+def api_auth_register():
+    """Asynchronous JSON endpoint for member and donor registration."""
+    data = request.get_json(silent=True) or request.form
+    full_name = str(data.get("full_name") or "").strip()
+    email = str(data.get("email") or "").strip().lower()
+    phone = str(data.get("phone") or "").strip()
+    password = str(data.get("password") or "")
+    become_donor = data.get("become_donor") in (True, "true", "1", 1, "on") or bool(data.get("donor"))
+
+    if not full_name:
+        return jsonify({"success": False, "message": "Full name is required."}), 400
+
+    ok_email, err_email = validate_email(email)
+    if not ok_email:
+        return jsonify({"success": False, "message": err_email}), 400
+
+    ok_phone, err_phone = validate_phone(phone)
+    if not ok_phone:
+        return jsonify({"success": False, "message": err_phone}), 400
+
+    ok_pwd, err_pwd = validate_password_strength(password)
+    if not ok_pwd:
+        return jsonify({"success": False, "message": err_pwd}), 400
+
+    db_ok, _, _ = test_db_connection()
+    if not db_ok and not (current_app.config.get("TESTING") or os.getenv("FLASK_ENV") == "development"):
+        return jsonify({"success": False, "message": "Database connection offline. Please ensure MySQL server is running."}), 503
+
+    role = "donor" if become_donor else "patient"
+
+    if db_ok:
+        if User.find_by_email(email):
+            return jsonify({"success": False, "message": "An account with this email address already exists."}), 409
+
+        if User.find_by_phone(phone):
+            return jsonify({"success": False, "message": "An account with this phone number already exists."}), 409
+
+        user_id = User.create(full_name, email, phone, password, role=role)
+        created_user = User.find_by_id(user_id)
+    else:
+        user_id = 9999
+        created_user = {"id": 9999, "full_name": full_name, "email": email, "phone": phone, "role": role}
+
+    donor_obj = None
+    eligibility_info = None
+
+    if become_donor:
+        donor_data = data.get("donor") or {}
+        blood_group = (donor_data.get("blood_group") or data.get("blood_group") or "O+").strip().upper()
+        gender = (donor_data.get("gender") or data.get("gender") or "other").strip().lower()
+        dob = (donor_data.get("dob") or donor_data.get("date_of_birth") or data.get("date_of_birth") or "2000-01-01").strip()
+        weight_val = donor_data.get("weight_kg") or data.get("weight_kg") or 55.0
+        try:
+            weight_kg = float(weight_val)
+        except (ValueError, TypeError):
+            weight_kg = 55.0
+
+        city = (donor_data.get("city") or data.get("city") or "Central Metro").strip()
+        district = (donor_data.get("district") or data.get("district") or "District 1").strip()
+        state = (donor_data.get("state") or data.get("state") or "Metro State").strip()
+        last_donation = donor_data.get("last_donation_date") or data.get("last_donation_date") or None
+        answers = donor_data.get("answers") or {}
+
+        notes_payload = {
+            "screened_at": datetime.now(timezone.utc).isoformat(),
+            "answers": answers,
+            "consent": donor_data.get("consent") in (True, "true", "1", 1, "on")
+        }
+        notes_json = json.dumps(notes_payload)
+
+        if db_ok:
+            Donor.create(
+                user_id=user_id,
+                blood_group=blood_group,
+                gender=gender,
+                date_of_birth=dob,
+                weight_kg=weight_kg,
+                state=state,
+                city=city,
+                district=district,
+                pin_code="00000",
+                last_donation_date=last_donation,
+                medical_notes=notes_json
+            )
+            donor_obj = Donor.find_by_user_id(user_id)
+        else:
+            donor_obj = {
+                "id": 9999,
+                "user_id": user_id,
+                "blood_group": blood_group,
+                "gender": gender,
+                "date_of_birth": dob,
+                "weight_kg": weight_kg,
+                "city": city,
+                "district": district,
+                "state": state
+            }
+
+        _, _, eligibility_info = check_eligibility(
+            birth_date=dob,
+            weight_kg=weight_kg,
+            last_donation=last_donation,
+            gender=gender,
+            screening_answers=answers,
+            medical_notes=notes_json
+        )
+
+    if created_user:
+        login_user(created_user)
+
+    redirect_url = "/donor/dashboard" if become_donor else "/patient/dashboard"
+    return jsonify({
+        "success": True,
+        "message": "Account created successfully.",
+        "user": {
+            "id": user_id,
+            "full_name": full_name,
+            "email": email,
+            "phone": phone,
+            "role": role
+        },
+        "donor": {
+            **(donor_obj or {}),
+            "eligibility": eligibility_info
+        } if donor_obj else None,
+        "redirect": redirect_url
+    })
 
 
 @public_bp.route("/track-request")

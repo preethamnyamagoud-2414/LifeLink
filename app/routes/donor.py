@@ -10,7 +10,7 @@ from app.models.blood_request import BloodRequest
 from app.models.response import RequestResponse
 from app.models.notification import Notification
 from app.services.auth_service import login_required, role_required
-from app.services.donor_service import check_eligibility
+from app.services.donor_service import check_eligibility, DONOR_SCREENING_QUESTIONS
 from app.services.security import validate_donor_profile_payload
 from app.extensions import test_db_connection
 
@@ -21,7 +21,7 @@ donor_bp = Blueprint("donor", __name__, url_prefix="/donor")
 @login_required
 @role_required("donor", "patient", "admin")
 def dashboard():
-    """Renders the donor dashboard overview with real-time stats and local requests."""
+    """Renders the donor dashboard overview with real-time stats, screening questions, and local requests."""
     user_id = session.get("user_id")
     if not user_id:
         return redirect(url_for("auth.login"))
@@ -39,7 +39,9 @@ def dashboard():
         _, _, eligibility_status = check_eligibility(
             birth_date=donor_profile.get("date_of_birth"),
             weight_kg=float(donor_profile.get("weight_kg", 55.0) or 55.0),
-            last_donation=donor_profile.get("last_donation_date")
+            last_donation=donor_profile.get("last_donation_date"),
+            gender=donor_profile.get("gender"),
+            medical_notes=donor_profile.get("medical_notes")
         )
         responded_requests = RequestResponse.find_by_donor(user_id)
         notifications = Notification.get_by_user(user_id, limit=10)
@@ -51,7 +53,8 @@ def dashboard():
         requests=recent_requests,
         responded_requests=responded_requests,
         notifications=notifications,
-        eligibility=eligibility_status
+        eligibility=eligibility_status,
+        screening_questions=DONOR_SCREENING_QUESTIONS
     )
 
 

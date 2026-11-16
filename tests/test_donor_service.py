@@ -65,6 +65,50 @@ class TestDonorEligibility(unittest.TestCase):
         self.assertFalse(eligible)
         self.assertFalse(details["age_valid"])
 
+    def test_screening_temporary_deferral(self):
+        """A donor with recent antibiotic intake should receive a temporary deferral."""
+        eligible, msg, details = check_eligibility(
+            birth_date=date(1995, 5, 20),
+            weight_kg=68.5,
+            screening_answers={"antibiotics": True}
+        )
+        self.assertFalse(eligible)
+        self.assertEqual(details["status"], "TEMPORARY_DEFERRAL")
+        self.assertFalse(details["screening_valid"])
+        self.assertTrue(len(details["reasons"]) > 0)
+
+    def test_screening_permanent_deferral(self):
+        """A donor with HIV/Hepatitis/Syphilis or insulin diabetes should receive permanent deferral."""
+        eligible, msg, details = check_eligibility(
+            birth_date=date(1995, 5, 20),
+            weight_kg=68.5,
+            screening_answers={"infection": True}
+        )
+        self.assertFalse(eligible)
+        self.assertEqual(details["status"], "PERMANENT_DEFERRAL")
+        self.assertIsNone(details["eligible_from"])
+
+    def test_screening_female_only_question(self):
+        """Pregnancy question only defers female donors."""
+        # Male donor answering pregnant=True should be ignored
+        eligible_male, _, _ = check_eligibility(
+            birth_date=date(1995, 5, 20),
+            weight_kg=68.5,
+            gender="male",
+            screening_answers={"pregnant": True}
+        )
+        self.assertTrue(eligible_male)
+
+        # Female donor answering pregnant=True should be deferred
+        eligible_female, _, details = check_eligibility(
+            birth_date=date(1995, 5, 20),
+            weight_kg=68.5,
+            gender="female",
+            screening_answers={"pregnant": True}
+        )
+        self.assertFalse(eligible_female)
+        self.assertEqual(details["status"], "TEMPORARY_DEFERRAL")
+
 
 if __name__ == "__main__":
     unittest.main()

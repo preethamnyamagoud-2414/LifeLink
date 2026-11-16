@@ -150,29 +150,30 @@
                             id="enableDonorProfile" 
                             name="enable_donor_profile" 
                             value="1" 
+                            {% if role == 'donor' or request.args.get('donor') == '1' or request.args.get('role') == 'donor' %}checked{% endif %}
                             style="margin-top: 0.25rem; width: 18px; height: 18px; accent-color: var(--color-primary); cursor: pointer;"
-                            onchange="document.getElementById('donorFieldsContainer').style.display = this.checked ? 'block' : 'none';"
+                            onchange="syncDonorContainer();"
                         >
                         <div>
                             <label for="enableDonorProfile" style="font-weight: 700; color: var(--color-secondary); font-size: 0.95rem; cursor: pointer;">
                                 Volunteer as an Active Blood Donor (Optional)
                             </label>
                             <p style="font-size: 0.8125rem; color: var(--color-text-subtle); margin: 0.25rem 0 0 0; line-height: 1.4;">
-                                Check this to set up your blood group and location now. You can also activate or edit your donor status later from your dashboard.
+                                Check this to set up your blood group, clinical health screening, and location now. You can also activate or edit your donor status later from your dashboard.
                             </p>
                         </div>
                     </div>
 
                     <!-- Expandable Donor Clinical Profile Fields (hidden by default) -->
-                    <div id="donorFieldsContainer" style="display: none; margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px dashed var(--color-border);">
+                    <div id="donorFieldsContainer" style="display: {% if role == 'donor' or request.args.get('donor') == '1' or request.args.get('role') == 'donor' %}block{% else %}none{% endif %}; margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px dashed var(--color-border);">
                         <h4 style="font-size: 0.95rem; color: var(--color-secondary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.4rem;">
                             <i data-lucide="droplet" style="width: 16px; height: 16px; color: var(--color-primary);"></i>
-                            Donor Clinical & Regional Details
+                            Donor Clinical &amp; Regional Details
                         </h4>
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                             <div class="form-group">
-                                <label for="regBloodGroup" class="form-label">Blood Group</label>
+                                <label for="regBloodGroup" class="form-label">Blood Group <span class="required-mark">*</span></label>
                                 <select id="regBloodGroup" name="blood_group" class="form-select">
                                     <option value="O+">O+ Positive</option>
                                     <option value="O-">O- Negative (Universal Red Cell Donor)</option>
@@ -186,39 +187,179 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="regWeight" class="form-label">Body Weight (kg)</label>
-                                <input type="number" id="regWeight" name="weight_kg" class="form-control" placeholder="e.g. 65" min="40" max="250" step="0.5">
-                                <span class="form-hint">Mandatory clinical minimum: 40 kg</span>
+                                <label for="regWeight" class="form-label">Body Weight (kg) <span class="required-mark">*</span></label>
+                                <input type="number" id="regWeight" name="weight_kg" class="form-control" placeholder="e.g. 65" min="40" max="250" step="0.5" value="65">
+                                <span class="form-hint">Mandatory clinical minimum: 45 kg</span>
                             </div>
                         </div>
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                             <div class="form-group">
-                                <label for="regCity" class="form-label">City / Town</label>
-                                <input type="text" id="regCity" name="city" class="form-control" placeholder="e.g. Central Metro">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="regDistrict" class="form-label">District / Area</label>
-                                <input type="text" id="regDistrict" name="district" class="form-control" placeholder="e.g. Downtown">
-                            </div>
-                        </div>
-
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                            <div class="form-group">
-                                <label for="regDOB" class="form-label">Date of Birth</label>
-                                <input type="date" id="regDOB" name="date_of_birth" class="form-control">
-                                <span class="form-hint">Age must be between 18 and 65.</span>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="regGender" class="form-label">Gender</label>
+                                <label for="regGender" class="form-label">Gender <span class="required-mark">*</span></label>
                                 <select id="regGender" name="gender" class="form-select">
                                     <option value="male">Male</option>
                                     <option value="female">Female</option>
                                     <option value="other">Other / Prefer not to say</option>
                                 </select>
                             </div>
+
+                            <div class="form-group">
+                                <label for="regDOB" class="form-label">Date of Birth <span class="required-mark">*</span></label>
+                                <input type="date" id="regDOB" name="date_of_birth" class="form-control" value="1998-05-15">
+                                <span class="form-hint">Donors must be between 18 and 65 years old.</span>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label for="regCity" class="form-label">City / Town <span class="required-mark">*</span></label>
+                                <input type="text" id="regCity" name="city" class="form-control" placeholder="e.g. Hyderabad" value="Central Metro">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="regDistrict" class="form-label">District / Area</label>
+                                <input type="text" id="regDistrict" name="district" class="form-control" placeholder="e.g. Kukatpally" value="District 1">
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label for="regHb" class="form-label">Hemoglobin (g/dL) <span class="ll-optional">optional</span></label>
+                                <input type="number" id="regHb" name="hemoglobin" class="form-control" min="3" max="25" step="0.1" placeholder="e.g. 13.5">
+                                <span class="form-hint">Standard threshold: minimum 12.5 g/dL</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="regLastDonation" class="form-label">Last Blood Donation</label>
+                                <input type="date" id="regLastDonation" name="last_donation_date" class="form-control">
+                                <label class="ll-inline-check" style="margin-top: 0.35rem; font-size: 0.8125rem; display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
+                                    <input type="checkbox" id="regNeverDonated" name="never_donated" value="1" checked>
+                                    <span>I have never donated blood before</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Geolocation Box -->
+                        <div class="ll-location-box" id="dfLocationBox" style="margin: 0.75rem 0 1.25rem;">
+                            <div class="ll-location-icon">
+                                <i data-lucide="map-pin"></i>
+                            </div>
+                            <div class="ll-location-text">
+                                <strong>Donor Location Coordinates</strong>
+                                <span id="dfLocationStatus">Share your location so emergency blood requesters nearby can calculate distance (your exact street address is never exposed).</span>
+                            </div>
+                            <input type="hidden" id="regLatitude" name="latitude">
+                            <input type="hidden" id="regLongitude" name="longitude">
+                            <button type="button" class="btn btn-outline btn-sm" id="dfLocationBtn">
+                                <i data-lucide="crosshair"></i> Share my location
+                            </button>
+                        </div>
+
+                        <!-- 10 Clinical Health Screening Questions -->
+                        <div class="ll-screening" id="screeningSection" style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--color-border);">
+                            <h4 style="display: flex; align-items: center; gap: 0.45rem; font-size: 1rem; color: var(--color-secondary); margin-bottom: 0.35rem;">
+                                <i data-lucide="stethoscope" style="width: 18px; height: 18px; color: var(--color-primary);"></i>
+                                Clinical Health Screening Questionnaire
+                            </h4>
+                            <p class="ll-screening-note" style="font-size: 0.8125rem; color: var(--color-text-subtle); margin-bottom: 1rem;">
+                                Please answer all 10 questions truthfully. This preliminary self-check safeguards both you and the blood recipient. Certified hospital blood banks conduct full laboratory cross-matching before collection.
+                            </p>
+
+                            <!-- Question 1 -->
+                            <div class="ll-question" data-key="unwell">
+                                <span class="ll-question-text">1. In the last 7 days, have you had fever, cold, flu, or felt unwell?</span>
+                                <div class="ll-yesno" role="radiogroup" aria-label="Fever or cold in last 7 days">
+                                    <label><input type="radio" name="screening_unwell" value="yes"><span>Yes</span></label>
+                                    <label><input type="radio" name="screening_unwell" value="no" checked><span>No</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Question 2 -->
+                            <div class="ll-question" data-key="antibiotics">
+                                <span class="ll-question-text">2. Have you taken antibiotics in the last 7 days?</span>
+                                <div class="ll-yesno" role="radiogroup" aria-label="Antibiotics in last 7 days">
+                                    <label><input type="radio" name="screening_antibiotics" value="yes"><span>Yes</span></label>
+                                    <label><input type="radio" name="screening_antibiotics" value="no" checked><span>No</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Question 3 -->
+                            <div class="ll-question" data-key="tattoo">
+                                <span class="ll-question-text">3. Have you had a tattoo, body piercing or acupuncture in the last 12 months?</span>
+                                <div class="ll-yesno" role="radiogroup" aria-label="Tattoo or piercing in last 12 months">
+                                    <label><input type="radio" name="screening_tattoo" value="yes"><span>Yes</span></label>
+                                    <label><input type="radio" name="screening_tattoo" value="no" checked><span>No</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Question 4 -->
+                            <div class="ll-question" data-key="surgery">
+                                <span class="ll-question-text">4. Have you had major surgery in the last 6 months?</span>
+                                <div class="ll-yesno" role="radiogroup" aria-label="Major surgery in last 6 months">
+                                    <label><input type="radio" name="screening_surgery" value="yes"><span>Yes</span></label>
+                                    <label><input type="radio" name="screening_surgery" value="no" checked><span>No</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Question 5 -->
+                            <div class="ll-question" data-key="malaria">
+                                <span class="ll-question-text">5. Have you had malaria in the last 3 months?</span>
+                                <div class="ll-yesno" role="radiogroup" aria-label="Malaria in last 3 months">
+                                    <label><input type="radio" name="screening_malaria" value="yes"><span>Yes</span></label>
+                                    <label><input type="radio" name="screening_malaria" value="no" checked><span>No</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Question 6 (Female only) -->
+                            <div class="ll-question" id="femaleScreeningQuestion" data-key="pregnant" data-female-only="1" style="display: none;">
+                                <span class="ll-question-text">6. Are you pregnant, or have you given birth / been breastfeeding in the last 12 months?</span>
+                                <div class="ll-yesno" role="radiogroup" aria-label="Pregnancy or breastfeeding in last 12 months">
+                                    <label><input type="radio" name="screening_pregnant" value="yes"><span>Yes</span></label>
+                                    <label><input type="radio" name="screening_pregnant" value="no" checked><span>No</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Question 7 -->
+                            <div class="ll-question" data-key="blood_pressure">
+                                <span class="ll-question-text">7. Do you have high or low blood pressure that is not under control?</span>
+                                <div class="ll-yesno" role="radiogroup" aria-label="Uncontrolled blood pressure">
+                                    <label><input type="radio" name="screening_blood_pressure" value="yes"><span>Yes</span></label>
+                                    <label><input type="radio" name="screening_blood_pressure" value="no" checked><span>No</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Question 8 -->
+                            <div class="ll-question" data-key="infection">
+                                <span class="ll-question-text">8. Have you ever tested positive for HIV, Hepatitis B, Hepatitis C or syphilis?</span>
+                                <div class="ll-yesno" role="radiogroup" aria-label="Tested positive for HIV, Hepatitis, or syphilis">
+                                    <label><input type="radio" name="screening_infection" value="yes"><span>Yes</span></label>
+                                    <label><input type="radio" name="screening_infection" value="no" checked><span>No</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Question 9 -->
+                            <div class="ll-question" data-key="chronic">
+                                <span class="ll-question-text">9. Do you have heart disease, cancer, kidney or liver disease, epilepsy, or a bleeding disorder?</span>
+                                <div class="ll-yesno" role="radiogroup" aria-label="Heart disease, cancer, kidney/liver disease, epilepsy or bleeding disorder">
+                                    <label><input type="radio" name="screening_chronic" value="yes"><span>Yes</span></label>
+                                    <label><input type="radio" name="screening_chronic" value="no" checked><span>No</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Question 10 -->
+                            <div class="ll-question" data-key="insulin">
+                                <span class="ll-question-text">10. Do you have diabetes that is treated with insulin?</span>
+                                <div class="ll-yesno" role="radiogroup" aria-label="Diabetes treated with insulin">
+                                    <label><input type="radio" name="screening_insulin" value="yes"><span>Yes</span></label>
+                                    <label><input type="radio" name="screening_insulin" value="no" checked><span>No</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Truthfulness Consent -->
+                            <label class="ll-consent" style="margin-top: 1.25rem;">
+                                <input type="checkbox" id="regConsent" name="screening_consent" value="1" checked required>
+                                <span>I confirm that my answers to the health screening questions are accurate and truthful to the best of my knowledge.</span>
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -246,7 +387,105 @@
 
 {% block extra_scripts %}
 <script>
+function syncDonorContainer() {
+    const toggle = document.getElementById('enableDonorProfile');
+    const container = document.getElementById('donorFieldsContainer');
+    if (!toggle || !container) return;
+    container.style.display = toggle.checked ? 'block' : 'none';
+    if (window.lucide) window.lucide.createIcons();
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+    const params = new URLSearchParams(window.location.search);
+    const donorToggle = document.getElementById('enableDonorProfile');
+    if (params.get('donor') === '1' || params.get('role') === 'donor') {
+        if (donorToggle) {
+            donorToggle.checked = true;
+            syncDonorContainer();
+        }
+    }
+
+    // Question 6: pregnancy is displayed only for female donors
+    const genderSelect = document.getElementById('regGender');
+    const femaleQuestion = document.getElementById('femaleScreeningQuestion');
+    function syncFemaleQuestion() {
+        if (femaleQuestion && genderSelect) {
+            femaleQuestion.style.display = genderSelect.value === 'female' ? 'flex' : 'none';
+        }
+    }
+    if (genderSelect) {
+        genderSelect.addEventListener('change', syncFemaleQuestion);
+        syncFemaleQuestion();
+    }
+
+    // Toggle last donation date when "I have never donated blood" is ticked
+    const neverDonated = document.getElementById('regNeverDonated');
+    const lastDonation = document.getElementById('regLastDonation');
+    if (neverDonated && lastDonation) {
+        neverDonated.addEventListener('change', function() {
+            lastDonation.disabled = this.checked;
+            if (this.checked) lastDonation.value = '';
+        });
+        lastDonation.disabled = neverDonated.checked;
+    }
+
+    // Geolocation capture
+    const locBtn = document.getElementById('dfLocationBtn');
+    const locBox = document.getElementById('dfLocationBox');
+    const locStatus = document.getElementById('dfLocationStatus');
+    const latInput = document.getElementById('regLatitude');
+    const lngInput = document.getElementById('regLongitude');
+
+    if (locBtn) {
+        locBtn.addEventListener('click', async function() {
+            locBtn.disabled = true;
+            locBtn.textContent = 'Getting location...';
+            locBox.classList.remove('is-error');
+
+            try {
+                if (window.LL && window.LL.getLocation) {
+                    const loc = await window.LL.getLocation();
+                    if (latInput) latInput.value = loc.lat;
+                    if (lngInput) lngInput.value = loc.lng;
+                    locBox.classList.add('is-set');
+                    if (locStatus) {
+                        locStatus.textContent = `Location captured (accurate to ±${loc.accuracy} m). Only distance is shown to requesters.`;
+                    }
+                    locBtn.innerHTML = '<i data-lucide="crosshair"></i> Location Captured';
+                } else if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        pos => {
+                            if (latInput) latInput.value = pos.coords.latitude.toFixed(6);
+                            if (lngInput) lngInput.value = pos.coords.longitude.toFixed(6);
+                            locBox.classList.add('is-set');
+                            if (locStatus) {
+                                locStatus.textContent = `Location captured (accurate to ±${Math.round(pos.coords.accuracy)} m).`;
+                            }
+                            locBtn.innerHTML = '<i data-lucide="crosshair"></i> Location Captured';
+                            if (window.lucide) window.lucide.createIcons();
+                        },
+                        err => {
+                            locBox.classList.add('is-error');
+                            if (locStatus) locStatus.textContent = 'Unable to access location: ' + err.message;
+                            locBtn.innerHTML = '<i data-lucide="crosshair"></i> Retry Location';
+                            if (window.lucide) window.lucide.createIcons();
+                        }
+                    );
+                } else {
+                    throw new Error('Geolocation is not supported by your browser.');
+                }
+            } catch (err) {
+                locBox.classList.add('is-error');
+                if (locStatus) locStatus.textContent = err.message || 'Could not retrieve location.';
+                locBtn.innerHTML = '<i data-lucide="crosshair"></i> Retry Location';
+            } finally {
+                locBtn.disabled = false;
+                if (window.lucide) window.lucide.createIcons();
+            }
+        });
+    }
+
+    // Password validation & match
     const passwordInput = document.getElementById('regPassword');
     const confirmInput = document.getElementById('regConfirmPassword');
     const matchMsg = document.getElementById('passwordMatchMessage');
@@ -269,18 +508,35 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    passwordInput.addEventListener('input', checkPasswordsMatch);
-    confirmInput.addEventListener('input', checkPasswordsMatch);
+    if (passwordInput && confirmInput) {
+        passwordInput.addEventListener('input', checkPasswordsMatch);
+        confirmInput.addEventListener('input', checkPasswordsMatch);
+    }
 
-    form.addEventListener('submit', function(e) {
-        if (passwordInput.value !== confirmInput.value) {
-            e.preventDefault();
-            matchMsg.style.display = 'block';
-            matchMsg.style.color = '#DC2626';
-            matchMsg.innerHTML = '<span style="display: inline-flex; align-items: center; gap: 4px;">✗ Passwords do not match. Please verify.</span>';
-            confirmInput.focus();
-        }
-    });
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            if (passwordInput.value !== confirmInput.value) {
+                e.preventDefault();
+                matchMsg.style.display = 'block';
+                matchMsg.style.color = '#DC2626';
+                matchMsg.innerHTML = '<span style="display: inline-flex; align-items: center; gap: 4px;">✗ Passwords do not match. Please verify.</span>';
+                confirmInput.focus();
+                return;
+            }
+
+            if (donorToggle && donorToggle.checked) {
+                const consent = document.getElementById('regConsent');
+                if (consent && !consent.checked) {
+                    e.preventDefault();
+                    alert('Please confirm that your health screening answers are true to the best of your knowledge.');
+                    consent.focus();
+                    return;
+                }
+            }
+        });
+    }
+
+    if (window.lucide) window.lucide.createIcons();
 });
 </script>
 {% endblock %}

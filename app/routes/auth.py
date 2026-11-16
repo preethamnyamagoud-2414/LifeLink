@@ -4,6 +4,8 @@ Handles user login, registration, password hashing, session management,
 and role-based routing with rate limiting and CSRF protection.
 """
 
+import json
+from datetime import datetime, timezone
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from app.models.user import User
 from app.models.donor import Donor
@@ -143,6 +145,26 @@ def register():
                     flash(field_err, "danger")
                 return render_template("auth/register.html", full_name=full_name, email=email, phone=phone), 400
 
+            screening_answers = {
+                "unwell": request.form.get("screening_unwell") == "yes",
+                "antibiotics": request.form.get("screening_antibiotics") == "yes",
+                "tattoo": request.form.get("screening_tattoo") == "yes",
+                "surgery": request.form.get("screening_surgery") == "yes",
+                "malaria": request.form.get("screening_malaria") == "yes",
+                "pregnant": request.form.get("screening_pregnant") == "yes",
+                "blood_pressure": request.form.get("screening_blood_pressure") == "yes",
+                "infection": request.form.get("screening_infection") == "yes",
+                "chronic": request.form.get("screening_chronic") == "yes",
+                "insulin": request.form.get("screening_insulin") == "yes",
+            }
+            notes_payload = {
+                "screened_at": datetime.now(timezone.utc).isoformat(),
+                "answers": screening_answers,
+                "consent": request.form.get("screening_consent") in ("1", "true", "on", True)
+            }
+            medical_notes = json.dumps(notes_payload)
+            last_donation_date = request.form.get("last_donation_date") or None
+
             role = "donor"
             donor_created = True
 
@@ -172,8 +194,10 @@ def register():
                 city=city,
                 district=district,
                 pin_code=pin_code,
+                last_donation_date=last_donation_date,
                 contact_preference=contact_pref,
-                is_discoverable=is_discoverable
+                is_discoverable=is_discoverable,
+                medical_notes=medical_notes
             )
             flash("Registration successful! Your LifeLink account and Blood Donor profile are active.", "success")
         else:
@@ -251,6 +275,26 @@ def register_donor():
             flash("An account with this phone number already exists.", "warning")
             return redirect(url_for("auth.register_donor"))
 
+        screening_answers = {
+            "unwell": request.form.get("screening_unwell") == "yes",
+            "antibiotics": request.form.get("screening_antibiotics") == "yes",
+            "tattoo": request.form.get("screening_tattoo") == "yes",
+            "surgery": request.form.get("screening_surgery") == "yes",
+            "malaria": request.form.get("screening_malaria") == "yes",
+            "pregnant": request.form.get("screening_pregnant") == "yes",
+            "blood_pressure": request.form.get("screening_blood_pressure") == "yes",
+            "infection": request.form.get("screening_infection") == "yes",
+            "chronic": request.form.get("screening_chronic") == "yes",
+            "insulin": request.form.get("screening_insulin") == "yes",
+        }
+        notes_payload = {
+            "screened_at": datetime.now(timezone.utc).isoformat(),
+            "answers": screening_answers,
+            "consent": request.form.get("screening_consent") in ("1", "true", "on", True)
+        }
+        medical_notes = json.dumps(notes_payload)
+        last_donation_date = request.form.get("last_donation_date") or None
+
         user_id = User.create(full_name, email, phone, password, role="donor")
         Donor.create(
             user_id=user_id,
@@ -262,8 +306,10 @@ def register_donor():
             city=city,
             district=district,
             pin_code=pin_code,
+            last_donation_date=last_donation_date,
             contact_preference=contact_pref,
-            is_discoverable=is_discoverable
+            is_discoverable=is_discoverable,
+            medical_notes=medical_notes
         )
         flash("Donor profile created successfully! Please sign in with your credentials.", "success")
         return redirect(url_for("auth.login"))

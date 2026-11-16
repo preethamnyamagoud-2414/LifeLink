@@ -324,6 +324,69 @@ class TestAuthModule(unittest.TestCase):
             res_admin_dash_blocked = self.client.get("/admin/dashboard")
             self.assertEqual(res_admin_dash_blocked.status_code, 403)
 
+    def test_registration_page_contains_screening_questions(self):
+        """The registration page must render all 10 donor screening questions."""
+        response = self.client.get("/auth/register")
+        self.assertEqual(response.status_code, 200)
+        content = response.data.decode("utf-8")
+
+        # Verify screening elements
+        self.assertIn("Clinical Health Screening Questionnaire", content)
+        self.assertIn("screening_unwell", content)
+        self.assertIn("screening_antibiotics", content)
+        self.assertIn("screening_tattoo", content)
+        self.assertIn("screening_surgery", content)
+        self.assertIn("screening_malaria", content)
+        self.assertIn("screening_pregnant", content)
+        self.assertIn("screening_blood_pressure", content)
+        self.assertIn("screening_infection", content)
+        self.assertIn("screening_chronic", content)
+        self.assertIn("screening_insulin", content)
+        self.assertIn("screening_consent", content)
+
+    def test_api_auth_register_with_donor_screening(self):
+        """POST /api/auth/register processes registration and donor screening."""
+        with self.client:
+            with self.client.session_transaction() as sess:
+                sess["_csrf_token"] = "test-token"
+
+            response = self.client.post(
+                "/api/auth/register",
+                headers={"X-CSRFToken": "test-token"},
+                json={
+                    "full_name": "Screening Test User",
+                    "email": "screening.donor@example.com",
+                    "phone": "+1-555-987-6543",
+                    "password": "SecurePassword123",
+                    "become_donor": True,
+                    "donor": {
+                        "blood_group": "A+",
+                        "gender": "male",
+                        "dob": "1997-04-12",
+                        "weight_kg": 72.0,
+                        "city": "Central Metro",
+                        "district": "District 1",
+                        "answers": {
+                            "unwell": False,
+                            "antibiotics": False,
+                            "tattoo": False,
+                            "surgery": False,
+                            "malaria": False,
+                            "blood_pressure": False,
+                            "infection": False,
+                            "chronic": False,
+                            "insulin": False
+                        },
+                        "consent": True
+                    }
+                }
+            )
+            self.assertEqual(response.status_code, 200)
+            data = response.get_json()
+            self.assertTrue(data["success"])
+            self.assertIn("user", data)
+            self.assertEqual(data["user"]["role"], "donor")
+
 
 if __name__ == "__main__":
     unittest.main()

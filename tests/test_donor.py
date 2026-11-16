@@ -122,6 +122,72 @@ class TestDonorModule(unittest.TestCase):
             data = response.get_json()
             self.assertTrue(data["success"])
 
+    def test_donor_screening_profile_update(self):
+        """Authenticated donor can update clinical screening questions via /api/donor/profile."""
+        with self.client:
+            with self.client.session_transaction() as sess:
+                sess["user_id"] = 2
+                sess["user_name"] = "Sarah Jenkins"
+                sess["user_role"] = "donor"
+                sess["_csrf_token"] = "test-token"
+
+            response = self.client.post(
+                "/api/donor/profile",
+                headers={"X-CSRFToken": "test-token"},
+                json={
+                    "weight_kg": 65.0,
+                    "city": "Central Metro",
+                    "answers": {
+                        "unwell": False,
+                        "antibiotics": False,
+                        "tattoo": False,
+                        "surgery": False,
+                        "malaria": False,
+                        "pregnant": False,
+                        "blood_pressure": False,
+                        "infection": False,
+                        "chronic": False,
+                        "insulin": False
+                    },
+                    "consent": True
+                }
+            )
+            self.assertEqual(response.status_code, 200)
+            data = response.get_json()
+            self.assertTrue(data["success"])
+            self.assertIn("donor", data)
+            self.assertIn("eligibility", data["donor"])
+            self.assertEqual(data["donor"]["eligibility"]["status"], "ELIGIBLE")
+            self.assertTrue(data["donor"]["eligibility"]["eligible"])
+
+    def test_donor_screening_temporary_deferral(self):
+        """Updating screening answers with temporary condition defers the donor."""
+        with self.client:
+            with self.client.session_transaction() as sess:
+                sess["user_id"] = 2
+                sess["user_name"] = "Sarah Jenkins"
+                sess["user_role"] = "donor"
+                sess["_csrf_token"] = "test-token"
+
+            response = self.client.post(
+                "/api/donor/profile",
+                headers={"X-CSRFToken": "test-token"},
+                json={
+                    "weight_kg": 65.0,
+                    "city": "Central Metro",
+                    "answers": {
+                        "unwell": True,
+                        "antibiotics": False
+                    },
+                    "consent": True
+                }
+            )
+            self.assertEqual(response.status_code, 200)
+            data = response.get_json()
+            self.assertTrue(data["success"])
+            self.assertEqual(data["donor"]["eligibility"]["status"], "TEMPORARY_DEFERRAL")
+            self.assertFalse(data["donor"]["eligibility"]["eligible"])
+
 
 if __name__ == "__main__":
     unittest.main()

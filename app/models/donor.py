@@ -160,6 +160,31 @@ class Donor:
         return True
 
     @staticmethod
+    def update_clinical_screening(
+        user_id: int,
+        medical_notes: str,
+        weight_kg: Optional[float] = None,
+        city: Optional[str] = None,
+        district: Optional[str] = None
+    ) -> bool:
+        """Updates clinical screening notes and optional vitals/location."""
+        updates = ["medical_notes = %s"]
+        params: List[Any] = [medical_notes]
+        if weight_kg is not None:
+            updates.append("weight_kg = %s")
+            params.append(weight_kg)
+        if city is not None:
+            updates.append("city = %s")
+            params.append(city)
+        if district is not None:
+            updates.append("district = %s")
+            params.append(district)
+        params.append(user_id)
+        query = f"UPDATE donor_profiles SET {', '.join(updates)} WHERE user_id = %s;"
+        execute_query(query, tuple(params), commit=True)
+        return True
+
+    @staticmethod
     def record_donation(user_id: int, donation_date: Optional[date] = None) -> bool:
         """Updates last donation date and increments total donation count."""
         if donation_date is None:

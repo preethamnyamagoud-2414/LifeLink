@@ -113,11 +113,16 @@
                 <span style="font-size: 0.75rem; color: #10B981; font-weight: 700;">{{ profile_completion }}%</span>
             </a>
 
-            <a href="/about" class="sidebar-link">
+            <a href="#eligibility-section" class="sidebar-link">
                 <div class="sidebar-link-content">
                     <i data-lucide="clipboard-check"></i>
-                    <span>Eligibility Guide</span>
+                    <span>Health &amp; Eligibility</span>
                 </div>
+                {% if eligibility and eligibility.get('status') == 'ELIGIBLE' %}
+                <span class="badge badge-success" style="font-size: 0.65rem; padding: 0.1rem 0.4rem;">Eligible</span>
+                {% elif eligibility %}
+                <span class="badge badge-urgent" style="font-size: 0.65rem; padding: 0.1rem 0.4rem;">Deferred</span>
+                {% endif %}
             </a>
         </nav>
 
@@ -285,7 +290,109 @@
                 </div>
             </div>
 
-            <!-- C. RECENT BLOOD REQUESTS SECTION -->
+            <!-- C. HEALTH SCREENING & MEDICAL ELIGIBILITY SECTION -->
+            <div id="eligibility-section" class="card" style="box-shadow: var(--shadow-sm); margin-bottom: 1.75rem;">
+                <div class="card-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+                    <div>
+                        <h2 style="font-size: 1.25rem; color: var(--color-secondary); display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.2rem;">
+                            <i data-lucide="stethoscope" style="width: 20px; height: 20px; color: var(--color-primary);"></i>
+                            Health Screening &amp; Clinical Eligibility
+                        </h2>
+                        <p style="font-size: 0.8125rem; color: var(--color-text-subtle); margin: 0;">
+                            10-point mandatory clinical pre-screening questionnaire safeguarding donor and recipient health.
+                        </p>
+                    </div>
+                    <button type="button" class="btn btn-outline btn-sm" id="btnOpenScreeningModal" data-open-screening>
+                        <i data-lucide="clipboard-check"></i> Update Health Screening
+                    </button>
+                </div>
+
+                <div style="padding: 1.25rem;">
+                    <!-- Eligibility Alert Banner -->
+                    <div id="eligibilityStatusBanner">
+                    {% if eligibility and eligibility.get('status') == 'ELIGIBLE' %}
+                    <div class="alert alert-success" style="display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 1.25rem;">
+                        <i data-lucide="check-circle-2" style="width: 22px; height: 22px; flex-shrink: 0; color: #10B981; margin-top: 2px;"></i>
+                        <div>
+                            <strong style="font-size: 0.95rem; color: #065F46;">You are currently eligible to donate blood.</strong>
+                            <div style="font-size: 0.8125rem; color: #047857; margin-top: 0.25rem;">
+                                Your health self-check meets standard clinical requirements. Patients and hospital coordinators can find you in donor search.
+                            </div>
+                        </div>
+                    </div>
+                    {% elif eligibility and eligibility.get('status') == 'PERMANENT_DEFERRAL' %}
+                    <div class="alert alert-danger" style="display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 1.25rem;">
+                        <i data-lucide="ban" style="width: 22px; height: 22px; flex-shrink: 0; color: #EF4444; margin-top: 2px;"></i>
+                        <div>
+                            <strong style="font-size: 0.95rem; color: #991B1B;">Clinical Deferral: Voluntary donation is not advised.</strong>
+                            <div style="font-size: 0.8125rem; color: #B91C1C; margin-top: 0.25rem;">
+                                For your personal health and recipient safety, blood donation is restricted based on recorded clinical factors.
+                            </div>
+                            {% if eligibility.get('reasons') %}
+                            <ul class="ll-reasons" style="margin: 0.5rem 0 0 1rem; color: #7F1D1D; font-size: 0.8125rem;">
+                                {% for r in eligibility.reasons %}
+                                <li>{{ r.message }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning" style="display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 1.25rem;">
+                        <i data-lucide="clock" style="width: 22px; height: 22px; flex-shrink: 0; color: #F59E0B; margin-top: 2px;"></i>
+                        <div>
+                            <strong style="font-size: 0.95rem; color: #92400E;">Temporary Cooldown or Health Deferral Active.</strong>
+                            <div style="font-size: 0.8125rem; color: #B45309; margin-top: 0.25rem;">
+                                {{ eligibility.get('message', 'You cannot donate blood at this moment.') }}
+                                {% if eligibility.get('eligible_from') %}
+                                You can donate again starting <strong>{{ eligibility.eligible_from }}</strong>.
+                                {% endif %}
+                            </div>
+                            {% if eligibility.get('reasons') %}
+                            <ul class="ll-reasons" style="margin: 0.5rem 0 0 1rem; color: #78350F; font-size: 0.8125rem;">
+                                {% for r in eligibility.reasons %}
+                                <li>{{ r.message }}{% if r.until %} (until {{ r.until }}){% endif %}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    </div>
+
+                    <!-- Checklist of 10 Clinical Questions -->
+                    <h4 style="font-size: 0.9rem; color: var(--color-secondary); margin-bottom: 0.75rem; font-weight: 600;">
+                        Clinical Screening Questionnaire Status:
+                    </h4>
+                    <div class="ll-screening-checklist" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 0.75rem;">
+                        {% set answers = eligibility.get('answers', {}) if eligibility else {} %}
+                        {% for q in (screening_questions or []) %}
+                        {% set ans = answers.get(q.key) %}
+                        <div style="padding: 0.75rem; border-radius: var(--radius-md); border: 1px solid var(--color-border); background: {{ '#FEF2F2' if ans is sameas true else '#F8FAFC' }}; display: flex; align-items: flex-start; gap: 0.65rem;">
+                            <div style="flex-shrink: 0; margin-top: 2px;">
+                                {% if ans is sameas true %}
+                                <i data-lucide="alert-triangle" style="width: 16px; height: 16px; color: #EF4444;"></i>
+                                {% else %}
+                                <i data-lucide="check-circle" style="width: 16px; height: 16px; color: #10B981;"></i>
+                                {% endif %}
+                            </div>
+                            <div style="flex: 1; font-size: 0.8125rem; line-height: 1.35;">
+                                <div style="font-weight: 600; color: var(--color-secondary);">{{ loop.index }}. {{ q.text }}</div>
+                                <div style="margin-top: 0.25rem;">
+                                    {% if ans is sameas true %}
+                                    <span class="badge badge-critical" style="font-size: 0.65rem; padding: 0.1rem 0.35rem;">Answered: Yes (Flagged)</span>
+                                    {% else %}
+                                    <span class="badge badge-success" style="font-size: 0.65rem; padding: 0.1rem 0.35rem;">Answered: No (Cleared)</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- D. RECENT BLOOD REQUESTS SECTION -->
             <div id="recent-requests" class="card" style="box-shadow: var(--shadow-sm);">
                 <div class="card-header">
                     <div>
@@ -484,9 +591,193 @@
 
         </div>
     </div>
+    <!-- ==========================================================================
+         3. HEALTH SCREENING UPDATE MODAL
+         ========================================================================== -->
+    <div id="screeningModal" class="ll-modal-overlay" style="display: none;">
+        <div class="ll-modal ll-modal-wide">
+            <div class="ll-modal-header">
+                <h3 style="display: flex; align-items: center; gap: 0.5rem; margin: 0; font-size: 1.15rem; color: var(--color-secondary);">
+                    <i data-lucide="stethoscope" style="width: 20px; height: 20px; color: var(--color-primary);"></i>
+                    Update Clinical Health Screening
+                </h3>
+                <button type="button" class="ll-modal-close" id="btnCloseScreeningModal" aria-label="Close screening modal">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="ll-modal-body">
+                <p class="ll-screening-note" style="font-size: 0.8125rem; color: var(--color-text-subtle); margin-bottom: 1.25rem;">
+                    Answer all 10 clinical questions honestly. This self-assessment keeps your eligibility record up-to-date and protects blood transfusion recipients.
+                </p>
+
+                <div id="screeningModalError" class="alert alert-danger" style="display: none; margin-bottom: 1rem;"></div>
+
+                <form id="screeningModalForm">
+                    <div class="ll-form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+                        <div class="form-group">
+                            <label class="form-label" for="smWeight">Body Weight (kg) <span class="required-mark">*</span></label>
+                            <input type="number" id="smWeight" name="weight_kg" class="form-control" min="40" max="250" step="0.5" value="{{ donor.weight_kg if donor else 65 }}" required>
+                            <span class="form-hint">Mandatory minimum: 45 kg</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="smCity">City / Town <span class="required-mark">*</span></label>
+                            <input type="text" id="smCity" name="city" class="form-control" value="{{ donor.city if donor else '' }}" required>
+                        </div>
+                    </div>
+
+                    <div class="ll-screening">
+                        <h4 style="font-size: 0.95rem; color: var(--color-secondary); margin-bottom: 0.5rem; font-weight: 600;">
+                            Health Questions
+                        </h4>
+                        {% set answers = eligibility.get('answers', {}) if eligibility else {} %}
+                        {% for q in (screening_questions or []) %}
+                        {% set ans = answers.get(q.key) %}
+                        <div class="ll-question" data-key="{{ q.key }}" {% if q.female_only %}id="smFemaleQ" style="display: {{ 'flex' if donor and donor.gender == 'female' else 'none' }};"{% endif %}>
+                            <span class="ll-question-text">{{ loop.index }}. {{ q.text }}</span>
+                            <div class="ll-yesno" role="radiogroup" aria-label="{{ q.text }}">
+                                <label><input type="radio" name="modal_screening_{{ q.key }}" value="yes" {% if ans is sameas true %}checked{% endif %}><span>Yes</span></label>
+                                <label><input type="radio" name="modal_screening_{{ q.key }}" value="no" {% if ans is not sameas true %}checked{% endif %}><span>No</span></label>
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                        <label class="ll-consent" style="margin-top: 1.25rem; font-size: 0.8125rem;">
+                            <input type="checkbox" id="smConsent" name="consent" checked required>
+                            <span>I confirm that my answers to the health screening questions are accurate and truthful to the best of my knowledge.</span>
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="ll-modal-footer">
+                <button type="button" class="btn btn-outline" id="btnCancelScreeningModal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="btnSaveScreeningModal">
+                    <i data-lucide="save"></i> Save &amp; Check Eligibility
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block extra_scripts %}
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('screeningModal');
+        const openBtn = document.getElementById('btnOpenScreeningModal');
+        const closeBtn = document.getElementById('btnCloseScreeningModal');
+        const cancelBtn = document.getElementById('btnCancelScreeningModal');
+        const saveBtn = document.getElementById('btnSaveScreeningModal');
+        const modalError = document.getElementById('screeningModalError');
+
+        function showScreeningModal() {
+            if (modal) {
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+                if (window.lucide) window.lucide.createIcons();
+            }
+        }
+
+        function hideScreeningModal() {
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        }
+
+        if (openBtn) openBtn.addEventListener('click', showScreeningModal);
+        if (closeBtn) closeBtn.addEventListener('click', hideScreeningModal);
+        if (cancelBtn) cancelBtn.addEventListener('click', hideScreeningModal);
+
+        document.querySelectorAll('[data-open-screening]').forEach(btn => {
+            btn.addEventListener('click', showScreeningModal);
+        });
+
+        // Close on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal && modal.style.display === 'flex') {
+                hideScreeningModal();
+            }
+        });
+
+        // Close when clicking modal backdrop
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) hideScreeningModal();
+            });
+        }
+
+        if (saveBtn) {
+            saveBtn.addEventListener('click', async function() {
+                const consent = document.getElementById('smConsent');
+                if (consent && !consent.checked) {
+                    alert('Please confirm that your screening answers are truthful.');
+                    return;
+                }
+
+                saveBtn.disabled = true;
+                saveBtn.textContent = 'Saving & validating...';
+                if (modalError) modalError.style.display = 'none';
+
+                const keys = ['unwell', 'antibiotics', 'tattoo', 'surgery', 'malaria', 'pregnant', 'blood_pressure', 'infection', 'chronic', 'insulin'];
+                const answers = {};
+                keys.forEach(k => {
+                    const rad = document.querySelector(`input[name="modal_screening_${k}"]:checked`);
+                    answers[k] = rad ? (rad.value === 'yes') : false;
+                });
+
+                const payload = {
+                    weight_kg: document.getElementById('smWeight')?.value,
+                    city: document.getElementById('smCity')?.value,
+                    answers: answers,
+                    consent: true
+                };
+
+                const csrfToken = document.querySelector('input[name="csrf_token"]')?.value || '';
+
+                try {
+                    let resData;
+                    if (window.LL && window.LL.api) {
+                        resData = await window.LL.api('/api/donor/profile', { body: payload });
+                    } else {
+                        const resp = await fetch('/api/donor/profile', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRFToken': csrfToken
+                            },
+                            body: JSON.stringify(payload)
+                        });
+                        resData = await resp.json();
+                    }
+
+                    if (resData && (resData.success || resData.donor)) {
+                        hideScreeningModal();
+                        if (window.LL && window.LL.toast) {
+                            window.LL.toast(resData.message || 'Health screening saved successfully.', 'success');
+                        } else {
+                            alert(resData.message || 'Health screening saved successfully.');
+                        }
+                        // Refresh view to display new status
+                        setTimeout(() => window.location.reload(), 400);
+                    } else {
+                        throw new Error(resData?.message || 'Server reported failure.');
+                    }
+                } catch (err) {
+                    if (modalError) {
+                        modalError.textContent = err.message || 'Error updating health screening.';
+                        modalError.style.display = 'block';
+                    } else {
+                        alert(err.message || 'Error updating health screening.');
+                    }
+                } finally {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = '<i data-lucide="save"></i> Save &amp; Check Eligibility';
+                    if (window.lucide) window.lucide.createIcons();
+                }
+            });
+        }
+    });
+    </script>
 {% endblock %}
