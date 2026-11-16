@@ -496,7 +496,7 @@ def api_donor_profile():
 
 
 @public_bp.route("/api/auth/register", methods=["POST"])
-@rate_limit(max_requests=10, window_seconds=60)
+@rate_limit(max_requests=30, window_seconds=60)
 def api_auth_register():
     """Asynchronous JSON endpoint for member and donor registration."""
     data = request.get_json(silent=True) or request.form

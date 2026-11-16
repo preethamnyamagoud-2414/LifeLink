@@ -387,6 +387,85 @@ class TestAuthModule(unittest.TestCase):
             self.assertIn("user", data)
             self.assertEqual(data["user"]["role"], "donor")
 
+    def test_member_register_without_donor_box_succeeds(self):
+        """Unified /auth/register POST without enable_donor succeeds as patient without donor validation."""
+        from unittest.mock import patch
+        with self.client:
+            self.client.get("/")
+            with self.client.session_transaction() as sess:
+                sess["_csrf_token"] = "test-token"
+
+            with patch("app.routes.auth.test_db_connection", return_value=(True, "Connected", {})):
+                with patch("app.routes.auth.User.find_by_email", return_value=None):
+                    with patch("app.routes.auth.User.find_by_phone", return_value=None):
+                        with patch("app.routes.auth.User.create", return_value=123) as mock_u_create:
+                            with patch("app.routes.auth.Donor.create") as mock_d_create:
+                                response = self.client.post(
+                                    "/auth/register",
+                                    data={
+                                        "csrf_token": "test-token",
+                                        "full_name": "Standard User",
+                                        "email": "standard.user@example.com",
+                                        "phone": "+1-555-888-7777",
+                                        "password": "Password123!",
+                                        "confirm_password": "Password123!"
+                                        # Note: enable_donor is omitted
+                                    },
+                                    follow_redirects=False
+                                )
+                                self.assertEqual(response.status_code, 302)
+                                self.assertIn("/auth/login", response.location)
+                                mock_u_create.assert_called_once()
+                                mock_d_create.assert_not_called()
+
+    def test_member_register_with_donor_profile_succeeds(self):
+        """Unified /auth/register POST with enable_donor=1 and screening answers creates donor."""
+        from unittest.mock import patch
+        with self.client:
+            self.client.get("/")
+            with self.client.session_transaction() as sess:
+                sess["_csrf_token"] = "test-token"
+
+            with patch("app.routes.auth.test_db_connection", return_value=(True, "Connected", {})):
+                with patch("app.routes.auth.User.find_by_email", return_value=None):
+                    with patch("app.routes.auth.User.find_by_phone", return_value=None):
+                        with patch("app.routes.auth.User.create", return_value=124) as mock_u_create:
+                            with patch("app.routes.auth.Donor.create") as mock_d_create:
+                                response = self.client.post(
+                                    "/auth/register",
+                                    data={
+                                        "csrf_token": "test-token",
+                                        "full_name": "Donor User",
+                                        "email": "donor.user@example.com",
+                                        "phone": "+1-555-888-6666",
+                                        "password": "Password123!",
+                                        "confirm_password": "Password123!",
+                                        "enable_donor": "1",
+                                        "blood_group": "A+",
+                                        "gender": "male",
+                                        "date_of_birth": "1995-05-10",
+                                        "weight_kg": "70",
+                                        "city": "Metro City",
+                                        "district": "Metro District",
+                                        "state": "Metro State",
+                                        "screening_consent": "1",
+                                        "screening_unwell": "no",
+                                        "screening_antibiotics": "no",
+                                        "screening_tattoo": "no",
+                                        "screening_surgery": "no",
+                                        "screening_malaria": "no",
+                                        "screening_blood_pressure": "no",
+                                        "screening_infection": "no",
+                                        "screening_chronic": "no",
+                                        "screening_insulin": "no"
+                                    },
+                                    follow_redirects=False
+                                )
+                                self.assertEqual(response.status_code, 302)
+                                self.assertIn("/auth/login", response.location)
+                                mock_u_create.assert_called_once()
+                                mock_d_create.assert_called_once()
+
 
 if __name__ == "__main__":
     unittest.main()

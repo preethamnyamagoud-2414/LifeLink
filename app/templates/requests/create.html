@@ -35,6 +35,24 @@
             </div>
         </div>
 
+        {% if not session.get('user_id') %}
+        <div class="alert alert-warning" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem; padding: 1rem 1.25rem; border-radius: var(--radius-md);">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <i data-lucide="info" style="width: 22px; height: 22px; color: #D97706; flex-shrink: 0;"></i>
+                <div>
+                    <strong style="color: #92400E; font-size: 0.925rem;">Posting an emergency request requires an account.</strong>
+                    <div style="font-size: 0.8125rem; color: #B45309; margin-top: 0.15rem;">
+                        This ensures verified donors and hospital coordinators can contact you immediately. Please sign in or register before broadcasting.
+                    </div>
+                </div>
+            </div>
+            <div style="display: flex; gap: 0.6rem;">
+                <a href="{{ url_for('auth.login', next=request.path) }}" class="btn btn-sm btn-outline" style="border-color: #D97706; color: #92400E;">Sign In</a>
+                <a href="{{ url_for('auth.register', next=request.path) }}" class="btn btn-sm btn-primary">Create Account</a>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Request Form Card -->
         <div class="card" style="padding: 2.5rem; box-shadow: var(--shadow-md);">
             <form id="emergencyRequestForm" action="{{ url_for('requests.create_request') }}" method="POST">

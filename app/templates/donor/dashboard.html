@@ -118,11 +118,13 @@
                     <i data-lucide="clipboard-check"></i>
                     <span>Health &amp; Eligibility</span>
                 </div>
+                <span id="dashSidebarEligibilityBadge">
                 {% if eligibility and eligibility.get('status') == 'ELIGIBLE' %}
                 <span class="badge badge-success" style="font-size: 0.65rem; padding: 0.1rem 0.4rem;">Eligible</span>
                 {% elif eligibility %}
                 <span class="badge badge-urgent" style="font-size: 0.65rem; padding: 0.1rem 0.4rem;">Deferred</span>
                 {% endif %}
+                </span>
             </a>
         </nav>
 
@@ -276,12 +278,12 @@
                 <div class="dash-metric-card">
                     <div>
                         <div class="dash-metric-title">Eligibility Status</div>
-                        <div class="dash-metric-value" style="font-size: 1.35rem; color: var(--color-secondary);">
+                        <div class="dash-metric-value" id="dashMetricEligibilityValue" style="font-size: 1.35rem; color: {{ 'var(--color-success-dark)' if eligibility and eligibility.get('status') == 'ELIGIBLE' else 'var(--color-critical)' }};">
                             {{ eligibility.get('status', 'Eligible') }}
                         </div>
                         <div class="dash-metric-trend" style="color: var(--color-text-subtle);">
                             <i data-lucide="calendar"></i>
-                            <span>{{ eligibility.get('message', 'Ready to donate now') }}</span>
+                            <span id="dashMetricEligibilityMsg">{{ eligibility.get('message', 'Ready to donate now') }}</span>
                         </div>
                     </div>
                     <div class="dash-metric-icon">
@@ -360,31 +362,52 @@
                     {% endif %}
                     </div>
 
-                    <!-- Checklist of 10 Clinical Questions -->
-                    <h4 style="font-size: 0.9rem; color: var(--color-secondary); margin-bottom: 0.75rem; font-weight: 600;">
-                        Clinical Screening Questionnaire Status:
-                    </h4>
-                    <div class="ll-screening-checklist" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 0.75rem;">
+                    <!-- Interactive 10-Question Clinical Screening Deck -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; flex-wrap: wrap; gap: 0.5rem;">
+                        <div>
+                            <h4 style="font-size: 0.95rem; color: var(--color-secondary); margin: 0; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                                <span>Clinical Self-Check &amp; Screening Responses</span>
+                                <span class="badge badge-neutral" id="dashScreeningCountBadge" style="font-size: 0.72rem; padding: 0.15rem 0.45rem;">10 Questions</span>
+                            </h4>
+                            <p style="font-size: 0.78125rem; color: var(--color-text-subtle); margin: 0.25rem 0 0 0;">
+                                Click <strong>Yes</strong> or <strong>No</strong> on any question below to immediately test or update your health responses. Changes save directly to your clinical record and update your donor availability in real time.
+                            </p>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span id="dashSyncStatus" style="font-size: 0.775rem; color: var(--color-text-subtle); display: inline-flex; align-items: center; gap: 0.35rem;">
+                                <i data-lucide="check-circle" style="width: 14px; height: 14px; color: #10B981;"></i> Synced with Medical Record
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="ll-screening-checklist" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 0.85rem;">
                         {% set answers = eligibility.get('answers', {}) if eligibility else {} %}
                         {% for q in (screening_questions or []) %}
                         {% set ans = answers.get(q.key) %}
-                        <div style="padding: 0.75rem; border-radius: var(--radius-md); border: 1px solid var(--color-border); background: {{ '#FEF2F2' if ans is sameas true else '#F8FAFC' }}; display: flex; align-items: flex-start; gap: 0.65rem;">
-                            <div style="flex-shrink: 0; margin-top: 2px;">
-                                {% if ans is sameas true %}
-                                <i data-lucide="alert-triangle" style="width: 16px; height: 16px; color: #EF4444;"></i>
-                                {% else %}
-                                <i data-lucide="check-circle" style="width: 16px; height: 16px; color: #10B981;"></i>
-                                {% endif %}
-                            </div>
-                            <div style="flex: 1; font-size: 0.8125rem; line-height: 1.35;">
-                                <div style="font-weight: 600; color: var(--color-secondary);">{{ loop.index }}. {{ q.text }}</div>
-                                <div style="margin-top: 0.25rem;">
-                                    {% if ans is sameas true %}
-                                    <span class="badge badge-critical" style="font-size: 0.65rem; padding: 0.1rem 0.35rem;">Answered: Yes (Flagged)</span>
-                                    {% else %}
-                                    <span class="badge badge-success" style="font-size: 0.65rem; padding: 0.1rem 0.35rem;">Answered: No (Cleared)</span>
-                                    {% endif %}
+                        <div class="ll-dash-q-card {{ 'is-flagged' if ans is sameas true else 'is-cleared' }}" data-dash-key="{{ q.key }}" {% if q.female_only %}id="dashFemaleQ" style="{% if donor and donor.gender != 'female' %}display: none;{% endif %}"{% endif %}>
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem;">
+                                <div style="font-size: 0.85rem; font-weight: 600; color: var(--color-secondary); line-height: 1.35; flex: 1;">
+                                    {{ loop.index }}. {{ q.text }}
                                 </div>
+                                <div class="ll-yesno" role="radiogroup" aria-label="{{ q.text }}" style="flex-shrink: 0;">
+                                    <label class="dash-yes-label" title="Click Yes if this applies to you">
+                                        <input type="radio" name="dash_screening_{{ q.key }}" value="yes" {% if ans is sameas true %}checked{% endif %}>
+                                        <span>Yes</span>
+                                    </label>
+                                    <label class="dash-no-label" title="Click No if this does not apply to you">
+                                        <input type="radio" name="dash_screening_{{ q.key }}" value="no" {% if ans is not sameas true %}checked{% endif %}>
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="ll-question-hint {{ 'hint-warn' if ans is sameas true else 'hint-ok' }}" id="dash_hint_{{ q.key }}" style="font-size: 0.75rem;">
+                                {% if ans is sameas true %}
+                                <i data-lucide="alert-triangle" style="width: 13px; height: 13px;"></i>
+                                <span>Flagged: {{ q.msg if q.msg else 'Clinical deferral active' }}</span>
+                                {% else %}
+                                <i data-lucide="check-circle" style="width: 13px; height: 13px;"></i>
+                                <span>Cleared: No clinical contraindication reported</span>
+                                {% endif %}
                             </div>
                         </div>
                         {% endfor %}
@@ -632,9 +655,20 @@
                         {% set answers = eligibility.get('answers', {}) if eligibility else {} %}
                         {% for q in (screening_questions or []) %}
                         {% set ans = answers.get(q.key) %}
-                        <div class="ll-question" data-key="{{ q.key }}" {% if q.female_only %}id="smFemaleQ" style="display: {{ 'flex' if donor and donor.gender == 'female' else 'none' }};"{% endif %}>
-                            <span class="ll-question-text">{{ loop.index }}. {{ q.text }}</span>
-                            <div class="ll-yesno" role="radiogroup" aria-label="{{ q.text }}">
+                        <div class="ll-question {{ 'is-flagged' if ans is sameas true else 'is-cleared' }}" data-modal-key="{{ q.key }}" {% if q.female_only %}id="smFemaleQ" style="display: {{ 'flex' if donor and donor.gender == 'female' else 'none' }};"{% endif %}>
+                            <div style="flex: 1;">
+                                <span class="ll-question-text">{{ loop.index }}. {{ q.text }}</span>
+                                <div class="ll-question-hint {{ 'hint-warn' if ans is sameas true else 'hint-ok' }}" id="modal_hint_{{ q.key }}" style="font-size: 0.75rem; margin-top: 0.25rem;">
+                                    {% if ans is sameas true %}
+                                    <i data-lucide="alert-triangle" style="width: 13px; height: 13px;"></i>
+                                    <span>Flagged: {{ q.msg if q.msg else 'Clinical deferral active' }}</span>
+                                    {% else %}
+                                    <i data-lucide="check-circle" style="width: 13px; height: 13px;"></i>
+                                    <span>Cleared: Criterion satisfied</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="ll-yesno" role="radiogroup" aria-label="{{ q.text }}" style="margin-left: 0.75rem;">
                                 <label><input type="radio" name="modal_screening_{{ q.key }}" value="yes" {% if ans is sameas true %}checked{% endif %}><span>Yes</span></label>
                                 <label><input type="radio" name="modal_screening_{{ q.key }}" value="no" {% if ans is not sameas true %}checked{% endif %}><span>No</span></label>
                             </div>
@@ -660,7 +694,6 @@
 {% endblock %}
 
 {% block extra_scripts %}
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         const modal = document.getElementById('screeningModal');
@@ -670,8 +703,32 @@
         const saveBtn = document.getElementById('btnSaveScreeningModal');
         const modalError = document.getElementById('screeningModalError');
 
+        const screeningDefs = {
+            unwell: { deferral: "TEMPORARY", msg: "Temporary 14-day deferral until full recovery from symptoms" },
+            antibiotics: { deferral: "TEMPORARY", msg: "Temporary 14-day deferral following completion of antibiotic treatment" },
+            tattoo: { deferral: "TEMPORARY", msg: "Temporary 6-month deferral following tattoo, piercing, or acupuncture" },
+            surgery: { deferral: "TEMPORARY", msg: "Temporary 6-month deferral following surgical procedures or blood transfusions" },
+            malaria: { deferral: "TEMPORARY", msg: "Temporary 3-month deferral for malaria recovery or travel to endemic zones" },
+            pregnant: { deferral: "TEMPORARY", msg: "Deferral throughout pregnancy and for 6 months postpartum / lactation" },
+            blood_pressure: { deferral: "TEMPORARY", msg: "Temporary deferral until resting blood pressure stabilizes within clinical limits" },
+            infection: { deferral: "PERMANENT", msg: "Permanent deferral: History of blood-borne viral infection (HIV/HBV/HCV)" },
+            chronic: { deferral: "PERMANENT", msg: "Permanent deferral: Active chronic cardiac, renal, oncological, or severe autoimmune illness" },
+            insulin: { deferral: "PERMANENT", msg: "Permanent deferral: Insulin-dependent diabetes requires continuous glucose stabilization" }
+        };
+
+        const keys = ['unwell', 'antibiotics', 'tattoo', 'surgery', 'malaria', 'pregnant', 'blood_pressure', 'infection', 'chronic', 'insulin'];
+
         function showScreeningModal() {
             if (modal) {
+                // Sync current dashboard radio answers into modal
+                keys.forEach(k => {
+                    const dashChecked = document.querySelector(`input[name="dash_screening_${k}"]:checked`);
+                    if (dashChecked) {
+                        const modalRad = document.querySelector(`input[name="modal_screening_${k}"][value="${dashChecked.value}"]`);
+                        if (modalRad) modalRad.checked = true;
+                    }
+                });
+                updateAllModalQuestionVisuals();
                 modal.style.display = 'flex';
                 document.body.style.overflow = 'hidden';
                 if (window.lucide) window.lucide.createIcons();
@@ -707,6 +764,293 @@
             });
         }
 
+        // --- DASHBOARD REAL-TIME CLICKABLE SCREENING LOGIC ---
+        function updateDashQuestionVisual(key, isYes) {
+            const card = document.querySelector(`.ll-dash-q-card[data-dash-key="${key}"]`);
+            const hint = document.getElementById(`dash_hint_${key}`);
+            const def = screeningDefs[key] || { msg: 'Clinical deferral condition' };
+
+            if (card) {
+                if (isYes) {
+                    card.classList.remove('is-cleared');
+                    card.classList.add('is-flagged');
+                } else {
+                    card.classList.remove('is-flagged');
+                    card.classList.add('is-cleared');
+                }
+            }
+
+            if (hint) {
+                if (isYes) {
+                    hint.className = 'll-question-hint hint-warn';
+                    hint.innerHTML = `<i data-lucide="alert-triangle" style="width: 13px; height: 13px;"></i> <span>Flagged: ${def.msg}</span>`;
+                } else {
+                    hint.className = 'll-question-hint hint-ok';
+                    hint.innerHTML = `<i data-lucide="check-circle" style="width: 13px; height: 13px;"></i> <span>Cleared: No clinical contraindication reported</span>`;
+                }
+            }
+
+            // Sync modal radio and visual if modal exists
+            const modalRad = document.querySelector(`input[name="modal_screening_${key}"][value="${isYes ? 'yes' : 'no'}"]`);
+            if (modalRad) {
+                modalRad.checked = true;
+                updateModalQuestionVisual(key, isYes);
+            }
+        }
+
+        function updateModalQuestionVisual(key, isYes) {
+            const row = document.querySelector(`.ll-question[data-modal-key="${key}"]`);
+            const hint = document.getElementById(`modal_hint_${key}`);
+            const def = screeningDefs[key] || { msg: 'Clinical deferral condition' };
+
+            if (row) {
+                if (isYes) {
+                    row.classList.remove('is-cleared');
+                    row.classList.add('is-flagged');
+                } else {
+                    row.classList.remove('is-flagged');
+                    row.classList.add('is-cleared');
+                }
+            }
+
+            if (hint) {
+                if (isYes) {
+                    hint.className = 'll-question-hint hint-warn';
+                    hint.innerHTML = `<i data-lucide="alert-triangle" style="width: 13px; height: 13px;"></i> <span>Flagged: ${def.msg}</span>`;
+                } else {
+                    hint.className = 'll-question-hint hint-ok';
+                    hint.innerHTML = `<i data-lucide="check-circle" style="width: 13px; height: 13px;"></i> <span>Cleared: Criterion satisfied</span>`;
+                }
+            }
+        }
+
+        function updateAllModalQuestionVisuals() {
+            keys.forEach(k => {
+                const rad = document.querySelector(`input[name="modal_screening_${k}"]:checked`);
+                updateModalQuestionVisual(k, rad ? (rad.value === 'yes') : false);
+            });
+        }
+
+        function updateEligibilityUI(elig) {
+            if (!elig) return;
+            const statusBanner = document.getElementById('eligibilityStatusBanner');
+            const metricVal = document.getElementById('dashMetricEligibilityValue');
+            const metricMsg = document.getElementById('dashMetricEligibilityMsg');
+            const sidebarBadge = document.getElementById('dashSidebarEligibilityBadge');
+
+            if (elig.status === 'ELIGIBLE') {
+                if (statusBanner) {
+                    statusBanner.innerHTML = `
+                    <div class="alert alert-success" style="display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 1.25rem;">
+                        <i data-lucide="check-circle-2" style="width: 22px; height: 22px; flex-shrink: 0; color: #10B981; margin-top: 2px;"></i>
+                        <div>
+                            <strong style="font-size: 0.95rem; color: #065F46;">You are currently eligible to donate blood.</strong>
+                            <div style="font-size: 0.8125rem; color: #047857; margin-top: 0.25rem;">
+                                Your health self-check meets standard clinical requirements. Patients and hospital coordinators can find you in donor search.
+                            </div>
+                        </div>
+                    </div>`;
+                }
+                if (metricVal) {
+                    metricVal.textContent = 'ELIGIBLE';
+                    metricVal.style.color = 'var(--color-success-dark)';
+                }
+                if (metricMsg) {
+                    metricMsg.textContent = 'Ready to donate now';
+                }
+                if (sidebarBadge) {
+                    sidebarBadge.innerHTML = '<span class="badge badge-success" style="font-size: 0.65rem; padding: 0.1rem 0.4rem;">Eligible</span>';
+                }
+            } else if (elig.status === 'PERMANENT_DEFERRAL') {
+                let reasonsHtml = '';
+                if (elig.reasons && elig.reasons.length) {
+                    reasonsHtml = '<ul class="ll-reasons" style="margin: 0.5rem 0 0 1rem; color: #7F1D1D; font-size: 0.8125rem;">' +
+                        elig.reasons.map(r => `<li>${r.message || r}</li>`).join('') + '</ul>';
+                }
+                if (statusBanner) {
+                    statusBanner.innerHTML = `
+                    <div class="alert alert-danger" style="display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 1.25rem;">
+                        <i data-lucide="ban" style="width: 22px; height: 22px; flex-shrink: 0; color: #EF4444; margin-top: 2px;"></i>
+                        <div>
+                            <strong style="font-size: 0.95rem; color: #991B1B;">Clinical Deferral: Voluntary donation is not advised.</strong>
+                            <div style="font-size: 0.8125rem; color: #B91C1C; margin-top: 0.25rem;">
+                                For your personal health and recipient safety, blood donation is restricted based on recorded clinical factors.
+                            </div>
+                            ${reasonsHtml}
+                        </div>
+                    </div>`;
+                }
+                if (metricVal) {
+                    metricVal.textContent = 'DEFERRED';
+                    metricVal.style.color = '#EF4444';
+                }
+                if (metricMsg) {
+                    metricMsg.textContent = elig.message || 'Medical deferral active';
+                }
+                if (sidebarBadge) {
+                    sidebarBadge.innerHTML = '<span class="badge badge-urgent" style="font-size: 0.65rem; padding: 0.1rem 0.4rem;">Deferred</span>';
+                }
+            } else {
+                let reasonsHtml = '';
+                if (elig.reasons && elig.reasons.length) {
+                    reasonsHtml = '<ul class="ll-reasons" style="margin: 0.5rem 0 0 1rem; color: #78350F; font-size: 0.8125rem;">' +
+                        elig.reasons.map(r => `<li>${r.message || r}</li>`).join('') + '</ul>';
+                }
+                if (statusBanner) {
+                    statusBanner.innerHTML = `
+                    <div class="alert alert-warning" style="display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 1.25rem;">
+                        <i data-lucide="clock" style="width: 22px; height: 22px; flex-shrink: 0; color: #F59E0B; margin-top: 2px;"></i>
+                        <div>
+                            <strong style="font-size: 0.95rem; color: #92400E;">Temporary Cooldown or Health Deferral Active.</strong>
+                            <div style="font-size: 0.8125rem; color: #B45309; margin-top: 0.25rem;">
+                                ${elig.message || 'You cannot donate blood at this moment.'}
+                                ${elig.eligible_from ? `You can donate again starting <strong>${elig.eligible_from}</strong>.` : ''}
+                            </div>
+                            ${reasonsHtml}
+                        </div>
+                    </div>`;
+                }
+                if (metricVal) {
+                    metricVal.textContent = 'TEMPORARY DEFERRAL';
+                    metricVal.style.color = '#D97706';
+                }
+                if (metricMsg) {
+                    metricMsg.textContent = elig.message || 'Temporary cooldown active';
+                }
+                if (sidebarBadge) {
+                    sidebarBadge.innerHTML = '<span class="badge badge-urgent" style="font-size: 0.65rem; padding: 0.1rem 0.4rem;">Deferred</span>';
+                }
+            }
+
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        let saveTimeout = null;
+        async function saveDashboardScreening() {
+            const syncStatus = document.getElementById('dashSyncStatus');
+            if (syncStatus) {
+                syncStatus.innerHTML = '<i data-lucide="refresh-cw" class="spin" style="width: 14px; height: 14px; color: var(--color-primary);"></i> <span style="color: var(--color-primary);">Updating record...</span>';
+                if (window.lucide) window.lucide.createIcons();
+            }
+
+            const answers = {};
+            keys.forEach(k => {
+                const rad = document.querySelector(`input[name="dash_screening_${k}"]:checked`);
+                answers[k] = rad ? (rad.value === 'yes') : false;
+            });
+
+            const payload = {
+                weight_kg: document.getElementById('smWeight')?.value || {{ donor.weight_kg if donor and donor.weight_kg else 65 }},
+                city: document.getElementById('smCity')?.value || "{{ donor.city if donor and donor.city else 'Central Metro' }}",
+                district: "{{ donor.district if donor and donor.district else 'District 1' }}",
+                answers: answers,
+                consent: true
+            };
+
+            const csrfToken = document.querySelector('input[name="csrf_token"]')?.value || '';
+
+            try {
+                let resData;
+                if (window.LL && window.LL.api) {
+                    resData = await window.LL.api('/api/donor/profile', { body: payload });
+                } else {
+                    const resp = await fetch('/api/donor/profile', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRFToken': csrfToken
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                    resData = await resp.json();
+                }
+
+                if (resData && (resData.success || resData.donor)) {
+                    if (syncStatus) {
+                        syncStatus.innerHTML = '<i data-lucide="check-circle" style="width: 14px; height: 14px; color: #10B981;"></i> <span style="color: #10B981;">Saved &amp; Verified</span>';
+                    }
+                    const elig = resData.donor ? resData.donor.eligibility : null;
+                    if (elig) updateEligibilityUI(elig);
+
+                    if (window.showLifeLinkToast) {
+                        const isElig = elig && elig.status === 'ELIGIBLE';
+                        window.showLifeLinkToast(
+                            isElig ? 'Eligibility Verified: Ready for urgent donation dispatches!' : 'Clinical Deferral: Status updated in medical registry.',
+                            isElig ? 'success' : 'info'
+                        );
+                    }
+                } else {
+                    throw new Error(resData?.message || 'Update failed.');
+                }
+            } catch (err) {
+                if (syncStatus) {
+                    syncStatus.innerHTML = '<i data-lucide="alert-circle" style="width: 14px; height: 14px; color: #EF4444;"></i> <span style="color: #EF4444;">Save error</span>';
+                }
+            } finally {
+                if (window.lucide) window.lucide.createIcons();
+            }
+        }
+
+        // Attach tactile click handlers to all labels and radios on dashboard
+        document.querySelectorAll('.ll-dash-q-card .ll-yesno label').forEach(lbl => {
+            lbl.addEventListener('click', function(e) {
+                const radio = lbl.querySelector('input[type="radio"]');
+                if (radio && !radio.checked) {
+                    radio.checked = true;
+                    radio.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            });
+        });
+
+        document.querySelectorAll('input[name^="dash_screening_"]').forEach(rad => {
+            rad.addEventListener('change', function() {
+                const name = rad.getAttribute('name');
+                const key = name.replace('dash_screening_', '');
+                const isYes = rad.value === 'yes';
+
+                updateDashQuestionVisual(key, isYes);
+                if (window.lucide) window.lucide.createIcons();
+
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(saveDashboardScreening, 350);
+            });
+        });
+
+        // Attach click handlers to modal labels and radios
+        document.querySelectorAll('.ll-modal-body .ll-yesno label').forEach(lbl => {
+            lbl.addEventListener('click', function(e) {
+                const radio = lbl.querySelector('input[type="radio"]');
+                if (radio && !radio.checked) {
+                    radio.checked = true;
+                    radio.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            });
+        });
+
+        document.querySelectorAll('input[name^="modal_screening_"]').forEach(rad => {
+            rad.addEventListener('change', function() {
+                const name = rad.getAttribute('name');
+                const key = name.replace('modal_screening_', '');
+                const isYes = rad.value === 'yes';
+
+                updateModalQuestionVisual(key, isYes);
+
+                // Sync dashboard radio
+                const dashRad = document.querySelector(`input[name="dash_screening_${key}"][value="${isYes ? 'yes' : 'no'}"]`);
+                if (dashRad) {
+                    dashRad.checked = true;
+                    updateDashQuestionVisual(key, isYes);
+                }
+
+                if (window.lucide) window.lucide.createIcons();
+            });
+        });
+
+        // Initialize Lucide icons on start
+        if (window.lucide) window.lucide.createIcons();
+
+        // Modal Form Save Button Handler
         if (saveBtn) {
             saveBtn.addEventListener('click', async function() {
                 const consent = document.getElementById('smConsent');
@@ -719,7 +1063,6 @@
                 saveBtn.textContent = 'Saving & validating...';
                 if (modalError) modalError.style.display = 'none';
 
-                const keys = ['unwell', 'antibiotics', 'tattoo', 'surgery', 'malaria', 'pregnant', 'blood_pressure', 'infection', 'chronic', 'insulin'];
                 const answers = {};
                 keys.forEach(k => {
                     const rad = document.querySelector(`input[name="modal_screening_${k}"]:checked`);
@@ -729,6 +1072,7 @@
                 const payload = {
                     weight_kg: document.getElementById('smWeight')?.value,
                     city: document.getElementById('smCity')?.value,
+                    district: "{{ donor.district if donor and donor.district else 'District 1' }}",
                     answers: answers,
                     consent: true
                 };
@@ -754,13 +1098,14 @@
 
                     if (resData && (resData.success || resData.donor)) {
                         hideScreeningModal();
-                        if (window.LL && window.LL.toast) {
-                            window.LL.toast(resData.message || 'Health screening saved successfully.', 'success');
+                        const elig = resData.donor ? resData.donor.eligibility : null;
+                        if (elig) updateEligibilityUI(elig);
+
+                        if (window.showLifeLinkToast) {
+                            window.showLifeLinkToast(resData.message || 'Health screening saved successfully.', 'success');
                         } else {
                             alert(resData.message || 'Health screening saved successfully.');
                         }
-                        // Refresh view to display new status
-                        setTimeout(() => window.location.reload(), 400);
                     } else {
                         throw new Error(resData?.message || 'Server reported failure.');
                     }
@@ -779,5 +1124,6 @@
             });
         }
     });
+    </script>
     </script>
 {% endblock %}

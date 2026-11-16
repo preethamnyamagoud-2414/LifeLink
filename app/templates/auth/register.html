@@ -5,17 +5,21 @@
 {% block content %}
 <section class="section" style="padding: 3.5rem 0 5rem 0;">
     <div class="container" style="max-width: 680px;">
-        <div class="card" style="padding: 2.75rem 2.25rem; box-shadow: var(--shadow-md); border-radius: var(--radius-lg);">
+        <div class="card"
+            style="padding: 2.75rem 2.25rem; box-shadow: var(--shadow-md); border-radius: var(--radius-lg);">
             <!-- Card Brand Header -->
             <div style="text-align: center; margin-bottom: 2rem;">
-                <span class="section-eyebrow" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.85rem; background-color: var(--color-primary-50); color: var(--color-primary); border-radius: 999px; font-size: 0.8125rem; font-weight: 600; margin-bottom: 0.75rem;">
+                <span class="section-eyebrow"
+                    style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.85rem; background-color: var(--color-primary-50); color: var(--color-primary); border-radius: 999px; font-size: 0.8125rem; font-weight: 600; margin-bottom: 0.75rem;">
                     <i data-lucide="shield-check" style="width: 15px; height: 15px;"></i> LifeLink Member Registration
                 </span>
                 <h1 style="font-size: 1.85rem; color: var(--color-secondary); margin-bottom: 0.4rem; font-weight: 700;">
                     Create Your Account
                 </h1>
-                <p style="font-size: 0.875rem; color: var(--color-text-subtle); max-width: 520px; margin: 0 auto; line-height: 1.5;">
-                    One unified account allows you to volunteer as a verified blood donor <strong>and</strong> submit emergency blood requests for yourself, family, or patients.
+                <p
+                    style="font-size: 0.875rem; color: var(--color-text-subtle); max-width: 520px; margin: 0 auto; line-height: 1.5;">
+                    One unified account allows you to volunteer as a verified blood donor <strong>and</strong> submit
+                    emergency blood requests for yourself, family, or patients.
                 </p>
             </div>
 
@@ -25,7 +29,8 @@
 
                 <!-- Section 1: Core Credentials -->
                 <div style="margin-bottom: 1.75rem;">
-                    <h3 style="font-size: 1.05rem; color: var(--color-secondary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; font-weight: 600;">
+                    <h3
+                        style="font-size: 1.05rem; color: var(--color-secondary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; font-weight: 600;">
                         <i data-lucide="user" style="width: 18px; height: 18px; color: var(--color-primary);"></i>
                         1. Account Information
                     </h3>
@@ -35,17 +40,9 @@
                         <label for="regFullName" class="form-label">
                             Full Name <span class="required-mark">*</span>
                         </label>
-                        <input 
-                            type="text" 
-                            id="regFullName" 
-                            name="full_name" 
-                            class="form-control" 
-                            placeholder="Enter your full name" 
-                            value="{{ full_name or '' }}" 
-                            required 
-                            autocomplete="name"
-                            autofocus
-                        >
+                        <input type="text" id="regFullName" name="full_name" class="form-control"
+                            placeholder="Enter your full name" value="{{ full_name or '' }}" required
+                            autocomplete="name" autofocus>
                     </div>
 
                     <!-- Email & Phone Grid -->
@@ -54,32 +51,17 @@
                             <label for="regEmail" class="form-label">
                                 Email Address <span class="required-mark">*</span>
                             </label>
-                            <input 
-                                type="email" 
-                                id="regEmail" 
-                                name="email" 
-                                class="form-control" 
-                                placeholder="name@example.com" 
-                                value="{{ email or '' }}" 
-                                required 
-                                autocomplete="email"
-                            >
+                            <input type="email" id="regEmail" name="email" class="form-control"
+                                placeholder="name@example.com" value="{{ email or '' }}" required autocomplete="email">
                         </div>
 
                         <div class="form-group">
                             <label for="regPhone" class="form-label">
                                 Mobile Number <span class="required-mark">*</span>
                             </label>
-                            <input 
-                                type="tel" 
-                                id="regPhone" 
-                                name="phone" 
-                                class="form-control" 
-                                placeholder="e.g. +1 555-010-2345" 
-                                value="{{ phone or '' }}" 
-                                required 
-                                autocomplete="tel"
-                            >
+                            <input type="tel" id="regPhone" name="phone" class="form-control"
+                                placeholder="e.g. +1 555-010-2345" value="{{ phone or '' }}" required
+                                autocomplete="tel">
                         </div>
                     </div>
 
@@ -89,23 +71,12 @@
                             Password <span class="required-mark">*</span>
                         </label>
                         <div class="password-input-group">
-                            <input 
-                                type="password" 
-                                id="regPassword" 
-                                name="password" 
-                                class="form-control" 
-                                placeholder="Minimum 8 characters with letters & numbers" 
-                                required 
-                                minlength="8" 
-                                autocomplete="new-password"
-                            >
-                            <button 
-                                type="button" 
-                                class="password-toggle-btn" 
-                                onclick="togglePasswordVisibility('regPassword', this)" 
-                                aria-label="Show or hide password"
-                                tabindex="-1"
-                            >
+                            <input type="password" id="regPassword" name="password" class="form-control"
+                                placeholder="Minimum 8 characters with letters & numbers" required minlength="8"
+                                autocomplete="new-password">
+                            <button type="button" class="password-toggle-btn"
+                                onclick="togglePasswordVisibility('regPassword', this)"
+                                aria-label="Show or hide password" tabindex="-1">
                                 <i data-lucide="eye"></i>
                             </button>
                         </div>
@@ -118,62 +89,56 @@
                             Confirm Password <span class="required-mark">*</span>
                         </label>
                         <div class="password-input-group">
-                            <input 
-                                type="password" 
-                                id="regConfirmPassword" 
-                                name="confirm_password" 
-                                class="form-control" 
-                                placeholder="Re-enter your password to confirm" 
-                                required 
-                                minlength="8" 
-                                autocomplete="new-password"
-                            >
-                            <button 
-                                type="button" 
-                                class="password-toggle-btn" 
-                                onclick="togglePasswordVisibility('regConfirmPassword', this)" 
-                                aria-label="Show or hide password"
-                                tabindex="-1"
-                            >
+                            <input type="password" id="regConfirmPassword" name="confirm_password" class="form-control"
+                                placeholder="Re-enter your password to confirm" required minlength="8"
+                                autocomplete="new-password">
+                            <button type="button" class="password-toggle-btn"
+                                onclick="togglePasswordVisibility('regConfirmPassword', this)"
+                                aria-label="Show or hide password" tabindex="-1">
                                 <i data-lucide="eye"></i>
                             </button>
                         </div>
-                        <div id="passwordMatchMessage" style="font-size: 0.8125rem; margin-top: 0.35rem; display: none;"></div>
+                        <div id="passwordMatchMessage"
+                            style="font-size: 0.8125rem; margin-top: 0.35rem; display: none;"></div>
                     </div>
                 </div>
 
                 <!-- Section 2: Dual Role Toggle (Optional Donor Profile Enrollment) -->
-                <div style="background-color: var(--color-bg-subtle); border: 1.5px solid var(--color-border); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.75rem;">
+                <div
+                    style="background-color: var(--color-bg-subtle); border: 1.5px solid var(--color-border); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.75rem;">
                     <div style="display: flex; align-items: flex-start; gap: 0.85rem;">
-                        <input 
-                            type="checkbox" 
-                            id="enableDonorProfile" 
-                            name="enable_donor_profile" 
-                            value="1" 
-                            {% if role == 'donor' or request.args.get('donor') == '1' or request.args.get('role') == 'donor' %}checked{% endif %}
+                        <input type="checkbox" id="enableDonorProfile" name="enable_donor_profile" value="1" {% if
+                            role=='donor' or request.args.get('donor')=='1' or request.args.get('role')=='donor'
+                            %}checked{% endif %}
                             style="margin-top: 0.25rem; width: 18px; height: 18px; accent-color: var(--color-primary); cursor: pointer;"
-                            onchange="syncDonorContainer();"
-                        >
+                            onchange="syncDonorContainer();">
                         <div>
-                            <label for="enableDonorProfile" style="font-weight: 700; color: var(--color-secondary); font-size: 0.95rem; cursor: pointer;">
+                            <label for="enableDonorProfile"
+                                style="font-weight: 700; color: var(--color-secondary); font-size: 0.95rem; cursor: pointer;">
                                 Volunteer as an Active Blood Donor (Optional)
                             </label>
-                            <p style="font-size: 0.8125rem; color: var(--color-text-subtle); margin: 0.25rem 0 0 0; line-height: 1.4;">
-                                Check this to set up your blood group, clinical health screening, and location now. You can also activate or edit your donor status later from your dashboard.
+                            <p
+                                style="font-size: 0.8125rem; color: var(--color-text-subtle); margin: 0.25rem 0 0 0; line-height: 1.4;">
+                                Check this to set up your blood group, clinical health screening, and location now. You
+                                can also activate or edit your donor status later from your dashboard.
                             </p>
                         </div>
                     </div>
 
                     <!-- Expandable Donor Clinical Profile Fields (hidden by default) -->
-                    <div id="donorFieldsContainer" style="display: {% if role == 'donor' or request.args.get('donor') == '1' or request.args.get('role') == 'donor' %}block{% else %}none{% endif %}; margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px dashed var(--color-border);">
-                        <h4 style="font-size: 0.95rem; color: var(--color-secondary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.4rem;">
-                            <i data-lucide="droplet" style="width: 16px; height: 16px; color: var(--color-primary);"></i>
+                    <div id="donorFieldsContainer"
+                        style="display: {% if role == 'donor' or request.args.get('donor') == '1' or request.args.get('role') == 'donor' %}block{% else %}none{% endif %}; margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px dashed var(--color-border);">
+                        <h4
+                            style="font-size: 0.95rem; color: var(--color-secondary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.4rem;">
+                            <i data-lucide="droplet"
+                                style="width: 16px; height: 16px; color: var(--color-primary);"></i>
                             Donor Clinical &amp; Regional Details
                         </h4>
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                             <div class="form-group">
-                                <label for="regBloodGroup" class="form-label">Blood Group <span class="required-mark">*</span></label>
+                                <label for="regBloodGroup" class="form-label">Blood Group <span
+                                        class="required-mark">*</span></label>
                                 <select id="regBloodGroup" name="blood_group" class="form-select">
                                     <option value="O+">O+ Positive</option>
                                     <option value="O-">O- Negative (Universal Red Cell Donor)</option>
@@ -187,15 +152,18 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="regWeight" class="form-label">Body Weight (kg) <span class="required-mark">*</span></label>
-                                <input type="number" id="regWeight" name="weight_kg" class="form-control" placeholder="e.g. 65" min="40" max="250" step="0.5" value="65">
+                                <label for="regWeight" class="form-label">Body Weight (kg) <span
+                                        class="required-mark">*</span></label>
+                                <input type="number" id="regWeight" name="weight_kg" class="form-control"
+                                    placeholder="e.g. 65" min="40" max="250" step="0.5" value="65">
                                 <span class="form-hint">Mandatory clinical minimum: 45 kg</span>
                             </div>
                         </div>
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                             <div class="form-group">
-                                <label for="regGender" class="form-label">Gender <span class="required-mark">*</span></label>
+                                <label for="regGender" class="form-label">Gender <span
+                                        class="required-mark">*</span></label>
                                 <select id="regGender" name="gender" class="form-select">
                                     <option value="male">Male</option>
                                     <option value="female">Female</option>
@@ -204,35 +172,43 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="regDOB" class="form-label">Date of Birth <span class="required-mark">*</span></label>
-                                <input type="date" id="regDOB" name="date_of_birth" class="form-control" value="1998-05-15">
+                                <label for="regDOB" class="form-label">Date of Birth <span
+                                        class="required-mark">*</span></label>
+                                <input type="date" id="regDOB" name="date_of_birth" class="form-control"
+                                    value="1998-05-15">
                                 <span class="form-hint">Donors must be between 18 and 65 years old.</span>
                             </div>
                         </div>
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                             <div class="form-group">
-                                <label for="regCity" class="form-label">City / Town <span class="required-mark">*</span></label>
-                                <input type="text" id="regCity" name="city" class="form-control" placeholder="e.g. Hyderabad" value="Central Metro">
+                                <label for="regCity" class="form-label">City / Town <span
+                                        class="required-mark">*</span></label>
+                                <input type="text" id="regCity" name="city" class="form-control"
+                                    placeholder="e.g. Hyderabad" value="Central Metro">
                             </div>
 
                             <div class="form-group">
                                 <label for="regDistrict" class="form-label">District / Area</label>
-                                <input type="text" id="regDistrict" name="district" class="form-control" placeholder="e.g. Kukatpally" value="District 1">
+                                <input type="text" id="regDistrict" name="district" class="form-control"
+                                    placeholder="e.g. Kukatpally" value="District 1">
                             </div>
                         </div>
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                             <div class="form-group">
-                                <label for="regHb" class="form-label">Hemoglobin (g/dL) <span class="ll-optional">optional</span></label>
-                                <input type="number" id="regHb" name="hemoglobin" class="form-control" min="3" max="25" step="0.1" placeholder="e.g. 13.5">
+                                <label for="regHb" class="form-label">Hemoglobin (g/dL) <span
+                                        class="ll-optional">optional</span></label>
+                                <input type="number" id="regHb" name="hemoglobin" class="form-control" min="3" max="25"
+                                    step="0.1" placeholder="e.g. 13.5">
                                 <span class="form-hint">Standard threshold: minimum 12.5 g/dL</span>
                             </div>
 
                             <div class="form-group">
                                 <label for="regLastDonation" class="form-label">Last Blood Donation</label>
                                 <input type="date" id="regLastDonation" name="last_donation_date" class="form-control">
-                                <label class="ll-inline-check" style="margin-top: 0.35rem; font-size: 0.8125rem; display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
+                                <label class="ll-inline-check"
+                                    style="margin-top: 0.35rem; font-size: 0.8125rem; display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
                                     <input type="checkbox" id="regNeverDonated" name="never_donated" value="1" checked>
                                     <span>I have never donated blood before</span>
                                 </label>
@@ -246,28 +222,53 @@
                             </div>
                             <div class="ll-location-text">
                                 <strong>Donor Location Coordinates</strong>
-                                <span id="dfLocationStatus">Share your location so emergency blood requesters nearby can calculate distance (your exact street address is never exposed).</span>
+                                <span id="dfLocationStatus">Share your location so emergency blood requesters nearby can
+                                    calculate distance (your exact street address is never exposed).</span>
                             </div>
                             <input type="hidden" id="regLatitude" name="latitude">
                             <input type="hidden" id="regLongitude" name="longitude">
+                            <input type="hidden" id="regState" name="state" value="Metro State">
                             <button type="button" class="btn btn-outline btn-sm" id="dfLocationBtn">
                                 <i data-lucide="crosshair"></i> Share my location
                             </button>
                         </div>
 
                         <!-- 10 Clinical Health Screening Questions -->
-                        <div class="ll-screening" id="screeningSection" style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--color-border);">
-                            <h4 style="display: flex; align-items: center; gap: 0.45rem; font-size: 1rem; color: var(--color-secondary); margin-bottom: 0.35rem;">
-                                <i data-lucide="stethoscope" style="width: 18px; height: 18px; color: var(--color-primary);"></i>
-                                Clinical Health Screening Questionnaire
-                            </h4>
-                            <p class="ll-screening-note" style="font-size: 0.8125rem; color: var(--color-text-subtle); margin-bottom: 1rem;">
-                                Please answer all 10 questions truthfully. This preliminary self-check safeguards both you and the blood recipient. Certified hospital blood banks conduct full laboratory cross-matching before collection.
+                        <div class="ll-screening" id="screeningSection"
+                            style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--color-border);">
+                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.35rem;">
+                                <h4
+                                    style="display: flex; align-items: center; gap: 0.45rem; font-size: 1rem; color: var(--color-secondary); margin: 0;">
+                                    <i data-lucide="stethoscope"
+                                        style="width: 18px; height: 18px; color: var(--color-primary);"></i>
+                                    Clinical Health Screening Questionnaire
+                                </h4>
+                                <span class="badge badge-success" id="screeningCountBadge" style="font-size: 0.725rem;">
+                                    <i data-lucide="shield-check" style="width: 12px; height: 12px;"></i> Real-Time Medical Assessment
+                                </span>
+                            </div>
+                            <p class="ll-screening-note"
+                                style="font-size: 0.8125rem; color: var(--color-text-subtle); margin-bottom: 1rem;">
+                                Click <strong>Yes</strong> or <strong>No</strong> for each clinical question below. The system checks your eligibility in real time.
                             </p>
 
+                            <!-- Live Dynamic Eligibility Verdict Bar -->
+                            <div id="screeningLiveVerdict" class="alert alert-success" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 1rem; margin-bottom: 1.25rem; border-radius: var(--radius-md);">
+                                <i data-lucide="check-circle-2" id="verdictIcon" style="width: 22px; height: 22px; color: #10B981; flex-shrink: 0;"></i>
+                                <div>
+                                    <strong id="verdictTitle" style="color: #065F46; font-size: 0.925rem;">Preliminary Status: Eligible to Volunteer as a Donor</strong>
+                                    <div id="verdictSub" style="font-size: 0.775rem; color: #047857; margin-top: 0.15rem;">All 10 clinical screening criteria satisfied. Hospital blood banks confirm eligibility upon testing.</div>
+                                </div>
+                            </div>
+
                             <!-- Question 1 -->
-                            <div class="ll-question" data-key="unwell">
-                                <span class="ll-question-text">1. In the last 7 days, have you had fever, cold, flu, or felt unwell?</span>
+                            <div class="ll-question is-cleared" data-key="unwell">
+                                <div style="flex: 1;">
+                                    <span class="ll-question-text">1. In the last 7 days, have you had fever, cold, flu, or felt unwell?</span>
+                                    <div class="ll-question-hint hint-ok" id="hint_unwell">
+                                        <i data-lucide="check" style="width: 13px; height: 13px;"></i> <span>Cleared for donation</span>
+                                    </div>
+                                </div>
                                 <div class="ll-yesno" role="radiogroup" aria-label="Fever or cold in last 7 days">
                                     <label><input type="radio" name="screening_unwell" value="yes"><span>Yes</span></label>
                                     <label><input type="radio" name="screening_unwell" value="no" checked><span>No</span></label>
@@ -275,8 +276,13 @@
                             </div>
 
                             <!-- Question 2 -->
-                            <div class="ll-question" data-key="antibiotics">
-                                <span class="ll-question-text">2. Have you taken antibiotics in the last 7 days?</span>
+                            <div class="ll-question is-cleared" data-key="antibiotics">
+                                <div style="flex: 1;">
+                                    <span class="ll-question-text">2. Have you taken antibiotics in the last 7 days?</span>
+                                    <div class="ll-question-hint hint-ok" id="hint_antibiotics">
+                                        <i data-lucide="check" style="width: 13px; height: 13px;"></i> <span>Cleared for donation</span>
+                                    </div>
+                                </div>
                                 <div class="ll-yesno" role="radiogroup" aria-label="Antibiotics in last 7 days">
                                     <label><input type="radio" name="screening_antibiotics" value="yes"><span>Yes</span></label>
                                     <label><input type="radio" name="screening_antibiotics" value="no" checked><span>No</span></label>
@@ -284,8 +290,13 @@
                             </div>
 
                             <!-- Question 3 -->
-                            <div class="ll-question" data-key="tattoo">
-                                <span class="ll-question-text">3. Have you had a tattoo, body piercing or acupuncture in the last 12 months?</span>
+                            <div class="ll-question is-cleared" data-key="tattoo">
+                                <div style="flex: 1;">
+                                    <span class="ll-question-text">3. Have you had a tattoo, body piercing or acupuncture in the last 12 months?</span>
+                                    <div class="ll-question-hint hint-ok" id="hint_tattoo">
+                                        <i data-lucide="check" style="width: 13px; height: 13px;"></i> <span>Cleared for donation</span>
+                                    </div>
+                                </div>
                                 <div class="ll-yesno" role="radiogroup" aria-label="Tattoo or piercing in last 12 months">
                                     <label><input type="radio" name="screening_tattoo" value="yes"><span>Yes</span></label>
                                     <label><input type="radio" name="screening_tattoo" value="no" checked><span>No</span></label>
@@ -293,8 +304,13 @@
                             </div>
 
                             <!-- Question 4 -->
-                            <div class="ll-question" data-key="surgery">
-                                <span class="ll-question-text">4. Have you had major surgery in the last 6 months?</span>
+                            <div class="ll-question is-cleared" data-key="surgery">
+                                <div style="flex: 1;">
+                                    <span class="ll-question-text">4. Have you had major surgery in the last 6 months?</span>
+                                    <div class="ll-question-hint hint-ok" id="hint_surgery">
+                                        <i data-lucide="check" style="width: 13px; height: 13px;"></i> <span>Cleared for donation</span>
+                                    </div>
+                                </div>
                                 <div class="ll-yesno" role="radiogroup" aria-label="Major surgery in last 6 months">
                                     <label><input type="radio" name="screening_surgery" value="yes"><span>Yes</span></label>
                                     <label><input type="radio" name="screening_surgery" value="no" checked><span>No</span></label>
@@ -302,8 +318,13 @@
                             </div>
 
                             <!-- Question 5 -->
-                            <div class="ll-question" data-key="malaria">
-                                <span class="ll-question-text">5. Have you had malaria in the last 3 months?</span>
+                            <div class="ll-question is-cleared" data-key="malaria">
+                                <div style="flex: 1;">
+                                    <span class="ll-question-text">5. Have you had malaria in the last 3 months?</span>
+                                    <div class="ll-question-hint hint-ok" id="hint_malaria">
+                                        <i data-lucide="check" style="width: 13px; height: 13px;"></i> <span>Cleared for donation</span>
+                                    </div>
+                                </div>
                                 <div class="ll-yesno" role="radiogroup" aria-label="Malaria in last 3 months">
                                     <label><input type="radio" name="screening_malaria" value="yes"><span>Yes</span></label>
                                     <label><input type="radio" name="screening_malaria" value="no" checked><span>No</span></label>
@@ -311,8 +332,14 @@
                             </div>
 
                             <!-- Question 6 (Female only) -->
-                            <div class="ll-question" id="femaleScreeningQuestion" data-key="pregnant" data-female-only="1" style="display: none;">
-                                <span class="ll-question-text">6. Are you pregnant, or have you given birth / been breastfeeding in the last 12 months?</span>
+                            <div class="ll-question is-cleared" id="femaleScreeningQuestion" data-key="pregnant"
+                                data-female-only="1" style="display: none;">
+                                <div style="flex: 1;">
+                                    <span class="ll-question-text">6. Are you pregnant, or have you given birth / been breastfeeding in the last 12 months?</span>
+                                    <div class="ll-question-hint hint-ok" id="hint_pregnant">
+                                        <i data-lucide="check" style="width: 13px; height: 13px;"></i> <span>Cleared for donation</span>
+                                    </div>
+                                </div>
                                 <div class="ll-yesno" role="radiogroup" aria-label="Pregnancy or breastfeeding in last 12 months">
                                     <label><input type="radio" name="screening_pregnant" value="yes"><span>Yes</span></label>
                                     <label><input type="radio" name="screening_pregnant" value="no" checked><span>No</span></label>
@@ -320,8 +347,13 @@
                             </div>
 
                             <!-- Question 7 -->
-                            <div class="ll-question" data-key="blood_pressure">
-                                <span class="ll-question-text">7. Do you have high or low blood pressure that is not under control?</span>
+                            <div class="ll-question is-cleared" data-key="blood_pressure">
+                                <div style="flex: 1;">
+                                    <span class="ll-question-text">7. Do you have high or low blood pressure that is not under control?</span>
+                                    <div class="ll-question-hint hint-ok" id="hint_blood_pressure">
+                                        <i data-lucide="check" style="width: 13px; height: 13px;"></i> <span>Cleared for donation</span>
+                                    </div>
+                                </div>
                                 <div class="ll-yesno" role="radiogroup" aria-label="Uncontrolled blood pressure">
                                     <label><input type="radio" name="screening_blood_pressure" value="yes"><span>Yes</span></label>
                                     <label><input type="radio" name="screening_blood_pressure" value="no" checked><span>No</span></label>
@@ -329,8 +361,13 @@
                             </div>
 
                             <!-- Question 8 -->
-                            <div class="ll-question" data-key="infection">
-                                <span class="ll-question-text">8. Have you ever tested positive for HIV, Hepatitis B, Hepatitis C or syphilis?</span>
+                            <div class="ll-question is-cleared" data-key="infection">
+                                <div style="flex: 1;">
+                                    <span class="ll-question-text">8. Have you ever tested positive for HIV, Hepatitis B, Hepatitis C or syphilis?</span>
+                                    <div class="ll-question-hint hint-ok" id="hint_infection">
+                                        <i data-lucide="check" style="width: 13px; height: 13px;"></i> <span>Cleared for donation</span>
+                                    </div>
+                                </div>
                                 <div class="ll-yesno" role="radiogroup" aria-label="Tested positive for HIV, Hepatitis, or syphilis">
                                     <label><input type="radio" name="screening_infection" value="yes"><span>Yes</span></label>
                                     <label><input type="radio" name="screening_infection" value="no" checked><span>No</span></label>
@@ -338,8 +375,13 @@
                             </div>
 
                             <!-- Question 9 -->
-                            <div class="ll-question" data-key="chronic">
-                                <span class="ll-question-text">9. Do you have heart disease, cancer, kidney or liver disease, epilepsy, or a bleeding disorder?</span>
+                            <div class="ll-question is-cleared" data-key="chronic">
+                                <div style="flex: 1;">
+                                    <span class="ll-question-text">9. Do you have heart disease, cancer, kidney or liver disease, epilepsy, or a bleeding disorder?</span>
+                                    <div class="ll-question-hint hint-ok" id="hint_chronic">
+                                        <i data-lucide="check" style="width: 13px; height: 13px;"></i> <span>Cleared for donation</span>
+                                    </div>
+                                </div>
                                 <div class="ll-yesno" role="radiogroup" aria-label="Heart disease, cancer, kidney/liver disease, epilepsy or bleeding disorder">
                                     <label><input type="radio" name="screening_chronic" value="yes"><span>Yes</span></label>
                                     <label><input type="radio" name="screening_chronic" value="no" checked><span>No</span></label>
@@ -347,17 +389,22 @@
                             </div>
 
                             <!-- Question 10 -->
-                            <div class="ll-question" data-key="insulin">
-                                <span class="ll-question-text">10. Do you have diabetes that is treated with insulin?</span>
+                            <div class="ll-question is-cleared" data-key="insulin">
+                                <div style="flex: 1;">
+                                    <span class="ll-question-text">10. Do you have diabetes that is treated with insulin?</span>
+                                    <div class="ll-question-hint hint-ok" id="hint_insulin">
+                                        <i data-lucide="check" style="width: 13px; height: 13px;"></i> <span>Cleared for donation</span>
+                                    </div>
+                                </div>
                                 <div class="ll-yesno" role="radiogroup" aria-label="Diabetes treated with insulin">
                                     <label><input type="radio" name="screening_insulin" value="yes"><span>Yes</span></label>
                                     <label><input type="radio" name="screening_insulin" value="no" checked><span>No</span></label>
                                 </div>
                             </div>
 
-                            <!-- Truthfulness Consent -->
+                            <!-- Truthfulness Consent (Not required when section is hidden) -->
                             <label class="ll-consent" style="margin-top: 1.25rem;">
-                                <input type="checkbox" id="regConsent" name="screening_consent" value="1" checked required>
+                                <input type="checkbox" id="regConsent" name="screening_consent" value="1" checked>
                                 <span>I confirm that my answers to the health screening questions are accurate and truthful to the best of my knowledge.</span>
                             </label>
                         </div>
@@ -365,19 +412,25 @@
                 </div>
 
                 <!-- Administrative Policy Notice -->
-                <div style="font-size: 0.78125rem; color: var(--color-text-subtle); background-color: var(--color-bg-muted); padding: 0.75rem 1rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                    <i data-lucide="shield" style="width: 16px; height: 16px; color: var(--color-secondary); flex-shrink: 0;"></i>
-                    <span>Notice: Administrator accounts cannot be created via public registration. Privileged credentials are provisioned strictly through secure administrative utilities.</span>
+                <div
+                    style="font-size: 0.78125rem; color: var(--color-text-subtle); background-color: var(--color-bg-muted); padding: 0.75rem 1rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i data-lucide="shield"
+                        style="width: 16px; height: 16px; color: var(--color-secondary); flex-shrink: 0;"></i>
+                    <span>Notice: Administrator accounts cannot be created via public registration. Privileged
+                        credentials are provisioned strictly through secure administrative utilities.</span>
                 </div>
 
                 <!-- Submit Button -->
-                <button type="submit" id="createAccountBtn" class="btn btn-primary btn-block btn-lg" style="margin-bottom: 1.5rem; font-size: 1rem; font-weight: 600;">
+                <button type="submit" id="createAccountBtn" class="btn btn-primary btn-block btn-lg"
+                    style="margin-bottom: 1.5rem; font-size: 1rem; font-weight: 600;">
                     <i data-lucide="user-plus"></i> Create Account
                 </button>
 
                 <!-- Footer Navigation -->
-                <div style="text-align: center; font-size: 0.875rem; color: var(--color-text-subtle); padding-top: 1.25rem; border-top: 1px solid var(--color-border);">
-                    Already have an account? <a href="{{ url_for('auth.login') }}" style="font-weight: 600; color: var(--color-primary); text-decoration: none;">Sign In</a>
+                <div
+                    style="text-align: center; font-size: 0.875rem; color: var(--color-text-subtle); padding-top: 1.25rem; border-top: 1px solid var(--color-border);">
+                    Already have an account? <a href="{{ url_for('auth.login') }}"
+                        style="font-weight: 600; color: var(--color-primary); text-decoration: none;">Sign In</a>
                 </div>
             </form>
         </div>
@@ -387,156 +440,265 @@
 
 {% block extra_scripts %}
 <script>
-function syncDonorContainer() {
-    const toggle = document.getElementById('enableDonorProfile');
-    const container = document.getElementById('donorFieldsContainer');
-    if (!toggle || !container) return;
-    container.style.display = toggle.checked ? 'block' : 'none';
-    if (window.lucide) window.lucide.createIcons();
-}
+    function syncDonorContainer() {
+        const toggle = document.getElementById('enableDonorProfile');
+        const container = document.getElementById('donorFieldsContainer');
+        if (!toggle || !container) return;
+        container.style.display = toggle.checked ? 'block' : 'none';
+        if (window.lucide) window.lucide.createIcons();
+    }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const params = new URLSearchParams(window.location.search);
-    const donorToggle = document.getElementById('enableDonorProfile');
-    if (params.get('donor') === '1' || params.get('role') === 'donor') {
-        if (donorToggle) {
-            donorToggle.checked = true;
-            syncDonorContainer();
+    document.addEventListener('DOMContentLoaded', function () {
+        const params = new URLSearchParams(window.location.search);
+        const donorToggle = document.getElementById('enableDonorProfile');
+        if (params.get('donor') === '1' || params.get('role') === 'donor') {
+            if (donorToggle) {
+                donorToggle.checked = true;
+                syncDonorContainer();
+            }
         }
-    }
 
-    // Question 6: pregnancy is displayed only for female donors
-    const genderSelect = document.getElementById('regGender');
-    const femaleQuestion = document.getElementById('femaleScreeningQuestion');
-    function syncFemaleQuestion() {
-        if (femaleQuestion && genderSelect) {
-            femaleQuestion.style.display = genderSelect.value === 'female' ? 'flex' : 'none';
+        // Question 6: pregnancy is displayed only for female donors
+        const genderSelect = document.getElementById('regGender');
+        const femaleQuestion = document.getElementById('femaleScreeningQuestion');
+        function syncFemaleQuestion() {
+            if (femaleQuestion && genderSelect) {
+                femaleQuestion.style.display = genderSelect.value === 'female' ? 'flex' : 'none';
+            }
+            if (typeof updateScreeningFeedback === 'function') {
+                updateScreeningFeedback();
+            }
         }
-    }
-    if (genderSelect) {
-        genderSelect.addEventListener('change', syncFemaleQuestion);
-        syncFemaleQuestion();
-    }
+        if (genderSelect) {
+            genderSelect.addEventListener('change', syncFemaleQuestion);
+            syncFemaleQuestion();
+        }
 
-    // Toggle last donation date when "I have never donated blood" is ticked
-    const neverDonated = document.getElementById('regNeverDonated');
-    const lastDonation = document.getElementById('regLastDonation');
-    if (neverDonated && lastDonation) {
-        neverDonated.addEventListener('change', function() {
-            lastDonation.disabled = this.checked;
-            if (this.checked) lastDonation.value = '';
-        });
-        lastDonation.disabled = neverDonated.checked;
-    }
+        // Toggle last donation date when "I have never donated blood" is ticked
+        const neverDonated = document.getElementById('regNeverDonated');
+        const lastDonation = document.getElementById('regLastDonation');
+        if (neverDonated && lastDonation) {
+            neverDonated.addEventListener('change', function () {
+                lastDonation.disabled = this.checked;
+                if (this.checked) lastDonation.value = '';
+            });
+            lastDonation.disabled = neverDonated.checked;
+        }
 
-    // Geolocation capture
-    const locBtn = document.getElementById('dfLocationBtn');
-    const locBox = document.getElementById('dfLocationBox');
-    const locStatus = document.getElementById('dfLocationStatus');
-    const latInput = document.getElementById('regLatitude');
-    const lngInput = document.getElementById('regLongitude');
+        // Geolocation capture
+        const locBtn = document.getElementById('dfLocationBtn');
+        const locBox = document.getElementById('dfLocationBox');
+        const locStatus = document.getElementById('dfLocationStatus');
+        const latInput = document.getElementById('regLatitude');
+        const lngInput = document.getElementById('regLongitude');
 
-    if (locBtn) {
-        locBtn.addEventListener('click', async function() {
-            locBtn.disabled = true;
-            locBtn.textContent = 'Getting location...';
-            locBox.classList.remove('is-error');
+        if (locBtn) {
+            locBtn.addEventListener('click', async function () {
+                locBtn.disabled = true;
+                locBtn.textContent = 'Getting location...';
+                locBox.classList.remove('is-error');
 
-            try {
-                if (window.LL && window.LL.getLocation) {
-                    const loc = await window.LL.getLocation();
-                    if (latInput) latInput.value = loc.lat;
-                    if (lngInput) lngInput.value = loc.lng;
-                    locBox.classList.add('is-set');
-                    if (locStatus) {
-                        locStatus.textContent = `Location captured (accurate to ±${loc.accuracy} m). Only distance is shown to requesters.`;
-                    }
-                    locBtn.innerHTML = '<i data-lucide="crosshair"></i> Location Captured';
-                } else if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(
-                        pos => {
-                            if (latInput) latInput.value = pos.coords.latitude.toFixed(6);
-                            if (lngInput) lngInput.value = pos.coords.longitude.toFixed(6);
-                            locBox.classList.add('is-set');
-                            if (locStatus) {
-                                locStatus.textContent = `Location captured (accurate to ±${Math.round(pos.coords.accuracy)} m).`;
-                            }
-                            locBtn.innerHTML = '<i data-lucide="crosshair"></i> Location Captured';
-                            if (window.lucide) window.lucide.createIcons();
-                        },
-                        err => {
-                            locBox.classList.add('is-error');
-                            if (locStatus) locStatus.textContent = 'Unable to access location: ' + err.message;
-                            locBtn.innerHTML = '<i data-lucide="crosshair"></i> Retry Location';
-                            if (window.lucide) window.lucide.createIcons();
+                try {
+                    if (window.LL && window.LL.getLocation) {
+                        const loc = await window.LL.getLocation();
+                        if (latInput) latInput.value = loc.lat;
+                        if (lngInput) lngInput.value = loc.lng;
+                        locBox.classList.add('is-set');
+                        if (locStatus) {
+                            locStatus.textContent = `Location captured (accurate to ±${loc.accuracy} m). Only distance is shown to requesters.`;
                         }
-                    );
-                } else {
-                    throw new Error('Geolocation is not supported by your browser.');
+                        locBtn.innerHTML = '<i data-lucide="crosshair"></i> Location Captured';
+                    } else if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(
+                            pos => {
+                                if (latInput) latInput.value = pos.coords.latitude.toFixed(6);
+                                if (lngInput) lngInput.value = pos.coords.longitude.toFixed(6);
+                                locBox.classList.add('is-set');
+                                if (locStatus) {
+                                    locStatus.textContent = `Location captured (accurate to ±${Math.round(pos.coords.accuracy)} m).`;
+                                }
+                                locBtn.innerHTML = '<i data-lucide="crosshair"></i> Location Captured';
+                                if (window.lucide) window.lucide.createIcons();
+                            },
+                            err => {
+                                locBox.classList.add('is-error');
+                                if (locStatus) locStatus.textContent = 'Unable to access location: ' + err.message;
+                                locBtn.innerHTML = '<i data-lucide="crosshair"></i> Retry Location';
+                                if (window.lucide) window.lucide.createIcons();
+                            }
+                        );
+                    } else {
+                        throw new Error('Geolocation is not supported by your browser.');
+                    }
+                } catch (err) {
+                    locBox.classList.add('is-error');
+                    if (locStatus) locStatus.textContent = err.message || 'Could not retrieve location.';
+                    locBtn.innerHTML = '<i data-lucide="crosshair"></i> Retry Location';
+                } finally {
+                    locBtn.disabled = false;
+                    if (window.lucide) window.lucide.createIcons();
                 }
-            } catch (err) {
-                locBox.classList.add('is-error');
-                if (locStatus) locStatus.textContent = err.message || 'Could not retrieve location.';
-                locBtn.innerHTML = '<i data-lucide="crosshair"></i> Retry Location';
-            } finally {
-                locBtn.disabled = false;
-                if (window.lucide) window.lucide.createIcons();
+            });
+        }
+
+        // =========================================================================
+        // Dynamic Health Screening Interactive Engine (Clickable & Real-Time)
+        // =========================================================================
+        const screeningDefs = {
+            unwell: { deferral: "TEMPORARY", msg: "Temporary 7-day recovery deferral applies" },
+            antibiotics: { deferral: "TEMPORARY", msg: "Temporary 7-day post-antibiotic waiting period" },
+            tattoo: { deferral: "TEMPORARY", msg: "Temporary 6-12 month infection screening interval" },
+            surgery: { deferral: "TEMPORARY", msg: "Temporary 6-month surgical healing interval" },
+            malaria: { deferral: "TEMPORARY", msg: "Temporary 3-month post-malaria waiting period" },
+            pregnant: { deferral: "TEMPORARY", msg: "Temporary postpartum / lactation protection period" },
+            blood_pressure: { deferral: "TEMPORARY", msg: "Blood pressure must be stabilized before donation" },
+            infection: { deferral: "PERMANENT", msg: "Permanent clinical deferral: Blood safety policy" },
+            chronic: { deferral: "PERMANENT", msg: "Permanent clinical deferral: Chronic condition policy" },
+            insulin: { deferral: "PERMANENT", msg: "Permanent clinical deferral: Insulin treatment" }
+        };
+
+        function updateScreeningFeedback() {
+            let hasPerm = false;
+            let hasTemp = false;
+            let tempCount = 0;
+            let permCount = 0;
+
+            const isFemale = (genderSelect && genderSelect.value === 'female');
+
+            Object.keys(screeningDefs).forEach(key => {
+                if (key === 'pregnant' && !isFemale) return;
+
+                const qEl = document.querySelector(`.ll-question[data-key="${key}"]`);
+                const hintEl = document.getElementById(`hint_${key}`);
+                const yesRadio = document.querySelector(`input[name="screening_${key}"][value="yes"]`);
+                const isYes = yesRadio && yesRadio.checked;
+
+                if (qEl) {
+                    qEl.classList.toggle('is-flagged', isYes);
+                    qEl.classList.toggle('is-cleared', !isYes);
+                }
+
+                if (hintEl) {
+                    if (isYes) {
+                        hintEl.className = 'll-question-hint hint-warn';
+                        hintEl.innerHTML = `<i data-lucide="alert-triangle" style="width: 13px; height: 13px;"></i> <span>${screeningDefs[key].msg}</span>`;
+                        if (screeningDefs[key].deferral === 'PERMANENT') {
+                            hasPerm = true;
+                            permCount++;
+                        } else {
+                            hasTemp = true;
+                            tempCount++;
+                        }
+                    } else {
+                        hintEl.className = 'll-question-hint hint-ok';
+                        hintEl.innerHTML = `<i data-lucide="check" style="width: 13px; height: 13px;"></i> <span>Cleared for donation</span>`;
+                    }
+                }
+            });
+
+            // Update live verdict banner
+            const liveBox = document.getElementById('screeningLiveVerdict');
+            const vIcon = document.getElementById('verdictIcon');
+            const vTitle = document.getElementById('verdictTitle');
+            const vSub = document.getElementById('verdictSub');
+
+            if (liveBox && vTitle && vSub) {
+                if (hasPerm) {
+                    liveBox.className = 'alert alert-danger';
+                    if (vIcon) vIcon.setAttribute('data-lucide', 'ban');
+                    vTitle.style.color = '#991B1B';
+                    vTitle.textContent = `Status: Permanent Clinical Deferral (${permCount} factor${permCount > 1 ? 's' : ''})`;
+                    vSub.style.color = '#B91C1C';
+                    vSub.textContent = 'For your safety and the transfusion recipient, voluntary whole blood donation is not advised.';
+                } else if (hasTemp) {
+                    liveBox.className = 'alert alert-warning';
+                    if (vIcon) vIcon.setAttribute('data-lucide', 'clock');
+                    vTitle.style.color = '#92400E';
+                    vTitle.textContent = `Status: Temporary Cooldown / Deferral Active (${tempCount} item${tempCount > 1 ? 's' : ''})`;
+                    vSub.style.color = '#B45309';
+                    vSub.textContent = 'You can register now; dispatch alerts will activate once the temporary recovery periods expire.';
+                } else {
+                    liveBox.className = 'alert alert-success';
+                    if (vIcon) vIcon.setAttribute('data-lucide', 'check-circle-2');
+                    vTitle.style.color = '#065F46';
+                    vTitle.textContent = 'Preliminary Status: Eligible to Volunteer as a Donor';
+                    vSub.style.color = '#047857';
+                    vSub.textContent = 'All 10 clinical screening criteria satisfied. Hospital blood banks confirm eligibility upon testing.';
+                }
             }
+
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        // Attach click listeners to all .ll-yesno labels and inputs for 100% reliable clicks
+        document.querySelectorAll('.ll-yesno label').forEach(lbl => {
+            lbl.addEventListener('click', function (e) {
+                const radio = this.querySelector('input[type="radio"]');
+                if (radio) {
+                    radio.checked = true;
+                    updateScreeningFeedback();
+                }
+            });
         });
-    }
 
-    // Password validation & match
-    const passwordInput = document.getElementById('regPassword');
-    const confirmInput = document.getElementById('regConfirmPassword');
-    const matchMsg = document.getElementById('passwordMatchMessage');
-    const form = document.getElementById('unifiedRegisterForm');
+        document.querySelectorAll('.ll-yesno input[type="radio"]').forEach(rad => {
+            rad.addEventListener('change', updateScreeningFeedback);
+        });
 
-    function checkPasswordsMatch() {
-        if (!confirmInput.value) {
-            matchMsg.style.display = 'none';
-            return true;
-        }
-        matchMsg.style.display = 'block';
-        if (passwordInput.value === confirmInput.value) {
-            matchMsg.style.color = '#10B981';
-            matchMsg.innerHTML = '<span style="display: inline-flex; align-items: center; gap: 4px;">✓ Passwords match</span>';
-            return true;
-        } else {
-            matchMsg.style.color = '#DC2626';
-            matchMsg.innerHTML = '<span style="display: inline-flex; align-items: center; gap: 4px;">✗ Passwords do not match</span>';
-            return false;
-        }
-    }
+        updateScreeningFeedback();
 
-    if (passwordInput && confirmInput) {
-        passwordInput.addEventListener('input', checkPasswordsMatch);
-        confirmInput.addEventListener('input', checkPasswordsMatch);
-    }
+        // Password validation & match
+        const passwordInput = document.getElementById('regPassword');
+        const confirmInput = document.getElementById('regConfirmPassword');
+        const matchMsg = document.getElementById('passwordMatchMessage');
+        const form = document.getElementById('unifiedRegisterForm');
 
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            if (passwordInput.value !== confirmInput.value) {
-                e.preventDefault();
-                matchMsg.style.display = 'block';
-                matchMsg.style.color = '#DC2626';
-                matchMsg.innerHTML = '<span style="display: inline-flex; align-items: center; gap: 4px;">✗ Passwords do not match. Please verify.</span>';
-                confirmInput.focus();
-                return;
+        function checkPasswordsMatch() {
+            if (!confirmInput.value) {
+                matchMsg.style.display = 'none';
+                return true;
             }
+            matchMsg.style.display = 'block';
+            if (passwordInput.value === confirmInput.value) {
+                matchMsg.style.color = '#10B981';
+                matchMsg.innerHTML = '<span style="display: inline-flex; align-items: center; gap: 4px;">✓ Passwords match</span>';
+                return true;
+            } else {
+                matchMsg.style.color = '#DC2626';
+                matchMsg.innerHTML = '<span style="display: inline-flex; align-items: center; gap: 4px;">✗ Passwords do not match</span>';
+                return false;
+            }
+        }
 
-            if (donorToggle && donorToggle.checked) {
-                const consent = document.getElementById('regConsent');
-                if (consent && !consent.checked) {
+        if (passwordInput && confirmInput) {
+            passwordInput.addEventListener('input', checkPasswordsMatch);
+            confirmInput.addEventListener('input', checkPasswordsMatch);
+        }
+
+        if (form) {
+            form.addEventListener('submit', function (e) {
+                if (passwordInput.value !== confirmInput.value) {
                     e.preventDefault();
-                    alert('Please confirm that your health screening answers are true to the best of your knowledge.');
-                    consent.focus();
+                    matchMsg.style.display = 'block';
+                    matchMsg.style.color = '#DC2626';
+                    matchMsg.innerHTML = '<span style="display: inline-flex; align-items: center; gap: 4px;">✗ Passwords do not match. Please verify.</span>';
+                    confirmInput.focus();
                     return;
                 }
-            }
-        });
-    }
 
-    if (window.lucide) window.lucide.createIcons();
-});
+                if (donorToggle && donorToggle.checked) {
+                    const consent = document.getElementById('regConsent');
+                    if (consent && !consent.checked) {
+                        e.preventDefault();
+                        alert('Please check the confirmation box: "I confirm that my answers to the health screening questions are accurate and truthful".');
+                        consent.focus();
+                        return;
+                    }
+                }
+            });
+        }
+
+        if (window.lucide) window.lucide.createIcons();
+    });
 </script>
 {% endblock %}

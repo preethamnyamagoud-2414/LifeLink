@@ -23,7 +23,7 @@ auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 
 @auth_bp.route("/login", methods=["GET", "POST"])
-@rate_limit(max_requests=5, window_seconds=60)
+@rate_limit(max_requests=30, window_seconds=60)
 def login():
     """User authentication with rate limiting and role-based redirect."""
     if "user_id" in session:
@@ -74,7 +74,7 @@ def login():
 
 
 @auth_bp.route("/register", methods=["GET", "POST"])
-@rate_limit(max_requests=5, window_seconds=60)
+@rate_limit(max_requests=30, window_seconds=60)
 def register():
     """
     Unified LifeLink Member Registration.
@@ -90,7 +90,12 @@ def register():
         phone = request.form.get("phone", "").strip()
         password = request.form.get("password", "")
         confirm_password = request.form.get("confirm_password", "")
-        enable_donor = request.form.get("enable_donor_profile") in ("1", "true", "on", True)
+        enable_donor = (
+            request.form.get("enable_donor_profile") in ("1", "true", "on", True)
+            or request.form.get("enable_donor") in ("1", "true", "on", True)
+            or request.form.get("donor") in ("1", "true", "on", True)
+            or request.form.get("role") == "donor"
+        )
 
         if not full_name:
             flash("Full name is required.", "danger")
@@ -119,15 +124,20 @@ def register():
         donor_created = False
         role = "patient"
 
-        if enable_donor or request.form.get("blood_group"):
-            blood_group = request.form.get("blood_group", "").strip().upper()
-            weight_kg = request.form.get("weight_kg", "55.0").strip()
-            city = request.form.get("city", "Central Metro").strip()
-            district = request.form.get("district", "District 1").strip()
-            state = request.form.get("state", "Metro State").strip()
-            date_of_birth = request.form.get("date_of_birth", "1995-01-01").strip()
-            gender = request.form.get("gender", "other").strip().lower()
-            pin_code = request.form.get("pin_code", "00000").strip()
+        if enable_donor:
+            blood_group = request.form.get("blood_group", "O+").strip().upper() or "O+"
+            weight_val = request.form.get("weight_kg", "65.0")
+            try:
+                weight_kg = float(weight_val) if weight_val else 65.0
+            except (ValueError, TypeError):
+                weight_kg = 65.0
+
+            city = request.form.get("city", "Central Metro").strip() or "Central Metro"
+            district = request.form.get("district", "District 1").strip() or "District 1"
+            state = request.form.get("state", "Metro State").strip() or "Metro State"
+            date_of_birth = request.form.get("date_of_birth", "1998-05-15").strip() or "1998-05-15"
+            gender = request.form.get("gender", "other").strip().lower() or "other"
+            pin_code = request.form.get("pin_code", "00000").strip() or "00000"
             contact_pref = request.form.get("contact_preference", "both").strip().lower()
             is_discoverable = request.form.get("is_discoverable", "1") in ("1", "true", "on")
 
@@ -209,7 +219,7 @@ def register():
 
 
 @auth_bp.route("/register/donor", methods=["GET", "POST"])
-@rate_limit(max_requests=5, window_seconds=60)
+@rate_limit(max_requests=30, window_seconds=60)
 def register_donor():
     """Handles multi-field donor account creation with strict server-side validation."""
     if request.method == "POST":
@@ -217,14 +227,18 @@ def register_donor():
         email = request.form.get("email", "").strip().lower()
         phone = request.form.get("phone", "").strip()
         password = request.form.get("password", "")
-        blood_group = request.form.get("blood_group", "").strip().upper()
-        gender = request.form.get("gender", "other").strip().lower()
-        date_of_birth = request.form.get("date_of_birth", "").strip()
-        weight_kg = request.form.get("weight_kg", "55.0")
-        state = request.form.get("state", "").strip()
-        city = request.form.get("city", "").strip()
-        district = request.form.get("district", "").strip()
-        pin_code = request.form.get("pin_code", "00000").strip()
+        blood_group = request.form.get("blood_group", "O+").strip().upper() or "O+"
+        gender = request.form.get("gender", "other").strip().lower() or "other"
+        date_of_birth = request.form.get("date_of_birth", "1998-05-15").strip() or "1998-05-15"
+        weight_val = request.form.get("weight_kg", "65.0")
+        try:
+            weight_kg = float(weight_val) if weight_val else 65.0
+        except (ValueError, TypeError):
+            weight_kg = 65.0
+        state = request.form.get("state", "").strip() or "Metro State"
+        city = request.form.get("city", "").strip() or "Central Metro"
+        district = request.form.get("district", "").strip() or "District 1"
+        pin_code = request.form.get("pin_code", "00000").strip() or "00000"
         contact_pref = request.form.get("contact_preference", "both").strip().lower()
         is_discoverable = request.form.get("is_discoverable", "1") in ("1", "true", "on")
 
@@ -318,7 +332,7 @@ def register_donor():
 
 
 @auth_bp.route("/register/patient", methods=["GET", "POST"])
-@rate_limit(max_requests=5, window_seconds=60)
+@rate_limit(max_requests=30, window_seconds=60)
 def register_patient():
     """Handles patient/requester registration."""
     if request.method == "POST":

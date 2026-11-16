@@ -6,10 +6,13 @@ public tracking, and volunteer matching with strict privacy defenses.
 
 import os
 import logging
+import secrets
+import time
 from datetime import date
 from typing import Optional, Dict, Any
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify, abort, current_app
 from app.models.blood_request import BloodRequest
+from app.models.user import User
 from app.models.response import RequestResponse
 from app.models.notification import Notification
 from app.services.auth_service import login_required
