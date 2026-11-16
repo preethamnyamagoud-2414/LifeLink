@@ -11,7 +11,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from app.config import Config
-from app.database import connection as db_conn
+from app.database.connection import test_db_connection, PYMYSQL_AVAILABLE, sanitize_db_error
 
 
 def print_header(title: str):
@@ -27,7 +27,7 @@ def run_diagnostics():
     print(f"    • Python Executable : {sys.executable}")
     print(f"    • Python Version    : {sys.version.split()[0]}")
     
-    if db_conn.PYMYSQL_AVAILABLE:
+    if PYMYSQL_AVAILABLE:
         import pymysql
         print(f"    • PyMySQL Driver    : [OK] Version {pymysql.__version__}")
     else:
@@ -55,7 +55,7 @@ def run_diagnostics():
     print(f"    • SSL Mode          : {db_cfg.get('ssl_mode')}")
 
     print("\n[3] Testing MySQL Connection:")
-    success, message, details = db_conn.test_db_connection()
+    success, message, details = test_db_connection()
 
     if success:
         print(f"    • Result            : [SUCCESS]")

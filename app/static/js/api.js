@@ -19,18 +19,32 @@
     async function api(path, opts = {}) {
         const o = {
             method: opts.method || (opts.body !== undefined ? 'POST' : 'GET'),
-            headers: { 'Accept': 'application/json' },
+            headers: { 'Accept': 'application/json', ...(opts.headers || {}) },
             credentials: 'same-origin'
         };
+
+        const csrfMeta = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const csrfInput = document.querySelector('input[name="csrf_token"]')?.value;
+        const csrfToken = csrfMeta || csrfInput || '';
+        if (csrfToken && !o.headers['X-CSRFToken']) {
+            o.headers['X-CSRFToken'] = csrfToken;
+        }
+
         if (opts.body !== undefined) {
             o.headers['Content-Type'] = 'application/json';
-            o.body = JSON.stringify(opts.body);
+            let bodyObj = opts.body;
+            if (typeof bodyObj === 'object' && bodyObj !== null && !Array.isArray(bodyObj)) {
+                if (csrfToken && !bodyObj.csrf_token) {
+                    bodyObj = { ...bodyObj, csrf_token: csrfToken };
+                }
+            }
+            o.body = JSON.stringify(bodyObj);
         }
         let res;
         try {
             res = await fetch(path, o);
         } catch (e) {
-            const err = new Error('Cannot reach the LifeLink server. Make sure run.bat is still running.');
+            const err = new Error('Cannot reach the LifeLink server. Make sure the server is reachable.');
             err.status = 0;
             throw err;
         }

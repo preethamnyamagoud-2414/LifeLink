@@ -217,6 +217,52 @@
         </div>
 
         <!-- ======================================================================
+             VOLUNTEER DONATION ACTION CARD (FOR COMPATIBLE DONORS)
+             ====================================================================== -->
+        {% if request.status == 'ACTIVE' and not is_owner %}
+        <div class="card" style="margin-bottom: 2rem; border: 1.5px solid rgba(220, 38, 38, 0.25); background: linear-gradient(to right, #FFFBF7, #FEF2F2); padding: 1.75rem; box-shadow: var(--shadow-sm);">
+            <div style="display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
+                <div>
+                    <span class="badge badge-critical" style="margin-bottom: 0.4rem;">
+                        <span class="pulse-dot"></span> Volunteer to Donate Blood
+                    </span>
+                    <h2 style="font-size: 1.35rem; color: var(--color-secondary); margin: 0 0 0.35rem 0;">
+                        Are you available to donate {{ request.blood_group }} for {{ request.patient_name }}?
+                    </h2>
+                    <p style="font-size: 0.875rem; color: var(--color-text-subtle); margin: 0;">
+                        Your offer connects directly with the hospital coordinator at <strong>{{ request.hospital_name }}</strong>.
+                    </p>
+                </div>
+            </div>
+
+            {% if session.get('user_id') %}
+            <form action="{{ url_for('requests.volunteer', request_id=request.id) }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label for="volMessage" class="form-label" style="font-size: 0.8125rem;">Message to Coordinator / Arrival Window (Optional)</label>
+                    <input type="text" id="volMessage" name="message" class="form-control" placeholder="e.g. I am healthy, eligible, and can arrive at the facility within 1 hour." maxlength="255">
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+                    <button type="submit" id="btnSubmitVolunteer" class="btn btn-emergency">
+                        <i data-lucide="heart-handshake"></i> Submit Volunteer Donation Offer
+                    </button>
+                </div>
+            </form>
+            {% else %}
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; background: var(--color-white); padding: 1rem 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+                <div style="font-size: 0.875rem; color: var(--color-text-muted);">
+                    <i data-lucide="shield" style="width: 16px; height: 16px; vertical-align: -3px; color: var(--color-primary);"></i>
+                    Sign in with your LifeLink account to volunteer as a donor for this emergency case.
+                </div>
+                <a href="{{ url_for('auth.login', next=request.path) }}" class="btn btn-primary btn-sm">
+                    <i data-lucide="log-in"></i> Sign in to Volunteer
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- ======================================================================
              DONOR RESPONSES SECTION (PRIVACY PROTECTED)
              ====================================================================== -->
         <div class="responses-card">

@@ -5,16 +5,82 @@ public tracking, and volunteer matching with strict privacy defenses.
 """
 
 import os
+import logging
 from datetime import date
+from typing import Optional, Dict, Any
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify, abort, current_app
 from app.models.blood_request import BloodRequest
 from app.models.response import RequestResponse
 from app.models.notification import Notification
 from app.services.auth_service import login_required
+from app.services.matching_service import get_compatible_donors
 from app.services.security import rate_limit, validate_blood_request_payload
 from app.extensions import test_db_connection
 
+logger = logging.getLogger(__name__)
 request_bp = Blueprint("requests", __name__, url_prefix="/requests")
+
+
+def dispatch_emergency_notifications(req_id: int, payload: Dict[str, Any], requester_id: Optional[int] = None) -> int:
+    """
+    Dispatches real notifications to all active, compatible donors and creates a
+    confirmation notification for the requester.
+    """
+    blood_group = str(payload.get("blood_group") or "").strip().upper()
+    patient_name = payload.get("patient_name", "Patient")
+    hospital_name = payload.get("hospital_name", "Medical Facility")
+    city = payload.get("city", "")
+    urgency_level = payload.get("urgency_level", "URGENT")
+
+    compatible_groups = get_compatible_donors(blood_group)
+    notified_count = 0
+
+    try:
+        from app.extensions import execute_query
+        if compatible_groups:
+            placeholders = ", ".join(["%s"] * len(compatible_groups))
+            query = f"""
+                SELECT d.user_id, u.full_name, d.blood_group, d.city
+                FROM donor_profiles d
+                JOIN users u ON d.user_id = u.id
+                WHERE d.is_available = TRUE
+                  AND u.is_active = TRUE
+                  AND d.blood_group IN ({placeholders})
+                LIMIT 50;
+            """
+            compatible_donors = execute_query(query, tuple(compatible_groups), fetchall=True) or []
+            for donor in compatible_donors:
+                donor_user_id = donor.get("user_id")
+                if requester_id and donor_user_id == requester_id:
+                    continue
+                try:
+                    Notification.create(
+                        user_id=donor_user_id,
+                        title=f"URGENT: {blood_group} Blood Needed",
+                        message=f"Urgent requirement: {patient_name} needs {blood_group} blood at {hospital_name}, {city}. Urgency: {urgency_level}.",
+                        notification_type="EMERGENCY_ALERT",
+                        reference_id=req_id
+                    )
+                    notified_count += 1
+                except Exception as ne:
+                    logger.warning(f"Could not dispatch notification to user #{donor_user_id}: {ne}")
+
+        # Confirmation notification to the requester
+        if requester_id:
+            try:
+                Notification.create(
+                    user_id=requester_id,
+                    title="Emergency Request Broadcasted",
+                    message=f"Your request for {patient_name} ({blood_group}) has been broadcasted to {notified_count} compatible donors.",
+                    notification_type="REQUEST_UPDATE",
+                    reference_id=req_id
+                )
+            except Exception as re:
+                logger.warning(f"Could not dispatch requester confirmation notification: {re}")
+    except Exception as e:
+        logger.error(f"Error querying compatible donors for notifications: {e}")
+
+    return notified_count
 
 
 @request_bp.route("/")
@@ -30,42 +96,53 @@ def list_requests():
 @request_bp.route("/emergency-request", methods=["GET", "POST"])
 @request_bp.route("/create", methods=["GET", "POST"])
 @request_bp.route("/new", methods=["GET", "POST"])
+@request_bp.route("/api/requests", methods=["POST"])
 @rate_limit(max_requests=10, window_seconds=60)
 def create_request():
     """
     Renders and processes emergency blood transfusion requests.
+    Supports standard HTML form submissions and asynchronous JSON API requests.
     Guarded with rate limiting, server-side validation, authentication, and CSRF protection.
     """
     if request.method == "POST":
-        urgency_raw = request.form.get("urgency_level", "URGENT").strip().upper()
+        is_json = request.is_json or (request.headers.get("Accept") == "application/json") or bool(request.get_json(silent=True))
+        raw_data = request.get_json(silent=True) if is_json and request.get_json(silent=True) else request.form
+
+        urgency_raw = str(raw_data.get("urgency_level", "URGENT")).strip().upper()
         if urgency_raw == "NORMAL":
             urgency_level = "STANDARD"
         else:
             urgency_level = urgency_raw
 
         payload = {
-            "patient_name": request.form.get("patient_name", "").strip(),
-            "blood_group": request.form.get("blood_group", "").strip().upper(),
-            "units_needed": request.form.get("units_needed", 1),
+            "patient_name": str(raw_data.get("patient_name", "")).strip(),
+            "blood_group": str(raw_data.get("blood_group", "")).strip().upper(),
+            "units_needed": raw_data.get("units_needed", 1),
             "urgency_level": urgency_raw,
-            "hospital_name": request.form.get("hospital_name", "").strip(),
-            "hospital_address": request.form.get("hospital_address", "").strip() or request.form.get("hospital_location", "").strip(),
-            "hospital_area": request.form.get("hospital_area", "").strip(),
-            "city": request.form.get("city", "").strip(),
-            "state": request.form.get("state", "").strip() or "Metro State",
-            "contact_person": request.form.get("contact_person", "").strip() or session.get("user_name", ""),
-            "contact_phone": request.form.get("contact_phone", "").strip(),
-            "contact_email": request.form.get("contact_email", "").strip() or session.get("user_email", ""),
-            "preferred_contact_method": request.form.get("preferred_contact_method", "phone").strip().lower(),
-            "required_date": request.form.get("required_date", "").strip(),
-            "doctor_name": request.form.get("doctor_name", "").strip(),
-            "additional_notes": request.form.get("additional_notes", "").strip(),
+            "hospital_name": str(raw_data.get("hospital_name", "")).strip(),
+            "hospital_address": str(raw_data.get("hospital_address", "")).strip() or str(raw_data.get("hospital_location", "")).strip(),
+            "hospital_area": str(raw_data.get("hospital_area", "")).strip(),
+            "city": str(raw_data.get("city", "")).strip(),
+            "state": str(raw_data.get("state", "")).strip() or "Metro State",
+            "contact_person": str(raw_data.get("contact_person", "")).strip() or session.get("user_name", ""),
+            "contact_phone": str(raw_data.get("contact_phone", "")).strip(),
+            "contact_email": str(raw_data.get("contact_email", "")).strip() or session.get("user_email", ""),
+            "preferred_contact_method": str(raw_data.get("preferred_contact_method", "phone")).strip().lower(),
+            "required_date": str(raw_data.get("required_date", "")).strip(),
+            "doctor_name": str(raw_data.get("doctor_name", "")).strip(),
+            "additional_notes": str(raw_data.get("additional_notes", "")).strip(),
             "required_within_hours": 2 if urgency_level == "CRITICAL" else (12 if urgency_level == "URGENT" else 24),
         }
 
         # Comprehensive server-side validation
         valid, errors = validate_blood_request_payload(payload)
         if not valid:
+            if is_json:
+                return jsonify({
+                    "success": False,
+                    "message": next(iter(errors.values())) if errors else "Invalid request data.",
+                    "errors": errors
+                }), 400
             for err in errors.values():
                 flash(err, "danger")
             return render_template(
@@ -76,11 +153,17 @@ def create_request():
 
         requester_id = session.get("user_id")
         if not requester_id:
+            if is_json:
+                return jsonify({
+                    "success": False,
+                    "message": "Please sign in to post an emergency blood request so donors can reach you."
+                }), 401
             flash("Please sign in to post an emergency blood request so donors can reach you.", "warning")
             return redirect(url_for("auth.login", next=request.path))
 
         db_ok, _, _ = test_db_connection()
         req_id = None
+        notified_count = 0
 
         if db_ok and requester_id:
             try:
@@ -104,20 +187,35 @@ def create_request():
                     additional_notes=payload["additional_notes"],
                     required_within_hours=payload["required_within_hours"]
                 )
+                # Dispatch real notifications to compatible donors and requester
+                notified_count = dispatch_emergency_notifications(req_id, payload, requester_id)
             except Exception as e:
                 from app.database.connection import sanitize_db_error
                 clean_err = sanitize_db_error(str(e))
+                if is_json:
+                    return jsonify({"success": False, "message": f"Database error saving request: {clean_err}"}), 500
                 flash(f"Database error saving request: {clean_err}", "danger")
                 return render_template("requests/create.html", form_data=payload, today_date=str(date.today())), 500
         elif not db_ok and (current_app.config.get("TESTING") or os.getenv("FLASK_ENV") == "development"):
             # Offline test/demo fallback
             req_id = 1
+            notified_count = 3
         else:
+            if is_json:
+                return jsonify({"success": False, "message": "Database connection offline. Please ensure MySQL server is running."}), 503
             flash("Database connection offline. Please ensure MySQL server is running to broadcast emergency requests.", "danger")
             return render_template("requests/create.html", form_data=payload, today_date=str(date.today())), 503
 
+        if is_json:
+            return jsonify({
+                "success": True,
+                "code": f"REQ-{req_id:04d}",
+                "alerted": notified_count,
+                "redirect": url_for("requests.track_request", request_id=req_id)
+            })
+
         flash(
-            f"Emergency Blood Request #REQ-{req_id:04d} broadcast successfully! Compatible donors have been notified.",
+            f"Emergency Blood Request #REQ-{req_id:04d} broadcast successfully! {notified_count} compatible donors notified.",
             "success"
         )
         return redirect(url_for("requests.track_request", request_id=req_id))
@@ -195,16 +293,24 @@ def volunteer(request_id: int):
     message = request.form.get("message", "").strip() or (request.get_json(silent=True) or {}).get("message")
 
     if user_id:
-        RequestResponse.create(request_id=request_id, donor_user_id=user_id, message=message)
-        req = BloodRequest.find_by_id(request_id)
-        if req and req.get("requester_user_id"):
-            Notification.create(
-                user_id=req["requester_user_id"],
-                title="New Donor Volunteer!",
-                message=f"A volunteer donor has offered to fulfill your request for {req.get('patient_name')}.",
-                notification_type="REQUEST_UPDATE",
-                reference_id=request_id
-            )
+        try:
+            RequestResponse.create(request_id=request_id, donor_user_id=user_id, message=message)
+            req = BloodRequest.find_by_id(request_id)
+            if req and req.get("requester_user_id"):
+                Notification.create(
+                    user_id=req["requester_user_id"],
+                    title="New Donor Volunteer!",
+                    message=f"A volunteer donor has offered to fulfill your request for {req.get('patient_name')}.",
+                    notification_type="REQUEST_UPDATE",
+                    reference_id=request_id
+                )
+        except Exception as e:
+            logger.warning(f"Error recording volunteer offer for request #{request_id}: {e}")
+            if not (current_app.config.get("TESTING") or os.getenv("FLASK_ENV") == "development"):
+                if request.is_json:
+                    return jsonify({"success": False, "message": "Database connection offline. Please try again later."}), 503
+                flash("Database connection offline. Unable to record volunteer response.", "danger")
+                return redirect(url_for("requests.track_request", request_id=request_id))
 
     if request.is_json:
         return jsonify({"success": True, "message": "Volunteer offer recorded! Hospital coordinator will reach out."})

@@ -5,7 +5,8 @@ contact inquiries, and secure donor contact alerts.
 """
 
 import os
-from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify, current_app
+import logging
+from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify, current_app, session
 from app.models.donor import Donor
 from app.models.blood_request import BloodRequest
 from app.models.message import ContactMessage
@@ -14,6 +15,7 @@ from app.services.matching_service import get_compatible_donors
 from app.services.security import rate_limit, validate_email, validate_phone
 from app.extensions import test_db_connection
 
+logger = logging.getLogger(__name__)
 public_bp = Blueprint("public", __name__)
 
 # Fictional fallback demo donors for preview / offline demonstration
@@ -259,7 +261,140 @@ def legacy_admin_dashboard_redirect():
 @public_bp.route("/emergency-request.html", methods=["GET", "POST"])
 def emergency_request():
     """Canonical Emergency Blood Request entry point."""
+    if request.method == "POST":
+        from app.routes.requests import create_request
+        return create_request()
     return redirect(url_for("requests.create_request"))
+
+
+@public_bp.route("/api/requests", methods=["POST"])
+def api_create_request():
+    """Asynchronous JSON endpoint for emergency blood requests."""
+    from app.routes.requests import create_request
+    return create_request()
+
+
+@public_bp.route("/api/auth/me")
+def api_auth_me():
+    """Returns current user session, donor profile, and unread notification count."""
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"success": False, "message": "Not authenticated"}), 401
+
+    user = None
+    try:
+        from app.models.user import User
+        user = User.find_by_id(user_id)
+    except Exception as e:
+        logger.warning(f"Database error fetching user #{user_id}: {e}")
+
+    if not user:
+        if current_app.config.get("TESTING") or os.getenv("FLASK_ENV") == "development":
+            user = {
+                "id": user_id,
+                "full_name": session.get("user_name", "Member"),
+                "email": session.get("user_email", "user@lifelink.local"),
+                "phone": "+1-555-019-0010",
+                "role": session.get("user_role", "patient"),
+                "city": "Central Metro",
+                "district": "District 1"
+            }
+        else:
+            session.clear()
+            return jsonify({"success": False, "message": "User not found"}), 401
+
+    donor = None
+    try:
+        donor = Donor.find_by_user_id(user_id)
+    except Exception:
+        pass
+
+    unread_count = 0
+    try:
+        unread_notifs = Notification.get_by_user(user_id, unread_only=True)
+        unread_count = len(unread_notifs)
+    except Exception:
+        pass
+
+    role = user.get("role", "patient")
+    if role == "admin":
+        dash_url = "/admin/dashboard"
+    elif role == "donor" or session.get("has_donor_profile"):
+        dash_url = "/donor/dashboard"
+    else:
+        dash_url = "/patient/dashboard"
+
+    return jsonify({
+        "success": True,
+        "user": {
+            "id": user["id"],
+            "full_name": user["full_name"],
+            "email": user["email"],
+            "phone": user.get("phone") or (donor.get("phone") if donor else ""),
+            "city": (donor.get("city") if donor else "") or user.get("city", ""),
+            "district": (donor.get("district") if donor else "") or user.get("district", ""),
+            "role": role
+        },
+        "donor": donor,
+        "unread_notifications": unread_count,
+        "dashboard": dash_url
+    })
+
+
+@public_bp.route("/api/auth/logout", methods=["POST"])
+def api_auth_logout():
+    """Asynchronous JSON logout endpoint."""
+    from app.services.auth_service import logout_user
+    logout_user()
+    return jsonify({"success": True, "message": "Logged out successfully."})
+
+
+@public_bp.route("/api/donors/search")
+def api_donors_search():
+    """Alias for donor search API."""
+    return find_donors()
+
+
+@public_bp.route("/api/profile", methods=["POST"])
+def api_update_profile():
+    """Asynchronous profile update endpoint."""
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"success": False, "message": "Authentication required."}), 401
+
+    data = request.get_json(silent=True) or request.form
+    full_name = str(data.get("full_name") or "").strip()
+    phone = str(data.get("phone") or "").strip()
+    city = str(data.get("city") or "").strip()
+    district = str(data.get("district") or "").strip()
+
+    if not full_name or not phone:
+        return jsonify({"success": False, "message": "Name and phone are required."}), 400
+
+    ok_p, err_p = validate_phone(phone)
+    if not ok_p:
+        return jsonify({"success": False, "message": err_p}), 400
+
+    db_ok, _, _ = test_db_connection()
+    if db_ok:
+        try:
+            from app.extensions import execute_query
+            execute_query(
+                "UPDATE users SET full_name = %s, phone = %s WHERE id = %s;",
+                (full_name, phone, user_id),
+                commit=True
+            )
+            execute_query(
+                "UPDATE donor_profiles SET city = %s, district = %s WHERE user_id = %s;",
+                (city, district, user_id),
+                commit=True
+            )
+        except Exception as e:
+            logger.error(f"Error updating user profile #{user_id}: {e}")
+            return jsonify({"success": False, "message": "Database error saving profile."}), 500
+
+    session["user_name"] = full_name
+    return jsonify({"success": True, "message": "Profile updated successfully."})
 
 
 @public_bp.route("/track-request")

@@ -20,6 +20,9 @@
     <!-- Lucide Icons (CDN) -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
+    <!-- CSRF Token Meta Tag for Asynchronous Client Requests -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     {% block extra_head %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
@@ -45,6 +48,7 @@
 
     <!-- Custom Frontend JavaScript -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
     {% block extra_scripts %}{% endblock %}
 </body>
 </html>

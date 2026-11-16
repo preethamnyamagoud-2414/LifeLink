@@ -464,6 +464,13 @@
                             <p style="font-size: 0.8125rem; color: var(--color-text-muted); margin: 0.25rem 0 0 0;">
                                 {{ notif.message }}
                             </p>
+                            {% if notif.reference_id %}
+                            <div style="margin-top: 0.5rem;">
+                                <a href="{{ url_for('requests.track_request', request_id=notif.reference_id) }}" class="btn btn-outline btn-xs" style="font-size: 0.75rem; padding: 0.2rem 0.6rem;">
+                                    <i data-lucide="eye" style="width: 12px; height: 12px;"></i> View Emergency Request
+                                </a>
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                     {% endfor %}
